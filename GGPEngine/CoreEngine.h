@@ -14,6 +14,7 @@
 #include "Mesh.h"
 #include "Material.h"
 #include <vector>
+#include <unordered_map>
 
 class GPPEngineAPI CoreEngine
 {
@@ -22,6 +23,7 @@ public:
 	PhysicsEngine*				physics;
 	GameTimer					timer;
 	bool						gamePaused;
+	std::unordered_map <std::string, Mesh*> meshIndex;
 
 	std::vector<GameObject*>	gameObjects;
 
@@ -33,6 +35,8 @@ public:
 	void Update();
 	
 	GameObject* createGameObject();
+	GameObject* createGameObject(const char* filename);
 	Mesh*		createMesh(const char* filename);
+	
 };
 

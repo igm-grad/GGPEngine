@@ -10,7 +10,7 @@ public:
 	int				indexCount;
 
 	Mesh(Vertex* vertices, int vertexCount, UINT* indices, int indexCount, ID3D11Device* device);
-	Mesh(char* filename, ID3D11Device* device);
+	Mesh(const char* filename, ID3D11Device* device);
 	Mesh();
 	~Mesh();
 
