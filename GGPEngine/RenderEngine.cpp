@@ -2,13 +2,19 @@
 #include <WindowsX.h>
 #include <sstream>
 
-RenderEngine::RenderEngine()
+RenderEngine::RenderEngine(HINSTANCE hInstance)
 {
+	hAppInst = hInstance;
 }
-
 
 RenderEngine::~RenderEngine()
 {
+}
+
+void RenderEngine::Initialize() 
+{
+	printf("Renderer is ON!");
+	system("pause");
 }
 
 void RenderEngine::CalculateFrameStats(float totalTime)

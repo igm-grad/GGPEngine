@@ -11,5 +11,7 @@ class GPPEngineAPI PhysicsEngine
 public:
 	PhysicsEngine();
 	~PhysicsEngine();
+
+	void Initialize();
 };
 

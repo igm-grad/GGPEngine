@@ -42,9 +42,10 @@ public:
 	int windowHeight;
 	bool enable4xMsaa;
 
-	RenderEngine();
+	RenderEngine(HINSTANCE hInstance);
 	~RenderEngine();
 
+	void Initialize();
 	void CalculateFrameStats(float totalTime);
 	void Update(float deltaTime);
 };

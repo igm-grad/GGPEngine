@@ -1,8 +1,15 @@
 #include "../GGPEngine/CoreEngine.h"
 #include <stdlib.h>
 
-void main() {
+#include <Windows.h>
 
-	CoreEngine * e = new CoreEngine();
+#pragma region Win32 Entry Point (WinMain)
 
+// Win32 Entry Point
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
+	PSTR cmdLine, int showCmd)
+{
+	CoreEngine * e = new CoreEngine(hInstance, prevInstance, cmdLine, showCmd);
+
+	e->Initialize();
 }

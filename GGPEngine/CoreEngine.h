@@ -21,7 +21,7 @@ public:
 	bool			gamePaused;
 
 
-	CoreEngine();
+	CoreEngine(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine, int showCmd);
 	~CoreEngine();
 
 	void Initialize();
