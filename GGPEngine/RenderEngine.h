@@ -41,6 +41,7 @@ public:
 	int windowWidth;
 	int windowHeight;
 	bool enable4xMsaa;
+
 	RenderEngine();
 	~RenderEngine();
 
