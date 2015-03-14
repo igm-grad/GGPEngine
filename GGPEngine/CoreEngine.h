@@ -1,11 +1,17 @@
 #pragma once
-#pragma once
+
+#ifdef _WINDLL
+#define GPPEngineAPI   __declspec( dllexport )
+#else
+#define GPPEngineAPI   __declspec( dllimport )
+#endif
+
 #include "Windows.h"
 #include "RenderEngine.h"
 #include "PhysicsEngine.h"
 #include "GameTimer.h"
 
-class CoreEngine
+class GPPEngineAPI CoreEngine
 {
 public:
 	RenderEngine*	renderer;

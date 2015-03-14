@@ -4,7 +4,13 @@
 #include <string>
 #include <assert.h>
 
-class RenderEngine
+#ifdef _WINDLL
+#define GPPEngineAPI   __declspec( dllexport )
+#else
+#define GPPEngineAPI   __declspec( dllimport )
+#endif
+
+class GPPEngineAPI RenderEngine
 {
 public:
 

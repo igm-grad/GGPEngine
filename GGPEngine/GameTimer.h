@@ -5,7 +5,13 @@
 #ifndef GAMETIMER_H
 #define GAMETIMER_H
 
-class GameTimer
+#ifdef _WINDLL
+#define GPPEngineAPI   __declspec( dllexport )
+#else
+#define GPPEngineAPI   __declspec( dllimport )
+#endif
+
+class GPPEngineAPI GameTimer
 {
 public:
 	GameTimer();
