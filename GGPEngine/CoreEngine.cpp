@@ -1,4 +1,5 @@
 #include "CoreEngine.h"
+#include <time.h>
 
 CoreEngine::CoreEngine(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine, int showCmd)
 {
@@ -15,27 +16,30 @@ CoreEngine::~CoreEngine()
 
 bool CoreEngine::Initialize()
 {
-	if (renderer->Initialize() && physics->Initialize()) {
+	if ( physics->Initialize()) {
+		timer.Start();
+		physics->currentTime = timer.TotalTime();
 		return true;
 	}
 	return false;
 }
 
-void CoreEngine::Update(float deltaTime)
+void CoreEngine::Update()
 {
 	// No message, so continue the game loop
 	timer.Tick();
 
-	if (gamePaused)
+	if (gamePaused) 
 	{
 		Sleep(100);
 	}
-	else
+	else 
 	{
 		// Standard game loop type stuff
-
-		renderer->CalculateFrameStats(timer.TotalTime());
-		// Physics call UpdateScene(timer.DeltaTime());
+		
+		physics->Update(timer.TotalTime());
+		//renderer->CalculateFrameStats(timer.TotalTime());
+		//renderer->Update(timer.DeltaTime());
 		// Render call DrawScene();
 	}
 }

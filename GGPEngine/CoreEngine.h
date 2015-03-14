@@ -22,9 +22,10 @@ public:
 
 
 	CoreEngine(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine, int showCmd);
+	CoreEngine();
 	~CoreEngine();
 
 	bool Initialize();
-	void Update(float deltaTime);
+	void Update();
 };
 

@@ -284,7 +284,7 @@ void RenderEngine::CalculateFrameStats(float totalTime)
 			<< L"Width: " << windowWidth << L"    "
 			<< L"Height: " << windowHeight << L"    "
 			<< L"FPS: " << fps << L"    "
-			<< L"Frame Time: " << mspf << L" (ms)";
+ 			<< L"Frame Time: " << mspf << L" (ms)";
 
 		// Include feature level
 		switch (featureLevel)

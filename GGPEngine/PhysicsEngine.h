@@ -9,9 +9,12 @@
 class GPPEngineAPI PhysicsEngine
 {
 public:
+	double currentTime;
+
 	PhysicsEngine();
 	~PhysicsEngine();
 
 	bool Initialize();
+	void Update(float totalTime);
 };
 

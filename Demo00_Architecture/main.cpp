@@ -9,12 +9,7 @@
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 	PSTR cmdLine, int showCmd)
 {
-	CoreEngine game(hInstance, prevInstance, cmdLine, showCmd);
+	CoreEngine * e = new CoreEngine(hInstance, prevInstance, cmdLine, showCmd);
 
-	// If we can't initialize, we can't run
-	if (!game.Initialize())
-		return 0;
-
-	// All set to run the game
-	return 0; //game.Run();
+	e->Initialize();
 }
