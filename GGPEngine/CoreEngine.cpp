@@ -1,6 +1,5 @@
 #include "CoreEngine.h"
 
-
 CoreEngine::CoreEngine(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine, int showCmd)
 {
 	timer = GameTimer();
@@ -14,10 +13,12 @@ CoreEngine::~CoreEngine()
 {
 }
 
-void CoreEngine::Initialize()
+bool CoreEngine::Initialize()
 {
-	renderer->Initialize();
-	physics->Initialize();
+	if (renderer->Initialize() && physics->Initialize()) {
+		return true;
+	}
+	return false;
 }
 
 void CoreEngine::Update(float deltaTime)

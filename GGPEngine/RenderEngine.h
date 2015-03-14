@@ -10,13 +10,36 @@
 #define GPPEngineAPI   __declspec( dllimport )
 #endif
 
+// Convenience macro for releasing a COM object
+#define ReleaseMacro(x) { if(x){ x->Release(); x = 0; } }
+// Macro for popping up a text box based
+// on a failed HRESULT and then quitting (only in debug builds)
+#if defined(DEBUG) | defined(_DEBUG)
+#ifndef HR
+#define HR(x)												\
+		{															\
+		HRESULT hr = (x);										\
+		if(FAILED(hr))											\
+				{														\
+			DXTrace(__FILEW__, (DWORD)__LINE__, hr, L#x, true);	\
+			PostQuitMessage(0);									\
+				}														\
+		}														
+#endif
+#else
+#ifndef HR
+#define HR(x) (x)
+#endif
+#endif
+
 class GPPEngineAPI RenderEngine
 {
-public:
-
+private:
 	// Window handles and such
 	HINSTANCE hAppInst;
 	HWND      hMainWnd;
+
+	float AspectRatio()const;
 
 	// Game and window state tracking
 	bool      gamePaused;
@@ -41,11 +64,19 @@ public:
 	int windowWidth;
 	int windowHeight;
 	bool enable4xMsaa;
+
+	bool InitMainWindow();
+	bool InitDirect3D();
+
+public:
 	RenderEngine(HINSTANCE hInstance);
 	~RenderEngine();
 
-	void Initialize();
+	bool Initialize();
+	void OnResize();
 	void CalculateFrameStats(float totalTime);
 	void Update(float deltaTime);
+
+	LRESULT MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 };
 

@@ -12,6 +12,6 @@ public:
 	PhysicsEngine();
 	~PhysicsEngine();
 
-	void Initialize();
+	bool Initialize();
 };
 

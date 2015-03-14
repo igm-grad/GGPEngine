@@ -10,6 +10,7 @@ PhysicsEngine::~PhysicsEngine()
 {
 }
 
-void PhysicsEngine::Initialize()
+bool PhysicsEngine::Initialize()
 {
+	return true;
 }

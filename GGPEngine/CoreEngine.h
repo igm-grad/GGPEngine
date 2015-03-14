@@ -24,7 +24,7 @@ public:
 	CoreEngine(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine, int showCmd);
 	~CoreEngine();
 
-	void Initialize();
+	bool Initialize();
 	void Update(float deltaTime);
 };
 
