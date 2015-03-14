@@ -2,7 +2,13 @@
 #include <d3d11.h>
 #include "Vertex.h"
 
-class Mesh
+#ifdef _WINDLL
+#define GPPEngineAPI   __declspec( dllexport )
+#else
+#define GPPEngineAPI   __declspec( dllimport )
+#endif
+
+class  Mesh
 {
 public:
 	ID3D11Buffer*	vertexBuffer;

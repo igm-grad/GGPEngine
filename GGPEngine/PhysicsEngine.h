@@ -6,7 +6,7 @@
 #define GPPEngineAPI   __declspec( dllimport )
 #endif
 
-class GPPEngineAPI PhysicsEngine
+class  PhysicsEngine
 {
 public:
 	double currentTime;

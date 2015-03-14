@@ -1,6 +1,12 @@
 #pragma once
 #include <DirectXMath.h>
 
+#ifdef _WINDLL
+#define GPPEngineAPI   __declspec( dllexport )
+#else
+#define GPPEngineAPI   __declspec( dllimport )
+#endif
+
 // Wasted WAY too much time on this!
 using namespace DirectX;
 

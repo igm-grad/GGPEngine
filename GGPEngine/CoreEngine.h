@@ -37,6 +37,7 @@ public:
 	GameObject* createGameObject();
 	GameObject* createGameObject(const char* filename);
 	Mesh*		createMesh(const char* filename);
-	
+
+	LRESULT MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam); // Must be public
 };
 

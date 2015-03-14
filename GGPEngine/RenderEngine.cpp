@@ -2,29 +2,7 @@
 #include <WindowsX.h>
 #include <sstream>
 
-#pragma region Global Window Callback
-namespace
-{
-	// Allows us to forward Windows messages from a global
-	// window procedure to our member function window procedure
-	// because we cannot assign a member function to WNDCLASS::lpfnWndProc
-	RenderEngine* renderer = 0;
-}
-
-// Set up a global callback for handling windows messages
-LRESULT CALLBACK
-MainWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
-{
-	// Forward the global callback to our game's message handling
-
-	// Forward hwnd because we can get messages (e.g., WM_CREATE)
-	// before CreateWindow returns, and thus before mhMainWnd is valid.
-	return renderer->MsgProc(hwnd, msg, wParam, lParam);
-}
-#pragma endregion
-
-
-RenderEngine::RenderEngine(HINSTANCE hInstance) :
+RenderEngine::RenderEngine(HINSTANCE hInstance, WNDPROC MainWndProc) :
 	hAppInst(hInstance),
 	windowCaption(L"DirectX Game"),
 	driverType(D3D_DRIVER_TYPE_HARDWARE),
@@ -45,7 +23,7 @@ RenderEngine::RenderEngine(HINSTANCE hInstance) :
 	depthStencilView(0)
 {
 	ZeroMemory(&viewport, sizeof(D3D11_VIEWPORT));
-	renderer = this;
+	wcCallback = MainWndProc;
 }
 
 RenderEngine::~RenderEngine()
@@ -80,7 +58,7 @@ bool RenderEngine::InitMainWindow() {
 	// Actually create the window
 	WNDCLASS wc;
 	wc.style = CS_HREDRAW | CS_VREDRAW;
-	wc.lpfnWndProc = MainWndProc;  // TODO: MainWndProc for message processing, Can't be a member function!  Hence our global version
+	wc.lpfnWndProc = wcCallback;  // TODO: MainWndProc for message processing, Can't be a member function!  Hence our global version
 	wc.cbClsExtra = 0;
 	wc.cbWndExtra = 0;
 	wc.hInstance = hAppInst;
@@ -201,7 +179,7 @@ float RenderEngine::AspectRatio() const
 // also be resized to match.  
 void RenderEngine::OnResize()
 {
-	/*// Release the views, since we'll be destroying
+	// Release the views, since we'll be destroying
 	// the corresponding buffers.
 	ReleaseMacro(renderTargetView);
 	ReleaseMacro(depthStencilView);
@@ -261,7 +239,7 @@ void RenderEngine::OnResize()
 	viewport.Height = (float)windowHeight;
 	viewport.MinDepth = 0.0f;
 	viewport.MaxDepth = 1.0f;
-	deviceContext->RSSetViewports(1, &viewport);*/
+	deviceContext->RSSetViewports(1, &viewport);
 }
 #pragma endregion
 
@@ -306,134 +284,3 @@ void RenderEngine::CalculateFrameStats(float totalTime)
 		timeElapsed += 1.0f;
 	}
 }
-
-#pragma region Windows Message Processing
-
-LRESULT RenderEngine::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
-{
-	/*switch (msg)
-	{
-		// WM_ACTIVATE is sent when the window is activated or deactivated.  
-		// We pause the game when the window is deactivated and unpause it 
-		// when it becomes active.  
-	case WM_ACTIVATE:
-		if (LOWORD(wParam) == WA_INACTIVE)
-		{
-			gamePaused = true;
-			timer.Stop();
-		}
-		else
-		{
-			gamePaused = false;
-			timer.Start();
-		}
-		return 0;
-
-		// WM_SIZE is sent when the user resizes the window.  
-	case WM_SIZE:
-		// Save the new client area dimensions.
-		windowWidth = LOWORD(lParam);
-		windowHeight = HIWORD(lParam);
-		if (device)
-		{
-			if (wParam == SIZE_MINIMIZED)
-			{
-				gamePaused = true;
-				minimized = true;
-				maximized = false;
-			}
-			else if (wParam == SIZE_MAXIMIZED)
-			{
-				gamePaused = false;
-				minimized = false;
-				maximized = true;
-				OnResize();
-			}
-			else if (wParam == SIZE_RESTORED)
-			{
-				// Restoring from minimized state?
-				if (minimized)
-				{
-					gamePaused = false;
-					minimized = false;
-					OnResize();
-				}
-
-				// Restoring from maximized state?
-				else if (maximized)
-				{
-					gamePaused = false;
-					maximized = false;
-					OnResize();
-				}
-				else if (resizing)
-				{
-					// If user is dragging the resize bars, we do not resize 
-					// the buffers here because as the user continuously 
-					// drags the resize bars, a stream of WM_SIZE messages are
-					// sent to the window, and it would be pointless (and slow)
-					// to resize for each WM_SIZE message received from dragging
-					// the resize bars.  So instead, we reset after the user is 
-					// done resizing the window and releases the resize bars, which 
-					// sends a WM_EXITSIZEMOVE message.
-				}
-				else // API call such as SetWindowPos or mSwapChain->SetFullscreenState.
-				{
-					OnResize();
-				}
-			}
-		}
-		return 0;
-
-		// WM_EXITSIZEMOVE is sent when the user grabs the resize bars.
-	case WM_ENTERSIZEMOVE:
-		gamePaused = true;
-		resizing = true;
-		timer.Stop();
-		return 0;
-
-		// WM_EXITSIZEMOVE is sent when the user releases the resize bars.
-		// Here we reset everything based on the new window dimensions.
-	case WM_EXITSIZEMOVE:
-		gamePaused = false;
-		resizing = false;
-		timer.Start();
-		OnResize();
-		return 0;
-
-		// WM_DESTROY is sent when the window is being destroyed.
-	case WM_DESTROY:
-		PostQuitMessage(0);
-		return 0;
-
-		// The WM_MENUCHAR message is sent when a menu is active and the user presses 
-		// a key that does not correspond to any mnemonic or accelerator key. 
-	case WM_MENUCHAR:
-		// Don't beep when we alt-enter.
-		return MAKELRESULT(0, MNC_CLOSE);
-
-		// Catch this message so to prevent the window from becoming too small.
-	case WM_GETMINMAXINFO:
-		((MINMAXINFO*)lParam)->ptMinTrackSize.x = 200;
-		((MINMAXINFO*)lParam)->ptMinTrackSize.y = 200;
-		return 0;
-
-	case WM_LBUTTONDOWN:
-	case WM_MBUTTONDOWN:
-	case WM_RBUTTONDOWN:
-		OnMouseDown(wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
-		return 0;
-	case WM_LBUTTONUP:
-	case WM_MBUTTONUP:
-	case WM_RBUTTONUP:
-		OnMouseUp(wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
-		return 0;
-	case WM_MOUSEMOVE:
-		OnMouseMove(wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
-		return 0;
-	}*/
-
-	return DefWindowProc(hwnd, msg, wParam, lParam);
-}
-
-#pragma endregion

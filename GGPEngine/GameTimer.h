@@ -11,7 +11,7 @@
 #define GPPEngineAPI   __declspec( dllimport )
 #endif
 
-class GPPEngineAPI GameTimer
+class  GameTimer
 {
 public:
 	GameTimer();
