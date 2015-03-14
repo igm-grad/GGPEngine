@@ -48,7 +48,7 @@ GameObject* CoreEngine::createGameObject()
 {
 	Mesh* mesh = NULL; 
 	GameObject* obj = new GameObject(mesh);
-
+	gameObjects.push_back(obj);
 	return obj;
 }
 
@@ -56,7 +56,7 @@ GameObject* CoreEngine::createGameObject(const char* filename)
 {
 	Mesh* mesh = createMesh(filename);
 	GameObject* obj = new GameObject(mesh);
-
+	gameObjects.push_back(obj);
 	return obj;
 }
 
@@ -68,6 +68,7 @@ Mesh* CoreEngine::createMesh(const char* filename)
 	{
 		// The mesh was not found in the meshIndex i.e It has not been loaded already
 		meshObj = new Mesh(filename, renderer->getDevice());
+		meshIndex.insert({ filename, meshObj });
 	}
 	else
 	{
