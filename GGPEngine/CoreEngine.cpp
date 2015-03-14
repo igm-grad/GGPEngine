@@ -43,3 +43,13 @@ void CoreEngine::Update()
 		// Render call DrawScene();
 	}
 }
+
+GameObject* CoreEngine::createGameObject()
+{
+
+}
+
+Mesh* CoreEngine::createMesh(const char* filename)
+{
+
+}
