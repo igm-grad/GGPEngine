@@ -1,9 +1,11 @@
 #include "CoreEngine.h"
 
 
-CoreEngine::CoreEngine()
+CoreEngine::CoreEngine(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine, int showCmd)
 {
 	timer = GameTimer();
+	renderer = new RenderEngine(hInstance);
+	physics = new PhysicsEngine();
 	gamePaused = false;
 }
 
@@ -14,7 +16,8 @@ CoreEngine::~CoreEngine()
 
 void CoreEngine::Initialize()
 {
-
+	renderer->Initialize();
+	physics->Initialize();
 }
 
 void CoreEngine::Update(float deltaTime)
