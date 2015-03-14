@@ -3,9 +3,15 @@
 #include "Mesh.h"
 #include "Material.h"
 
+#ifdef _WINDLL
+#define GPPEngineAPI   __declspec( dllexport )
+#else
+#define GPPEngineAPI   __declspec( dllimport )
+#endif
+
 using namespace DirectX;
 
-class GameObject
+class  GameObject
 {
 public:
 

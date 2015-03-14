@@ -32,12 +32,13 @@
 #endif
 #endif
 
-class GPPEngineAPI RenderEngine
+class  RenderEngine
 {
 private:
 	// Window handles and such
 	HINSTANCE hAppInst;
 	HWND      hMainWnd;
+	WNDPROC	  wcCallback;
 
 	float AspectRatio()const;
 
@@ -69,7 +70,7 @@ private:
 	bool InitDirect3D();
 
 public:
-	RenderEngine(HINSTANCE hInstance);
+	RenderEngine(HINSTANCE hInstance, WNDPROC MainWndProc);
 	~RenderEngine();
 
 	bool Initialize();
@@ -77,6 +78,6 @@ public:
 	void CalculateFrameStats(float totalTime);
 	void Update(float deltaTime);
 
-	LRESULT MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
+
 };
 

@@ -2,7 +2,13 @@
 #include <d3d11.h>
 #include <map>
 
-class Material
+#ifdef _WINDLL
+#define GPPEngineAPI   __declspec( dllexport )
+#else
+#define GPPEngineAPI   __declspec( dllimport )
+#endif
+
+class  Material
 {
 public:
 

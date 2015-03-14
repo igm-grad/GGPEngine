@@ -1,9 +1,15 @@
 #pragma once
 #include <DirectXMath.h>
 
+#ifdef _WINDLL
+#define GPPEngineAPI   __declspec( dllexport )
+#else
+#define GPPEngineAPI   __declspec( dllimport )
+#endif
+
 using namespace DirectX;
 
-class Camera
+class  Camera
 {
 public:
 	
