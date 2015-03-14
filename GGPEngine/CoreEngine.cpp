@@ -98,7 +98,7 @@ Mesh* CoreEngine::createMesh(const char* filename)
 		meshObj = it->second;
 	}
 	return meshObj;
-
+}
 #pragma region Windows Message Processing
 
 LRESULT CoreEngine::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
