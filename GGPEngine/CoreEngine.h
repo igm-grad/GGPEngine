@@ -10,16 +10,20 @@
 #include "RenderEngine.h"
 #include "PhysicsEngine.h"
 #include "GameTimer.h"
+#include "GameObject.h"
+#include "Mesh.h"
+#include "Material.h"
+#include <vector>
 
 class GPPEngineAPI CoreEngine
 {
 public:
-	RenderEngine*	renderer;
-	PhysicsEngine*	physics;
+	RenderEngine*				renderer;
+	PhysicsEngine*				physics;
+	GameTimer					timer;
+	bool						gamePaused;
 
-	GameTimer		timer;
-	bool			gamePaused;
-
+	std::vector<GameObject*>	gameObjects;
 
 	CoreEngine(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine, int showCmd);
 	CoreEngine();
@@ -27,5 +31,8 @@ public:
 
 	bool Initialize();
 	void Update();
+	
+	GameObject* createGameObject();
+	Mesh*		createMesh(const char* filename);
 };
 
