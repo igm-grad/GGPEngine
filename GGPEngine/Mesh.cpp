@@ -9,7 +9,7 @@ Mesh::Mesh(Vertex* vertices, int vertexCount, UINT* indices, int indexCount, ID3
 	SetIndexBuffer(indices, indexCount, device);
 }
 
-Mesh::Mesh(char* filename, ID3D11Device* device)
+Mesh::Mesh(const char* filename, ID3D11Device* device)
 {
 	// File input object
 	std::ifstream obj(filename); // <-- Replace filename with your parameter

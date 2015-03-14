@@ -73,6 +73,9 @@ public:
 	RenderEngine(HINSTANCE hInstance, WNDPROC MainWndProc);
 	~RenderEngine();
 
+	//Getters and setters
+	ID3D11Device* getDevice() { return device; }
+
 	bool Initialize();
 	void OnResize();
 	void CalculateFrameStats(float totalTime);
