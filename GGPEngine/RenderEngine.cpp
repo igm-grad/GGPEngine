@@ -24,6 +24,10 @@ RenderEngine::RenderEngine(HINSTANCE hInstance, WNDPROC MainWndProc) :
 {
 	ZeroMemory(&viewport, sizeof(D3D11_VIEWPORT));
 	wcCallback = MainWndProc;
+
+	defaultCamera = new Camera();
+	defaultCamera->position = { 0, 0, -10 };
+	defaultCamera->UpdateProjection(0.25f * 3.1415926535f, AspectRatio(), 0.1f, 100.0f);
 }
 
 RenderEngine::~RenderEngine()
@@ -51,6 +55,8 @@ bool RenderEngine::Initialize()
 	if (!InitDirect3D())
 		return false;
 
+	if (!InitDefaultMaterial())
+		return false;
 	return true;
 }
 
@@ -164,6 +170,35 @@ bool RenderEngine::InitDirect3D() {
 	// is resized, so just run the OnResize method
 	OnResize();
 	
+	return true;
+}
+
+bool RenderEngine::InitDefaultMaterial() {
+
+	// Set up the vertex layout description
+	// This has to match the vertex input layout in the vertex shader
+	// We can't set up the input layout yet since we need the actual vert shader
+	D3D11_INPUT_ELEMENT_DESC vertexDesc[] =
+	{
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+	};
+
+	// Constant buffers ----------------------------------------
+	D3D11_BUFFER_DESC cBufferTransformDesc;
+	cBufferTransformDesc.ByteWidth = sizeof(dataToSendToVSConstantBuffer);
+	cBufferTransformDesc.Usage = D3D11_USAGE_DEFAULT;
+	cBufferTransformDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	cBufferTransformDesc.CPUAccessFlags = 0;
+	cBufferTransformDesc.MiscFlags = 0;
+	cBufferTransformDesc.StructureByteStride = 0;
+
+	defaultMaterial = new Material();
+	defaultMaterial->SetVertexShader(device, L"VertexShader.cso", vertexDesc, 3);
+	defaultMaterial->SetPixelShader(device, L"PixelShader.cso");
+	defaultMaterial->SetConstantBuffer(device, &cBufferTransformDesc, "perModel");
+
 	return true;
 }
 
@@ -283,4 +318,88 @@ void RenderEngine::CalculateFrameStats(float totalTime)
 		frameCnt = 0;
 		timeElapsed += 1.0f;
 	}
+}
+
+void RenderEngine::Update(float totalTime, std::vector<GameObject*> list) {
+
+// Background color (Cornflower Blue in this case) for clearing
+const float color[4] = { 0.4f, 0.6f, 0.75f, 0.0f };
+
+// Clear the buffer (erases what's on the screen)
+//  - Do this once per frame
+//  - At the beginning (before drawing anything)
+deviceContext->ClearRenderTargetView(renderTargetView, color);
+deviceContext->ClearDepthStencilView(
+	depthStencilView,
+	D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL,
+	1.0f,
+	0);
+
+
+for (GameObject* g : list) {
+	// Set up the input assembler
+	//  - These technically don't need to be set every frame, unless you're changing the
+	//    input layout (different kinds of vertices) or the topology (different primitives)
+	//    between draws
+	deviceContext->IASetInputLayout(defaultMaterial->inputLayout);
+	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	// Set the current vertex and pixel shaders
+	//  - These don't need to be set every frame YET
+	//  - Once you have multiple shaders, you will need to change these
+	//    between drawing objects that will use different shaders
+	deviceContext->VSSetShader(defaultMaterial->vertexShader, NULL, 0);
+	deviceContext->PSSetShader(defaultMaterial->pixelShader, NULL, 0);
+
+	// Copy CPU-side data to a single CPU-side structure
+	//  - Allows us to send the data to the GPU buffer in one step
+	//  - Do this PER OBJECT, before drawing it
+	XMStoreFloat4x4(&dataToSendToVSConstantBuffer.world, XMMatrixTranspose(g->getWorldTransform()));
+	dataToSendToVSConstantBuffer.view = defaultCamera->view;
+	dataToSendToVSConstantBuffer.projection = defaultCamera->projection;
+
+	// Update the GPU-side constant buffer with our single CPU-side structure
+	//  - Faster than setting individual sub-variables multiple times
+	//  - Do this PER OBJECT, before drawing it
+	deviceContext->UpdateSubresource(
+		defaultMaterial->constantBufferMap.at("perModel"),
+		0,
+		NULL,
+		&dataToSendToVSConstantBuffer,
+		0,
+		0);
+
+	// Set the constant buffer to be used by the Vertex Shader
+	//  - This should be done PER OBJECT you intend to draw, as each object
+	//    will probably have different data to send to the shader (matrices
+	//    in this case)
+	deviceContext->VSSetConstantBuffers(
+		0,	// Corresponds to the constant buffer's register in the vertex shader
+		1,
+		&defaultMaterial->constantBufferMap.at("perModel"));
+
+	// Set buffers in the input assembler
+	//  - This should be done PER OBJECT you intend to draw, as each object could
+	//    potentially have different geometry (and therefore different buffers!)
+	//  - You must have both a vertex and index buffer set to draw
+	UINT stride = sizeof(Vertex);
+	UINT offset = 0;
+	deviceContext->IASetVertexBuffers(0, 1, g->mesh->GetVertexBuffer(), &stride, &offset);
+	deviceContext->IASetIndexBuffer(g->mesh->GetIndexBuffer(), DXGI_FORMAT_R32_UINT, 0);
+
+
+	// Finally do the actual drawing
+	//  - This should be done PER OBJECT you index to draw
+	//  - This will use all of the currently set DirectX stuff (shaders, buffers, etc)
+	deviceContext->DrawIndexed(
+		g->mesh->indexCount,	// The number of indices we're using in this draw
+		0,
+		0);
+}
+
+// Present the buffer
+//  - Puts the stuff on the screen
+//  - Do this EXACTLY once per frame
+//  - Always at the end of the frame
+HR(swapChain->Present(0, 0));
 }

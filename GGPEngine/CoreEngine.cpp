@@ -39,7 +39,7 @@ CoreEngine::~CoreEngine()
 
 bool CoreEngine::Initialize()
 {
-	if ( physics->Initialize()) {
+	if (renderer->Initialize() && physics->Initialize()) {
 		timer.Start();
 		physics->currentTime = timer.TotalTime();
 		return true;
@@ -62,7 +62,7 @@ void CoreEngine::Update()
 		
 		physics->Update(timer.TotalTime());
 		//renderer->CalculateFrameStats(timer.TotalTime());
-		//renderer->Update(timer.DeltaTime());
+		renderer->Update(timer.DeltaTime(), gameObjects);
 		// Render call DrawScene();
 	}
 }

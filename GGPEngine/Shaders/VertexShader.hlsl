@@ -14,8 +14,7 @@ cbuffer perModel : register( b0 )
 struct VertexShaderInput
 { 
 	float3 position		: POSITION;
-	float3 normal		: NORMAL;
-	float2 uv			: TEXCOORD;
+	float4 color		: COLOR;
 };
 
 // Defines the output data of our vertex shader
@@ -24,12 +23,8 @@ struct VertexShaderInput
 struct VertexToPixel
 {
 	float4 position		: SV_POSITION;	// System Value Position - Has specific meaning to the pipeline!
-	float3 wPosition	: TEXCOORD1;
-	float3 normal		: NORMAL;
-	float2 uv			: TEXCOORD;
+	float4 color		: COLOR;
 };
-
-
 
 // The entry point for our vertex shader
 VertexToPixel main( VertexShaderInput input )
@@ -40,7 +35,9 @@ VertexToPixel main( VertexShaderInput input )
 	// Calculate output position
 	matrix worldViewProj = mul(mul(world, view), projection);
 	output.position = mul(float4(input.position, 1.0f), worldViewProj);
-	output.normal = mul(input.normal , (float3x3)world);
-	output.wPosition = mul(float4(input.position, 1.0f), world).xyz;
+
+	// Pass the color through - will be interpolated per-pixel by the rasterizer
+	output.color = input.color;
+
 	return output;
 }

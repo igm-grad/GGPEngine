@@ -30,7 +30,14 @@ void Material::SetVertexShader(ID3D11Device* device, LPCWSTR file, D3D11_INPUT_E
 {
 	// Load Vertex Shader --------------------------------------
 	ID3DBlob* vsBlob;
-	D3DReadFileToBlob(file, &vsBlob);
+	
+	HRESULT hr = D3DReadFileToBlob(file, &vsBlob);
+
+	if (FAILED(hr))
+	{
+		MessageBox(0, L"VertexShader loading Failed", 0, 0);
+		return;
+	}
 
 	// Create the shader on the device
 	device->CreateVertexShader(
@@ -52,11 +59,26 @@ void Material::SetVertexShader(ID3D11Device* device, LPCWSTR file, D3D11_INPUT_E
 	// Clean up
 	vsBlob->Release();
 }
+
+#include <direct.h>
+#define GetCurrentDir _getcwd
+
 void Material::SetPixelShader(ID3D11Device* device, LPCWSTR file, D3D11_INPUT_ELEMENT_DESC* inputDescription, int inputDescriptionSize)
 {
+
+	char cCurrentPath[FILENAME_MAX];
+
+	GetCurrentDir(cCurrentPath, sizeof(cCurrentPath));
+
 	// Load Pixel Shader ---------------------------------------
 	ID3DBlob* psBlob;
-	D3DReadFileToBlob(file, &psBlob);
+	HRESULT hr = D3DReadFileToBlob(file, &psBlob);
+
+	if (FAILED(hr))
+	{
+		MessageBox(0, L"PixelShader loading Failed", 0, 0);
+		return;
+	}
 
 	// Create the shader on the device
 	device->CreatePixelShader(

@@ -3,6 +3,11 @@
 #include "dxerr.h"
 #include <string>
 #include <assert.h>
+#include "Material.h"
+#include <DirectXMath.h>
+#include <vector>
+#include "GameObject.h"
+#include "Camera.h"
 
 #ifdef _WINDLL
 #define GPPEngineAPI   __declspec( dllexport )
@@ -32,8 +37,17 @@
 #endif
 #endif
 
+using namespace DirectX;
+
 class  RenderEngine
 {
+	struct VertexShaderConstantBufferLayout
+	{
+		XMFLOAT4X4 world;
+		XMFLOAT4X4 view;
+		XMFLOAT4X4 projection;
+	};
+
 private:
 	// Window handles and such
 	HINSTANCE hAppInst;
@@ -66,8 +80,13 @@ private:
 	int windowHeight;
 	bool enable4xMsaa;
 
+	VertexShaderConstantBufferLayout dataToSendToVSConstantBuffer;
+	Material* defaultMaterial;
+	Camera* defaultCamera;
+
 	bool InitMainWindow();
 	bool InitDirect3D();
+	bool InitDefaultMaterial();
 
 public:
 	RenderEngine(HINSTANCE hInstance, WNDPROC MainWndProc);
@@ -79,7 +98,7 @@ public:
 	bool Initialize();
 	void OnResize();
 	void CalculateFrameStats(float totalTime);
-	void Update(float deltaTime);
+	void Update(float deltaTime, std::vector<GameObject*> list);
 
 
 };
