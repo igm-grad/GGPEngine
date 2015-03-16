@@ -48,12 +48,18 @@ void Material::SetVertexShader(ID3D11Device* device, LPCWSTR file, D3D11_INPUT_E
 
 	// Before cleaning up the data, create the input layout
 	if (inputDescription) {
-		device->CreateInputLayout(
+		hr = device->CreateInputLayout(
 			inputDescription,					// Reference to Description
 			inputDescriptionSize,				// Number of elments inside of Description
 			vsBlob->GetBufferPointer(),
 			vsBlob->GetBufferSize(),
 			&inputLayout);
+
+		if (FAILED(hr))
+		{
+			MessageBox(0, L"VertexShader loading Failed", 0, 0);
+			return;
+		}
 	}
 
 	// Clean up
