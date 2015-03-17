@@ -173,6 +173,12 @@ bool RenderEngine::InitDirect3D() {
 	return true;
 }
 
+Mesh* RenderEngine::createMesh(const char* filename)
+{
+	return new Mesh(filename, device);
+}
+
+
 bool RenderEngine::InitDefaultMaterial() {
 
 	// Set up the vertex layout description

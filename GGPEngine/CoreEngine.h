@@ -34,9 +34,17 @@ public:
 	bool Initialize();
 	void Update();
 	
-	GameObject* createGameObject();
-	GameObject* createGameObject(const char* filename);
-	Mesh*		createMesh(const char* filename);
+	GameObject*		createGameObject();
+	GameObject*		createGameObject(const char* filename);
+	GameObject*		Sphere();
+	GameObject*		Cube();
+	GameObject*		Cone();
+	GameObject*		Cylinder();
+	GameObject*		Helix();
+	GameObject*		Torus();
+
+	Mesh*			createMesh(const char* filename);
+	
 
 	LRESULT MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam); // Must be public
 };

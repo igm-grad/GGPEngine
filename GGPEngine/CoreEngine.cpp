@@ -83,6 +83,36 @@ GameObject* CoreEngine::createGameObject(const char* filename)
 	return obj;
 }
 
+GameObject*	CoreEngine::Sphere()
+{
+	return createGameObject("Models\\Sphere.obj");
+}
+
+GameObject*	CoreEngine::Cube()
+{
+	return createGameObject("Models\\Cube.obj");
+}
+
+GameObject*	CoreEngine::Cone()
+{
+	return createGameObject("Models\\Cone.obj");
+}
+
+GameObject*	CoreEngine::Cylinder()
+{
+	return createGameObject("Models\\Cylinder.obj");
+}
+
+GameObject*	CoreEngine::Helix()
+{
+	return createGameObject("Models\\Helix.obj");
+}
+
+GameObject*	CoreEngine::Torus()
+{
+	return createGameObject("Models\\Torus.obj");
+}
+
 Mesh* CoreEngine::createMesh(const char* filename)
 {
 	std::unordered_map<std::string, Mesh*>::iterator it = meshIndex.find(filename);
@@ -90,7 +120,7 @@ Mesh* CoreEngine::createMesh(const char* filename)
 	if (it == meshIndex.end())
 	{
 		// The mesh was not found in the meshIndex i.e It has not been loaded already
-		meshObj = new Mesh(filename, renderer->getDevice());
+		meshObj = renderer->createMesh(filename);
 		meshIndex.insert({ filename, meshObj });
 	}
 	else

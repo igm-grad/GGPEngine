@@ -13,10 +13,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 
 	e->Initialize();
 
-	Mesh* m = e->createMesh("Models\\sphere.obj");
 
-	GameObject* o = e->createGameObject();
-	o->mesh = m;
+	GameObject* o = e->Sphere();
+
 
 	MSG msg = { 0 };
 	// Loop until we get a quit message from windows
