@@ -10,7 +10,6 @@ RenderEngine::RenderEngine(HINSTANCE hInstance, WNDPROC MainWndProc) :
 	windowHeight(600),
 	enable4xMsaa(false),
 	hMainWnd(0),
-	gamePaused(false),
 	minimized(false),
 	maximized(false),
 	resizing(false),
@@ -210,6 +209,69 @@ bool RenderEngine::InitDefaultMaterial() {
 }
 
 #pragma region Window Resizing
+void RenderEngine::wmSizeHook(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam, bool *gamePaused) {
+	// Save the new client area dimensions.
+	windowWidth = LOWORD(lParam);
+	windowHeight = HIWORD(lParam);
+	if (device)
+	{
+		if (wParam == SIZE_MINIMIZED)
+		{
+			*gamePaused = true;
+			minimized = true;
+			maximized = false;
+		}
+		else if (wParam == SIZE_MAXIMIZED)
+		{
+			*gamePaused = false;
+			minimized = false;
+			maximized = true;
+			OnResize();
+		}
+		else if (wParam == SIZE_RESTORED)
+		{
+			// Restoring from minimized state?
+			if (minimized)
+			{
+				gamePaused = false;
+				minimized = false;
+				OnResize();
+			}
+
+			// Restoring from maximized state?
+			else if (maximized)
+			{
+				gamePaused = false;
+				maximized = false;
+				OnResize();
+			}
+			else if (resizing)
+			{
+				// If user is dragging the resize bars, we do not resize
+				// the buffers here because as the user continuously
+				// drags the resize bars, a stream of WM_SIZE messages are
+				// sent to the window, and it would be pointless (and slow)
+				// to resize for each WM_SIZE message received from dragging
+				// the resize bars.  So instead, we reset after the user is
+				// done resizing the window and releases the resize bars, which
+				// sends a WM_EXITSIZEMOVE message.
+			}
+			else // API call such as SetWindowPos or mSwapChain->SetFullscreenState.
+			{
+				OnResize();
+			}
+		}
+	}
+}
+
+void RenderEngine::wmEnterSizeMoveHook(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
+	resizing = true;
+}
+
+void RenderEngine::wmExitSizeMoveHook(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
+	resizing = false;
+	OnResize();
+}
 
 // Calculates the current aspect ratio
 float RenderEngine::AspectRatio() const

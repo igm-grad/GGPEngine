@@ -41,6 +41,9 @@ using namespace DirectX;
 
 class  RenderEngine
 {
+
+	friend class CoreEngine;	
+	
 	struct VertexShaderConstantBufferLayout
 	{
 		XMFLOAT4X4 world;
@@ -54,13 +57,17 @@ private:
 	HWND      hMainWnd;
 	WNDPROC	  wcCallback;
 
-	float AspectRatio()const;
+	void wmSizeHook(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam, bool *gamePaused);
+	void wmEnterSizeMoveHook(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
+	void wmExitSizeMoveHook(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 	// Game and window state tracking
-	bool      gamePaused;
 	bool      minimized;
 	bool      maximized;
 	bool      resizing;
+
+	//Resize hooks
+	float AspectRatio()const;
 
 	// DirectX related buffers, views, etc.
 	UINT msaa4xQuality;
@@ -98,5 +105,6 @@ public:
 	void Update(float deltaTime, std::vector<GameObject*> list);
 
 	Mesh* createMesh(const char* filename);
+
 };
 

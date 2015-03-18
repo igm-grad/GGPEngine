@@ -1,5 +1,6 @@
 #include "CoreEngine.h"
 #include <time.h>
+#include <Windowsx.h>
 
 #pragma region Global Window Callback
 namespace
@@ -26,10 +27,11 @@ MainWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 CoreEngine::CoreEngine(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine, int showCmd)
 {
 	timer = GameTimer();
-	renderer = new RenderEngine(hInstance, (WNDPROC) MainWndProc);
+	renderer = new RenderEngine(hInstance, (WNDPROC)MainWndProc);
 	physics = new PhysicsEngine();
 	gamePaused = false;
 	gCore = this;
+	msg = { { 0 } };
 }
 
 
@@ -49,27 +51,39 @@ bool CoreEngine::Initialize()
 
 void CoreEngine::Update()
 {
-	// No message, so continue the game loop
-	timer.Tick();
+	// Peek at the next message (and remove it from the queue)
+	if (PeekMessage(&msg, 0, 0, 0, PM_REMOVE))
+	{
+		// Handle this message
+		TranslateMessage(&msg);
+		DispatchMessage(&msg);
+	}
+	else
+	{
+		// No message, so continue the game loop
+		timer.Tick();
 
-	if (gamePaused) 
-	{
-		Sleep(100);
+		if (gamePaused)
+		{
+			Sleep(100);
+		}
+		else
+		{
+			// Standard game loop type stuff
+			physics->Update(timer.TotalTime());
+			//renderer->CalculateFrameStats(timer.TotalTime());
+			renderer->Update(timer.DeltaTime(), gameObjects);
+		}
 	}
-	else 
-	{
-		// Standard game loop type stuff
-		
-		physics->Update(timer.TotalTime());
-		//renderer->CalculateFrameStats(timer.TotalTime());
-		renderer->Update(timer.DeltaTime(), gameObjects);
-		// Render call DrawScene();
-	}
+}
+
+bool CoreEngine::exitRequested() {
+	return msg.message == WM_QUIT;
 }
 
 GameObject* CoreEngine::createGameObject()
 {
-	Mesh* mesh = NULL; 
+	Mesh* mesh = NULL;
 	GameObject* obj = new GameObject(mesh);
 	gameObjects.push_back(obj);
 	return obj;
@@ -134,127 +148,76 @@ Mesh* CoreEngine::createMesh(const char* filename)
 
 LRESULT CoreEngine::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
-	/*switch (msg)
+	switch (msg)
 	{
-	// WM_ACTIVATE is sent when the window is activated or deactivated.
-	// We pause the game when the window is deactivated and unpause it
-	// when it becomes active.
+		// WM_ACTIVATE is sent when the window is activated or deactivated.
+		// We pause the game when the window is deactivated and unpause it
+		// when it becomes active.
 	case WM_ACTIVATE:
-	if (LOWORD(wParam) == WA_INACTIVE)
-	{
-	gamePaused = true;
-	timer.Stop();
-	}
-	else
-	{
-	gamePaused = false;
-	timer.Start();
-	}
-	return 0;
+		if (LOWORD(wParam) == WA_INACTIVE)
+		{
+			gamePaused = true;
+			timer.Stop();
+		}
+		else
+		{
+			gamePaused = false;
+			timer.Start();
+		}
+		return 0;
 
-	// WM_SIZE is sent when the user resizes the window.
+		// WM_SIZE is sent when the user resizes the window.
 	case WM_SIZE:
-	// Save the new client area dimensions.
-	windowWidth = LOWORD(lParam);
-	windowHeight = HIWORD(lParam);
-	if (device)
-	{
-	if (wParam == SIZE_MINIMIZED)
-	{
-	gamePaused = true;
-	minimized = true;
-	maximized = false;
-	}
-	else if (wParam == SIZE_MAXIMIZED)
-	{
-	gamePaused = false;
-	minimized = false;
-	maximized = true;
-	OnResize();
-	}
-	else if (wParam == SIZE_RESTORED)
-	{
-	// Restoring from minimized state?
-	if (minimized)
-	{
-	gamePaused = false;
-	minimized = false;
-	OnResize();
-	}
+		//Renderer can decide to puase the game based on that!
+		renderer->wmSizeHook(hwnd, msg, wParam, lParam, &gamePaused);
+		return 0;
 
-	// Restoring from maximized state?
-	else if (maximized)
-	{
-	gamePaused = false;
-	maximized = false;
-	OnResize();
-	}
-	else if (resizing)
-	{
-	// If user is dragging the resize bars, we do not resize
-	// the buffers here because as the user continuously
-	// drags the resize bars, a stream of WM_SIZE messages are
-	// sent to the window, and it would be pointless (and slow)
-	// to resize for each WM_SIZE message received from dragging
-	// the resize bars.  So instead, we reset after the user is
-	// done resizing the window and releases the resize bars, which
-	// sends a WM_EXITSIZEMOVE message.
-	}
-	else // API call such as SetWindowPos or mSwapChain->SetFullscreenState.
-	{
-	OnResize();
-	}
-	}
-	}
-	return 0;
-
-	// WM_EXITSIZEMOVE is sent when the user grabs the resize bars.
+		// WM_EXITSIZEMOVE is sent when the user grabs the resize bars.
 	case WM_ENTERSIZEMOVE:
-	gamePaused = true;
-	resizing = true;
-	timer.Stop();
-	return 0;
+		gamePaused = true;
+		renderer->wmEnterSizeMoveHook(hwnd, msg, wParam, lParam);
+		timer.Stop();
+		return 0;
 
-	// WM_EXITSIZEMOVE is sent when the user releases the resize bars.
-	// Here we reset everything based on the new window dimensions.
+		// WM_EXITSIZEMOVE is sent when the user releases the resize bars.
+		// Here we reset everything based on the new window dimensions.
 	case WM_EXITSIZEMOVE:
-	gamePaused = false;
-	resizing = false;
-	timer.Start();
-	OnResize();
-	return 0;
+		gamePaused = false;
+		renderer->wmExitSizeMoveHook(hwnd, msg, wParam, lParam);
+		timer.Start();
+		return 0;
 
-	// WM_DESTROY is sent when the window is being destroyed.
+		// WM_DESTROY is sent when the window is being destroyed.
 	case WM_DESTROY:
-	PostQuitMessage(0);
-	return 0;
+		PostQuitMessage(0);
+		return 0;
 
-	// The WM_MENUCHAR message is sent when a menu is active and the user presses
-	// a key that does not correspond to any mnemonic or accelerator key.
+		// The WM_MENUCHAR message is sent when a menu is active and the user presses
+		// a key that does not correspond to any mnemonic or accelerator key.
 	case WM_MENUCHAR:
-	// Don't beep when we alt-enter.
-	return MAKELRESULT(0, MNC_CLOSE);
+		// Don't beep when we alt-enter.
+		return MAKELRESULT(0, MNC_CLOSE);
 
-	// Catch this message so to prevent the window from becoming too small.
+		// Catch this message so to prevent the window from becoming too small.
 	case WM_GETMINMAXINFO:
-	((MINMAXINFO*)lParam)->ptMinTrackSize.x = 200;
-	((MINMAXINFO*)lParam)->ptMinTrackSize.y = 200;
-	return 0;
+		((MINMAXINFO*)lParam)->ptMinTrackSize.x = 200;
+		((MINMAXINFO*)lParam)->ptMinTrackSize.y = 200;
+		return 0;
 
 	case WM_LBUTTONDOWN:
 	case WM_MBUTTONDOWN:
 	case WM_RBUTTONDOWN:
-	OnMouseDown(wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
-	return 0;
+		input->OnMouseDown(wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+		return 0;
 	case WM_LBUTTONUP:
 	case WM_MBUTTONUP:
 	case WM_RBUTTONUP:
-	OnMouseUp(wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
-	return 0;
+		input->OnMouseUp(wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+		return 0;
 	case WM_MOUSEMOVE:
-	OnMouseMove(wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
-	return 0;
-	}*/
+		input->OnMouseMove(wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+		return 0;
+	}
 
 	return DefWindowProc(hwnd, msg, wParam, lParam);
 }
