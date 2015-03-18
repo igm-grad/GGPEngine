@@ -9,6 +9,7 @@
 #include "Windows.h"
 #include "RenderEngine.h"
 #include "PhysicsEngine.h"
+#include "InputManager.h"
 #include "GameTimer.h"
 #include "GameObject.h"
 #include "Mesh.h"
@@ -18,9 +19,14 @@
 
 class GPPEngineAPI CoreEngine
 {
+
+private:
+	MSG msg;
+
 public:
 	RenderEngine*				renderer;
 	PhysicsEngine*				physics;
+	InputManager*				input;
 	GameTimer					timer;
 	bool						gamePaused;
 	std::unordered_map <std::string, Mesh*> meshIndex;
@@ -33,7 +39,8 @@ public:
 
 	bool Initialize();
 	void Update();
-	
+	bool exitRequested();	
+
 	GameObject*		createGameObject();
 	GameObject*		createGameObject(const char* filename);
 	GameObject*		Sphere();
