@@ -43,13 +43,6 @@ class  RenderEngine
 {
 
 	friend class CoreEngine;	
-	
-	struct VertexShaderConstantBufferLayout
-	{
-		XMFLOAT4X4 world;
-		XMFLOAT4X4 view;
-		XMFLOAT4X4 projection;
-	};
 
 private:
 	// Window handles and such
@@ -87,7 +80,6 @@ private:
 	int windowHeight;
 	bool enable4xMsaa;
 
-	VertexShaderConstantBufferLayout dataToSendToVSConstantBuffer;
 	Material* defaultMaterial;
 	Camera* defaultCamera;
 
