@@ -20,8 +20,7 @@
 class GPPEngineAPI CoreEngine
 {
 
-private:
-	MSG msg;
+
 
 public:
 	RenderEngine*				renderer;
@@ -41,8 +40,8 @@ public:
 	void Update();
 	bool exitRequested();	
 
-	GameObject*		createGameObject();
-	GameObject*		createGameObject(const char* filename);
+	GameObject*		CreateGameObject();
+	GameObject*		CreateGameObject(const char* filename);
 	GameObject*		Sphere();
 	GameObject*		Cube();
 	GameObject*		Cone();
@@ -50,9 +49,14 @@ public:
 	GameObject*		Helix();
 	GameObject*		Torus();
 
-	Mesh*			createMesh(const char* filename);
+	Mesh*			CreateMesh(const char* filename);
 	
+	Material*       BasicMaterial();
+	Material*		CreateMaterial(LPCWSTR vertexShaderFile, LPCWSTR pixelShaderFile);
 
 	LRESULT MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam); // Must be public
+
+private:
+	MSG msg;
 };
 
