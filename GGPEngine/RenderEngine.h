@@ -41,8 +41,17 @@ using namespace DirectX;
 
 class  RenderEngine
 {
+public:
+	RenderEngine(HINSTANCE hInstance, WNDPROC MainWndProc);
+	~RenderEngine();
 
-	friend class CoreEngine;	
+	bool Initialize();
+	void OnResize();
+	void CalculateFrameStats(float totalTime);
+	void Update(float deltaTime, std::vector<GameObject*> list);
+
+	Mesh* CreateMesh(const char* filename);
+	Material* CreateMaterial(LPCWSTR vertexShaderFile, LPCWSTR pixelShaderFile);
 
 private:
 	// Window handles and such
@@ -80,23 +89,11 @@ private:
 	int windowHeight;
 	bool enable4xMsaa;
 
-	Material* defaultMaterial;
 	Camera* defaultCamera;
 
 	bool InitMainWindow();
 	bool InitDirect3D();
-	bool InitDefaultMaterial();
 
-public:
-	RenderEngine(HINSTANCE hInstance, WNDPROC MainWndProc);
-	~RenderEngine();
-
-	bool Initialize();
-	void OnResize();
-	void CalculateFrameStats(float totalTime);
-	void Update(float deltaTime, std::vector<GameObject*> list);
-
-	Mesh* createMesh(const char* filename);
-
+	friend class CoreEngine;
 };
 
