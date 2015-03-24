@@ -9,18 +9,16 @@
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 	PSTR cmdLine, int showCmd)
 {
-	CoreEngine * e = new CoreEngine(hInstance, prevInstance, cmdLine, showCmd);
+	CoreEngine * engine = new CoreEngine(hInstance, prevInstance, cmdLine, showCmd);
+	engine->Initialize();
 
-	e->Initialize();
-
-
-	GameObject* o = e->Sphere();
-
+	GameObject* gameObject = engine->Sphere();
+	gameObject->material = engine->BasicMaterial();
 
 	// Loop until we get a quit message from the engine
-	while (!e->exitRequested())
+	while (!engine->exitRequested())
 	{
-		e->Update();
+		engine->Update();
 	}
 
 
