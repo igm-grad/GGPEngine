@@ -17,7 +17,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 	PSTR cmdLine, int showCmd)
 {
 	// Config mono
-	mono_set_dirs("../external/mono/lib", "../external/mono/etc");
+	mono_set_dirs("C:\\Program Files (x86)\\Mono\\lib", "C:\\Program Files (x86)\\Mono\\etc");
 	mono_config_parse(NULL);
 
 	// Load mono domain (need to run v4.0 to run .net framework 4.5 code)

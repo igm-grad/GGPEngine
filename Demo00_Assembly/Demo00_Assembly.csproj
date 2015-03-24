@@ -47,7 +47,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>$(SolutionDir)tools/copy-assembly.bat $(ProjectName) $(ConfigurationName)</PostBuildEvent>
+    <PostBuildEvent>xcopy /Y $(TargetFileName) $(SolutionDir)Debug</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
