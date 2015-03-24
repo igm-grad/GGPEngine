@@ -77,11 +77,12 @@ void CoreEngine::Update()
 	}
 }
 
-bool CoreEngine::exitRequested() {
+bool CoreEngine::exitRequested() 
+{
 	return msg.message == WM_QUIT;
 }
 
-GameObject* CoreEngine::createGameObject()
+GameObject* CoreEngine::CreateGameObject()
 {
 	Mesh* mesh = NULL;
 	GameObject* obj = new GameObject(mesh);
@@ -89,9 +90,9 @@ GameObject* CoreEngine::createGameObject()
 	return obj;
 }
 
-GameObject* CoreEngine::createGameObject(const char* filename)
+GameObject* CoreEngine::CreateGameObject(const char* filename)
 {
-	Mesh* mesh = createMesh(filename);
+	Mesh* mesh = CreateMesh(filename);
 	GameObject* obj = new GameObject(mesh);
 	gameObjects.push_back(obj);
 	return obj;
@@ -99,42 +100,42 @@ GameObject* CoreEngine::createGameObject(const char* filename)
 
 GameObject*	CoreEngine::Sphere()
 {
-	return createGameObject("Models\\Sphere.obj");
+	return CreateGameObject("Models\\Sphere.obj");
 }
 
 GameObject*	CoreEngine::Cube()
 {
-	return createGameObject("Models\\Cube.obj");
+	return CreateGameObject("Models\\Cube.obj");
 }
 
 GameObject*	CoreEngine::Cone()
 {
-	return createGameObject("Models\\Cone.obj");
+	return CreateGameObject("Models\\Cone.obj");
 }
 
 GameObject*	CoreEngine::Cylinder()
 {
-	return createGameObject("Models\\Cylinder.obj");
+	return CreateGameObject("Models\\Cylinder.obj");
 }
 
 GameObject*	CoreEngine::Helix()
 {
-	return createGameObject("Models\\Helix.obj");
+	return CreateGameObject("Models\\Helix.obj");
 }
 
 GameObject*	CoreEngine::Torus()
 {
-	return createGameObject("Models\\Torus.obj");
+	return CreateGameObject("Models\\Torus.obj");
 }
 
-Mesh* CoreEngine::createMesh(const char* filename)
+Mesh* CoreEngine::CreateMesh(const char* filename)
 {
 	std::unordered_map<std::string, Mesh*>::iterator it = meshIndex.find(filename);
 	Mesh* meshObj;
 	if (it == meshIndex.end())
 	{
 		// The mesh was not found in the meshIndex i.e It has not been loaded already
-		meshObj = renderer->createMesh(filename);
+		meshObj = renderer->CreateMesh(filename);
 		meshIndex.insert({ filename, meshObj });
 	}
 	else
@@ -144,6 +145,17 @@ Mesh* CoreEngine::createMesh(const char* filename)
 	}
 	return meshObj;
 }
+
+Material* CoreEngine::BasicMaterial()
+{
+	return CreateMaterial(L"VertexShader.cso", L"PixelShader.cso");
+}
+
+Material* CoreEngine::CreateMaterial(LPCWSTR vertexShaderFile, LPCWSTR pixelShaderFile)
+{
+	return renderer->CreateMaterial(vertexShaderFile, pixelShaderFile);
+}
+
 #pragma region Windows Message Processing
 
 LRESULT CoreEngine::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
