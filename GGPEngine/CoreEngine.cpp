@@ -1,6 +1,4 @@
 #include "CoreEngine.h"
-#include <time.h>
-#include <Windowsx.h>
 
 #pragma region Global Window Callback
 namespace
@@ -29,6 +27,7 @@ CoreEngine::CoreEngine(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine
 	timer = GameTimer();
 	renderer = new RenderEngine(hInstance, (WNDPROC)MainWndProc);
 	physics = new PhysicsEngine();
+	input = new InputManager();
 	gamePaused = false;
 	gCore = this;
 	msg = { { 0 } };
@@ -71,8 +70,70 @@ void CoreEngine::Update()
 		{
 			// Standard game loop type stuff
 			physics->Update(timer.TotalTime());
+
+			// There must be a logics update method
+			// TODO: transfer this code to a gamoobject 
+			// component update method
+#pragma region Input tests
+			if (input->GetKey(KEYCODE_A)) {
+				auto go = gameObjects[0];
+				go->position.x += 0.001f;
+			}
+			if (input->GetKey(KEYCODE_B)) {
+				auto go = gameObjects[0];
+				go->position.x -= 0.001f;
+			}
+			if (input->GetKeyDown(KEYCODE_A)) {
+				OutputDebugStringA("KeyDown A\n");
+			}
+			if (input->GetKeyUp(KEYCODE_A)) {
+				OutputDebugStringA("KeyUp A\n");
+			}
+
+			if (input->GetMouseButtonDown(MOUSEBUTTON_LEFT))
+			{
+				OutputDebugStringA("mouse down left\n");
+			}
+
+			if (input->GetMouseButtonUp(MOUSEBUTTON_LEFT))
+			{
+				OutputDebugStringA("mouse up left\n");
+			}
+
+			if (input->GetMouseButtonDown(MOUSEBUTTON_RIGHT))
+			{
+				OutputDebugStringA("mouse down right\n");
+			}
+
+			if (input->GetMouseButtonUp(MOUSEBUTTON_RIGHT))
+			{
+				OutputDebugStringA("mouse up right\n");
+			}
+
+			if (input->GetMouseButtonDown(MOUSEBUTTON_MIDDLE))
+			{
+				OutputDebugStringA("mouse down middle\n");
+			}
+
+			if (input->GetMouseButtonUp(MOUSEBUTTON_MIDDLE))
+			{
+				OutputDebugStringA("mouse up middle\n");
+			}
+
+			int x = input->mousePosition.x;
+			int y = input->mousePosition.y;
+
+			char str[100];
+			sprintf_s(str, "X: %d, Y: %d\n", x, y);
+			OutputDebugStringA(str);
+
+#pragma endregion
+
 			//renderer->CalculateFrameStats(timer.TotalTime());
 			renderer->Update(timer.DeltaTime(), gameObjects);
+
+			// Flush the InputManager at the end of every frame
+			input->Flush();
 		}
 	}
 }
@@ -217,17 +278,39 @@ LRESULT CoreEngine::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		return 0;
 
 	case WM_LBUTTONDOWN:
+		input->OnMouseDown(MOUSEBUTTON_LEFT, wParam, lParam);
+		return 0;
 	case WM_MBUTTONDOWN:
+		input->OnMouseDown(MOUSEBUTTON_MIDDLE, wParam, lParam);
+		return 0;
 	case WM_RBUTTONDOWN:
-		input->OnMouseDown(wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+		input->OnMouseDown(MOUSEBUTTON_RIGHT, wParam, lParam);
+		return 0;
+	case WM_XBUTTONDOWN:
+		input->OnMouseDown(MOUSEBUTTON_X, wParam, lParam);
 		return 0;
 	case WM_LBUTTONUP:
+		input->OnMouseUp(MOUSEBUTTON_LEFT, wParam, lParam);
+		return 0;
 	case WM_MBUTTONUP:
+		input->OnMouseUp(MOUSEBUTTON_MIDDLE, wParam, lParam);
+		return 0;
 	case WM_RBUTTONUP:
-		input->OnMouseUp(wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+		input->OnMouseUp(MOUSEBUTTON_RIGHT, wParam, lParam);
+		return 0;
+	case WM_XBUTTONUP:
+		input->OnMouseUp(MOUSEBUTTON_X, wParam, lParam);
 		return 0;
 	case WM_MOUSEMOVE:
-		input->OnMouseMove(wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+		input->OnMouseMove(wParam, lParam);
+		return 0;
+	case WM_KEYDOWN:
+	case WM_SYSKEYDOWN: // key down if alt key is presed
+		input->OnKeyDown(wParam, lParam);
+		return 0;
+	case WM_KEYUP:
+	case WM_SYSKEYUP: // key up if alt key is pressed
+		input->OnKeyUp(wParam, lParam);
 		return 0;
 	}
 
