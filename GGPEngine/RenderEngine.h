@@ -41,12 +41,17 @@ using namespace DirectX;
 
 class  RenderEngine
 {
-	struct VertexShaderConstantBufferLayout
-	{
-		XMFLOAT4X4 world;
-		XMFLOAT4X4 view;
-		XMFLOAT4X4 projection;
-	};
+public:
+	RenderEngine(HINSTANCE hInstance, WNDPROC MainWndProc);
+	~RenderEngine();
+
+	bool Initialize();
+	void OnResize();
+	void CalculateFrameStats(float totalTime);
+	void Update(float deltaTime, std::vector<GameObject*> list);
+
+	Mesh* CreateMesh(const char* filename);
+	Material* CreateMaterial(LPCWSTR vertexShaderFile, LPCWSTR pixelShaderFile);
 
 private:
 	// Window handles and such
@@ -54,13 +59,17 @@ private:
 	HWND      hMainWnd;
 	WNDPROC	  wcCallback;
 
-	float AspectRatio()const;
+	void wmSizeHook(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam, bool *gamePaused);
+	void wmEnterSizeMoveHook(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
+	void wmExitSizeMoveHook(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 	// Game and window state tracking
-	bool      gamePaused;
 	bool      minimized;
 	bool      maximized;
 	bool      resizing;
+
+	//Resize hooks
+	float AspectRatio()const;
 
 	// DirectX related buffers, views, etc.
 	UINT msaa4xQuality;
@@ -80,26 +89,11 @@ private:
 	int windowHeight;
 	bool enable4xMsaa;
 
-	VertexShaderConstantBufferLayout dataToSendToVSConstantBuffer;
-	Material* defaultMaterial;
 	Camera* defaultCamera;
 
 	bool InitMainWindow();
 	bool InitDirect3D();
-	bool InitDefaultMaterial();
 
-public:
-	RenderEngine(HINSTANCE hInstance, WNDPROC MainWndProc);
-	~RenderEngine();
-
-	//Getters and setters
-	ID3D11Device* getDevice() { return device; }
-
-	bool Initialize();
-	void OnResize();
-	void CalculateFrameStats(float totalTime);
-	void Update(float deltaTime, std::vector<GameObject*> list);
-
-
+	friend class CoreEngine;
 };
 
