@@ -6,7 +6,8 @@
 #define GPPEngineAPI   __declspec( dllimport )
 #endif
 
-#include "Windows.h"
+#include <Windows.h>
+#include <time.h>
 #include "RenderEngine.h"
 #include "PhysicsEngine.h"
 #include "InputManager.h"
