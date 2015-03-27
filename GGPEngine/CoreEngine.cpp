@@ -212,6 +212,16 @@ Material* CoreEngine::BasicMaterial()
 	return CreateMaterial(L"VertexShader.cso", L"PixelShader.cso");
 }
 
+Material*	DiffuseMaterial()
+{
+
+}
+
+Material*	DiffuseNormalMaterial()
+{
+
+}
+
 Material* CoreEngine::CreateMaterial(LPCWSTR vertexShaderFile, LPCWSTR pixelShaderFile)
 {
 	return renderer->CreateMaterial(vertexShaderFile, pixelShaderFile);

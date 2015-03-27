@@ -53,6 +53,9 @@ public:
 	Mesh*			CreateMesh(const char* filename);
 	
 	Material*       BasicMaterial();
+	Material*		DiffuseMaterial();
+	Material*		DiffuseNormalMaterial();
+
 	Material*		CreateMaterial(LPCWSTR vertexShaderFile, LPCWSTR pixelShaderFile);
 	Texture*		CreateTextures(const wchar_t** filenames, int size);
 
