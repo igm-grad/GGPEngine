@@ -244,6 +244,11 @@ Material* RenderEngine::CreateMaterial(LPCWSTR vertexShaderFile, LPCWSTR pixelSh
 	return new Material(device, deviceContext, vertexShaderFile, pixelShaderFile);
 }
 
+void RenderEngine::CreateTextures(const wchar_t** filenames, int size, Texture** textures)
+{
+	Texture::Textures(deviceContext, device, filenames, size, textures);
+}
+
 bool RenderEngine::InitMainWindow() {
 	// Actually create the window
 	WNDCLASS wc;

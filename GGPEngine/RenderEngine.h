@@ -8,6 +8,7 @@
 #include <vector>
 #include "GameObject.h"
 #include "Camera.h"
+#include "Texture.h"
 
 #ifdef _WINDLL
 #define GPPEngineAPI   __declspec( dllexport )
@@ -41,7 +42,7 @@ using namespace DirectX;
 
 class  RenderEngine
 {
-public:
+protected:
 	RenderEngine(HINSTANCE hInstance, WNDPROC MainWndProc);
 	~RenderEngine();
 
@@ -50,9 +51,9 @@ public:
 	void CalculateFrameStats(float totalTime);
 	void Update(float deltaTime, std::vector<GameObject*> list);
 
-	Mesh* CreateMesh(const char* filename);
-	Material* CreateMaterial(LPCWSTR vertexShaderFile, LPCWSTR pixelShaderFile);
-
+	Mesh*		CreateMesh(const char* filename);
+	Material*	CreateMaterial(LPCWSTR vertexShaderFile, LPCWSTR pixelShaderFile);
+	void		CreateTextures(const wchar_t** filenames, int size, Texture** textures);
 private:
 	// Window handles and such
 	HINSTANCE hAppInst;

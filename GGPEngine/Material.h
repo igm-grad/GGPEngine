@@ -11,7 +11,7 @@
 
 class  Material
 {
-public:
+protected:
 	SimpleVertexShader*		sVertexShader;
 	SimplePixelShader*		sPixelShader;
 
@@ -23,5 +23,8 @@ public:
 	void SetVertexShader(SimpleVertexShader* simpleVertexShader);
 	void SetPixelShader(ID3D11Device* device, ID3D11DeviceContext* deviceContext, LPCWSTR pixelShaderFile);
 	void SetPixelShader(SimplePixelShader* simplePixelShader);
+
+	friend class RenderEngine;
+	friend class GameObject;
 };
 

@@ -217,6 +217,13 @@ Material* CoreEngine::CreateMaterial(LPCWSTR vertexShaderFile, LPCWSTR pixelShad
 	return renderer->CreateMaterial(vertexShaderFile, pixelShaderFile);
 }
 
+Texture* CoreEngine::CreateTextures(const wchar_t** filenames, int size)
+{
+	Texture* textures = new Texture[size];
+	renderer->CreateTextures(filenames, size, &textures);
+	return textures;
+}
+
 #pragma region Windows Message Processing
 
 LRESULT CoreEngine::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)

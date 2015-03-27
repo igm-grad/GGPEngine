@@ -54,6 +54,7 @@ public:
 	
 	Material*       BasicMaterial();
 	Material*		CreateMaterial(LPCWSTR vertexShaderFile, LPCWSTR pixelShaderFile);
+	Texture*		CreateTextures(const wchar_t** filenames, int size);
 
 	LRESULT MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam); // Must be public
 
