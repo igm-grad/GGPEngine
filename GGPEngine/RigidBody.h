@@ -11,6 +11,15 @@ public:
 
 	void recalculate();
 
+	//Getters and Setters
+	XMFLOAT3 getPosition()			const { return position; }
+	XMFLOAT3 getVelocity()			const { return velocity; }
+	XMFLOAT4 getOrientation()		const { return orientation; }
+	XMFLOAT3 getAngularVelocity()	const { return angularVelocity; }
+
+	void setPosition(XMFLOAT3 pos)		  { position = pos; };
+	void setOrientation(XMFLOAT4 orient)  { orientation = orient; };
+
 private:
 
 	// primary physics state
@@ -33,5 +42,6 @@ private:
 	float		inverseMass;            // inverse of the mass used to convert momentum to velocity.
 	float		inertia;				// inertia tensor of the rigidbody (i have simplified it to a single value due to the mass properties a rigidbody).
 	float		inverseInertia;			// inverse inertia tensor used to convert angular momentum to angular velocity.
+
 };
 
