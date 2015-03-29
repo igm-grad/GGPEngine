@@ -247,6 +247,24 @@ Material* RenderEngine::CreateMaterial(LPCWSTR vertexShaderFile, LPCWSTR pixelSh
 	return new Material(device, deviceContext, vertexShaderFile, pixelShaderFile);
 }
 
+DirectionalLight* RenderEngine::CreateDirectionalLight()
+{
+	directionLights.push_back(DirectionalLight());
+	return &directionLights.back();
+}
+
+PointLight*	RenderEngine::CreatePointLight()
+{
+	pointLights.push_back(PointLight());
+	return &pointLights.back();
+}
+
+SpotLight*	RenderEngine::CreateSpotLight()
+{
+	spotLights.push_back(SpotLight());
+	return &spotLights.back();
+}
+
 bool RenderEngine::InitMainWindow() {
 	// Actually create the window
 	WNDCLASS wc;

@@ -215,7 +215,6 @@ Material* CoreEngine::BasicMaterial()
 Material* CoreEngine::DiffuseMaterial()
 {
 	Material* diffuseMaterial = CreateMaterial(L"DiffuseVertexShader.cso", L"DiffusePixelShader.cso");
-	//diffuseMaterial->SetResourceMaterial(L"Textures/DiffuseTexture1.JPG", "diffuseTexture");
 	diffuseMaterial->SetSampler("diffuseSampler");
 	return diffuseMaterial;
 }
@@ -230,6 +229,34 @@ Material* CoreEngine::DiffuseNormalMaterial()
 Material* CoreEngine::CreateMaterial(LPCWSTR vertexShaderFile, LPCWSTR pixelShaderFile)
 {
 	return renderer->CreateMaterial(vertexShaderFile, pixelShaderFile);
+}
+
+DirectionalLight* CoreEngine::CreateDirectionalLight(XMFLOAT4& ambientColor, XMFLOAT4& diffuseColor, XMFLOAT3& direction)
+{
+	DirectionalLight* directionalLight = renderer->CreateDirectionalLight();
+	directionalLight->ambientColor = ambientColor;
+	directionalLight->diffuseColor = diffuseColor;
+	directionalLight->direction = direction;
+	return directionalLight;
+}
+
+PointLight*	CoreEngine::CreatePointLight(XMFLOAT4& ambientColor, XMFLOAT4& diffuseColor, XMFLOAT3& position)
+{
+	PointLight* pointLight = renderer->CreatePointLight();
+	pointLight->ambientColor = ambientColor;
+	pointLight->diffuseColor = diffuseColor;
+	pointLight->position = position;
+	return pointLight;
+}
+
+SpotLight* CoreEngine::CreateSpotLight(XMFLOAT4& ambientColor, XMFLOAT4& diffuseColor, XMFLOAT3& direction, XMFLOAT3& position)
+{
+	SpotLight* spotLight = renderer->CreateSpotLight();
+	spotLight->ambientColor = ambientColor;
+	spotLight->diffuseColor = diffuseColor;
+	spotLight->direction = direction;
+	spotLight->position = position;
+	return spotLight;
 }
 
 #pragma region Windows Message Processing

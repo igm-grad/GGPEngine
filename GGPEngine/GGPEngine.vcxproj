@@ -78,6 +78,7 @@
     <ClInclude Include="GameTimer.h" />
     <ClInclude Include="InputManager.h" />
     <ClInclude Include="Integrator.h" />
+    <ClInclude Include="Lighting.h" />
     <ClInclude Include="Material.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="PhysicsEngine.h" />
