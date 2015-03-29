@@ -41,7 +41,7 @@ using namespace DirectX;
 
 class  RenderEngine
 {
-public:
+protected:
 	RenderEngine(HINSTANCE hInstance, WNDPROC MainWndProc);
 	~RenderEngine();
 
@@ -50,8 +50,9 @@ public:
 	void CalculateFrameStats(float totalTime);
 	void Update(float deltaTime, std::vector<GameObject*> list);
 
-	Mesh* CreateMesh(const char* filename);
-	Material* CreateMaterial(LPCWSTR vertexShaderFile, LPCWSTR pixelShaderFile);
+	Mesh*		CreateMesh(const char* filename);
+	Material*	CreateMaterial(LPCWSTR vertexShaderFile, LPCWSTR pixelShaderFile);
+
 
 private:
 	// Window handles and such

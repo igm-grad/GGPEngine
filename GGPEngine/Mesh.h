@@ -10,7 +10,7 @@
 
 class  Mesh
 {
-public:
+protected:
 	ID3D11Buffer*	vertexBuffer;
 	ID3D11Buffer*	indexBuffer;
 	int				indexCount;
@@ -26,5 +26,8 @@ public:
 	ID3D11Buffer* const* GetVertexBuffer();
 	ID3D11Buffer* GetIndexBuffer();
 	int GetIndexCount();
+
+	friend class RenderEngine;
+	friend class GameObject;
 };
 

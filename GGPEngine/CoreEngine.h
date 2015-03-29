@@ -20,9 +20,6 @@
 
 class GPPEngineAPI CoreEngine
 {
-
-
-
 public:
 	RenderEngine*				renderer;
 	PhysicsEngine*				physics;
@@ -53,6 +50,9 @@ public:
 	Mesh*			CreateMesh(const char* filename);
 	
 	Material*       BasicMaterial();
+	Material*		DiffuseMaterial();
+	Material*		DiffuseNormalMaterial();
+
 	Material*		CreateMaterial(LPCWSTR vertexShaderFile, LPCWSTR pixelShaderFile);
 
 	LRESULT MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam); // Must be public
