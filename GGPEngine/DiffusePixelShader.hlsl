@@ -45,7 +45,7 @@ float4 main(Pixel pixel) : SV_TARGET
 
 	for (int j = 0; j < POINT_LIGHT_COUNT; j++) {
 		float3	directionToLight = normalize(pointLights[j].position - pixel.positionT);
-			float	contribution = saturate(dot(pixel.normal, directionToLight));
+		float	contribution = saturate(dot(pixel.normal, directionToLight));
 		colorAccumulator += ((contribution * pointLights[j].diffuseColor) + pointLights[j].ambientColor);
 	}
 
