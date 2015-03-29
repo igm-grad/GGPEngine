@@ -12,6 +12,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 	gameObject->material = engine->DiffuseMaterial();
 	gameObject->material->SetResource(L"Textures/DiffuseTexture1.JPG", "diffuseTexture");
 
+	/*gameObject->material->SetResource(L"Textures/DiffuseTexture2.JPG", "diffuseTexture");
+	gameObject->material->SetResource(L"Textures/NormalTexture2.JPG", "normalTexture");*/
+	DirectionalLight* directionalLight = engine->CreateDirectionalLight(DirectX::XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f), DirectX::XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f), DirectX::XMFLOAT3(1.f, -1.f, -1.f));
+
 	// Loop until we get a quit message from the engine
 	while (!engine->exitRequested())
 	{

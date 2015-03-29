@@ -94,8 +94,8 @@ private:
 	int windowHeight;
 	bool enable4xMsaa;
 
-	std::vector<DirectionalLight>  directionLights;
-	std::vector<PointLight>		pointLights;
+	std::vector<DirectionalLight>	directionLights;
+	std::vector<PointLight>			pointLights;
 	std::vector<SpotLight>			spotLights;
 
 	Camera* defaultCamera;

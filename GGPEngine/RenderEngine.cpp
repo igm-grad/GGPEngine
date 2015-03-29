@@ -207,6 +207,8 @@ void RenderEngine::Update(float totalTime, std::vector<GameObject*> gameObjects)
 		gameObject->material->sVertexShader->SetMatrix4x4("projection", defaultCamera->projection);
 		gameObject->material->sVertexShader->SetShader();
 
+		gameObject->material->sPixelShader->SetData("directionalLights", &directionLights[0], sizeof(DirectionalLight) * directionLights.size());
+		//gameObject->material->sPixelShader->SetData("pointLights", &pointLights[0], sizeof(PointLight) * pointLights.size());
 		gameObject->material->UpdatePixelShaderResources();
 		gameObject->material->UpdatePixelShaderSamplers();
 		gameObject->material->sPixelShader->SetShader();
