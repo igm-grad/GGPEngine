@@ -8,7 +8,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 	CoreEngine * engine = new CoreEngine(hInstance, prevInstance, cmdLine, showCmd);
 	engine->Initialize();
 
-	GameObject* gameObject = engine->Sphere();
+	GameObject* gameObject = engine->Helix();
 	gameObject->material = engine->DiffuseMaterial();
 	gameObject->material->SetResource(L"Textures/DiffuseTexture1.JPG", "diffuseTexture");
 
