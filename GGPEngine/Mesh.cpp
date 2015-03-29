@@ -21,6 +21,8 @@ Mesh::Mesh(const char* filename, ID3D11Device* device)
 	// Variables used while reading the file
 	std::vector<XMFLOAT3> positions;     // Positions from the file
 	std::vector<XMFLOAT3> normals;       // Normals from the file
+	std::vector<XMFLOAT3> tangents;
+	std::vector<XMFLOAT3> bitangents;
 	std::vector<XMFLOAT2> uvs;           // UVs from the file
 	std::vector<Vertex> verts;           // Verts we're assembling
 	std::vector<UINT> indices;           // Indices of these verts
@@ -109,8 +111,37 @@ Mesh::Mesh(const char* filename, ID3D11Device* device)
 			indices.push_back(triangleCounter++);
 			indices.push_back(triangleCounter++);
 			indices.push_back(triangleCounter++);
+
+			//float x1 = v2.Position.x - v1.Position.x;
+			//float x2 = v3.Position.x - v1.Position.x;
+			//float y1 = v2.Position.y - v1.Position.y;
+			//float y2 = v3.Position.y - v1.Position.y;
+			//float z1 = v2.Position.z - v1.Position.z;
+			//float z2 = v3.Position.z - v1.Position.z;
+
+			//float s1 = v2.UV.x - v1.UV.x;
+			//float s2 = v3.UV.x - v1.UV.x;
+			//float t1 = v2.UV.y - v1.UV.y;
+			//float t2 = v3.UV.y - v1.UV.y;
+		
+			//float r = 1.0f / ((s1 * t2) - (s2 * t1));
+			//XMFLOAT3 tangent =		{ (((t2 * x1) - (t1 * x2)) * r), (((t2 * y1) - (t1 * y2)) * r), (((t2 * z1) - (t1 * z2)) * r) };
+			//XMFLOAT3 bitangent =	{ (((s2 * x1) - (s1 * x2)) * r), (((s2 * y1) - (s1 * y2)) * r), (((s2 * z1) - (s1 * z2)) * r) };
+			//for (int i = 0; i < 3; i++, tangents.push_back(tangent), bitangents.push_back(bitangent));
 		}
 	}
+
+	//for (int i = 0; i < verts.size(); i++)
+	//{
+	//	XMVECTOR n = XMLoadFloat3(&verts[i].Normal);
+	//	XMVECTOR t = XMLoadFloat3(&tangents[i]);
+	//	XMVECTOR tangent = XMVector3Normalize((t - n * XMVector3Dot(n, t)));
+	//	XMStoreFloat3(&verts[i].Position, tangent);
+
+	//	XMVECTOR bitangent = XMLoadFloat3(&bitangents[i]);
+	//	XMStoreFloat(&verts[i].Tangent.w, XMVector3Dot((XMVector3Cross(n, t)), bitangent));
+	//	verts[i].Tangent.w = (verts[i].Tangent.w < 0.0f) ? -1.0 : 1.0f;
+	//}
 
 	// Close
 	obj.close();
