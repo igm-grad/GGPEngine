@@ -15,19 +15,19 @@ struct Pixel
 
 cbuffer transform : register(b0)
 {
-	matrix model;
+	matrix world;
 	matrix view;
 	matrix projection;
 }
 
 Pixel main( Vertex vertex )
 {
-	matrix clip = mul(mul(model, view), projection);
+	matrix clip = mul(mul(world, view), projection);
 
 	Pixel pixel;
 	pixel.position = mul(float4(vertex.position, 1.0f), clip);
-	pixel.normal = mul(vertex.normal, (float3x3)model);
-	pixel.positionT = mul(float4(vertex.position, 1.0f), model).xyz;
+	pixel.normal = mul(vertex.normal, (float3x3)world);
+	pixel.positionT = mul(float4(vertex.position, 1.0f), world).xyz;
 	pixel.uv = vertex.uv;
 
 	return pixel;
