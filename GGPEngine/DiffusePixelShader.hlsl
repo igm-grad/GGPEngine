@@ -1,4 +1,4 @@
-#define DIRECTONAL_LIGHT_COUNT 1
+#define DIRECTIONAL_LIGHT_COUNT 1
 #define POINT_LIGHT_COUNT 1
 
 struct DirectionalLight
@@ -29,8 +29,8 @@ SamplerState	diffuseSampler	: register(s0);
 Texture2D		diffuseTexture	: register(t0);
 cbuffer			lights			: register (b0)
 {
-	DirectionalLights[DIRECTIONAL_LIGHT_COUNT]	directionalLights;
-	PointLights[POINT_LIGHT_COUNT]				pointLights;
+	DirectionalLight	directionalLights[DIRECTIONAL_LIGHT_COUNT];
+	PointLight			pointLights[POINT_LIGHT_COUNT];
 }
 
 float4 main(Pixel pixel) : SV_TARGET
@@ -43,10 +43,10 @@ float4 main(Pixel pixel) : SV_TARGET
 		colorAccumulator			+=	((contribution * directionalLights[i].diffuseColor) + directionalLights[i].ambientColor);
 	}
 
-	for (int i = 0; i < POINT_LIGHT_COUNT; i++) {
-		float3	directionToLight	=	normalize(pointLights[i].position - pixel.positionT);
-		float	contribution		=	saturate(dot(pixel.normal, directionToLight));
-		colorAccumulator			+=	((contribution * pointLights[i].diffuseColor) + pointLights[i].ambientColor);
+	for (int j = 0; j < POINT_LIGHT_COUNT; j++) {
+		float3	directionToLight = normalize(pointLights[j].position - pixel.positionT);
+			float	contribution = saturate(dot(pixel.normal, directionToLight));
+		colorAccumulator += ((contribution * pointLights[j].diffuseColor) + pointLights[j].ambientColor);
 	}
 
 	float4 textureColor = diffuseTexture.Sample(diffuseSampler, pixel.uv);
