@@ -1,9 +1,13 @@
 #include "Material.h"
 #include <d3dcompiler.h>
 #include <direct.h>
+#include <WICTextureLoader.h>
+
 #define GetCurrentDir _getcwd
 
-Material::Material(ID3D11Device* device, ID3D11DeviceContext* deviceContext, LPCWSTR vertexShaderFile, LPCWSTR pixelShaderFile)
+using namespace DirectX;
+
+Material::Material(ID3D11Device* device, ID3D11DeviceContext* deviceContext, LPCWSTR vertexShaderFile, LPCWSTR pixelShaderFile) : device(device), deviceContext(deviceContext)
 {
 	SetVertexShader(device, deviceContext, vertexShaderFile);
 	SetPixelShader(device, deviceContext, pixelShaderFile);
@@ -18,6 +22,8 @@ Material::Material()
 
 Material::~Material()
 {
+	deviceContext->Release();
+	device->Release();
 	delete sVertexShader;
 	delete sPixelShader;
 }
@@ -44,3 +50,49 @@ void Material::SetPixelShader(SimplePixelShader* simplePixelShader)
 	sPixelShader = simplePixelShader;
 }
 
+//void Material::SetResource(const wchar_t* filename, const char* name)
+//{
+//	if (resourceMap.find(name) != resourceMap.end()) {
+//		resourceMap[name]->Release();
+//	}
+//
+//	ID3D11ShaderResourceView* shaderResourceView;
+//	
+//	CreateWICTextureFromFile(device, deviceContext, filename, 0, &shaderResourceView);
+//	resourceMap[name] = shaderResourceView;
+//}
+
+void Material::SetSampler(const char* name)
+{
+	if (samplerMap.find(name) != samplerMap.end()) {
+		samplerMap[name]->Release();
+	}
+
+	// TO DO: Instantiating a basic sampler until we determine abstraction for D3D11_SAMPLER_DESC
+	ID3D11SamplerState* sampler;
+	D3D11_SAMPLER_DESC samplerDescription;
+	ZeroMemory(&samplerDescription, sizeof(D3D11_SAMPLER_DESC));
+	samplerDescription.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerDescription.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerDescription.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerDescription.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+	samplerDescription.MaxLOD = D3D11_FLOAT32_MAX;
+	device->CreateSamplerState(&samplerDescription, &sampler);
+	samplerMap[name] = sampler;
+}
+
+void Material::UpdatePixelShaderResources()
+{
+	for (std::map<const char*, ID3D11ShaderResourceView*>::iterator iter = resourceMap.begin(); iter != resourceMap.end(); iter++)
+	{
+		sPixelShader->SetShaderResourceView(iter->first, iter->second);
+	}
+}
+
+void Material::UpdatePixelShaderSamplers()
+{
+	for (std::map<const char*, ID3D11SamplerState*>::iterator iter = samplerMap.begin(); iter != samplerMap.end(); iter++)
+	{
+		sPixelShader->SetSamplerState(iter->first, iter->second);
+	}
+}

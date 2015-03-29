@@ -206,6 +206,9 @@ void RenderEngine::Update(float totalTime, std::vector<GameObject*> gameObjects)
 		gameObject->material->sVertexShader->SetMatrix4x4("view", defaultCamera->view);
 		gameObject->material->sVertexShader->SetMatrix4x4("projection", defaultCamera->projection);
 		gameObject->material->sVertexShader->SetShader();
+
+		gameObject->material->UpdatePixelShaderResources();
+		gameObject->material->UpdatePixelShaderSamplers();
 		gameObject->material->sPixelShader->SetShader();
 
 		// Set buffers in the input assembler
@@ -242,11 +245,6 @@ Mesh* RenderEngine::CreateMesh(const char* filename)
 Material* RenderEngine::CreateMaterial(LPCWSTR vertexShaderFile, LPCWSTR pixelShaderFile)
 {
 	return new Material(device, deviceContext, vertexShaderFile, pixelShaderFile);
-}
-
-void RenderEngine::CreateTextures(const wchar_t** filenames, int size, Texture** textures)
-{
-	Texture::Textures(deviceContext, device, filenames, size, textures);
 }
 
 bool RenderEngine::InitMainWindow() {

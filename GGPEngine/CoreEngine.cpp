@@ -212,26 +212,24 @@ Material* CoreEngine::BasicMaterial()
 	return CreateMaterial(L"VertexShader.cso", L"PixelShader.cso");
 }
 
-Material*	DiffuseMaterial()
+Material* CoreEngine::DiffuseMaterial()
 {
-
+	Material* diffuseMaterial = CreateMaterial(L"DiffuseVertexShader.cso", L"DiffusePixelShader.cso");
+	//diffuseMaterial->SetResourceMaterial(L"Textures/DiffuseTexture1.JPG", "diffuseTexture");
+	diffuseMaterial->SetSampler("diffuseSampler");
+	return diffuseMaterial;
 }
 
-Material*	DiffuseNormalMaterial()
+Material* CoreEngine::DiffuseNormalMaterial()
 {
-
+	Material* diffuseNormalMaterial = CreateMaterial(L"DiffuseNormalVertexShader.cso", L"DiffuseNormalPixelShader.cso");
+	diffuseNormalMaterial->SetSampler("omniSampler");
+	return diffuseNormalMaterial;
 }
 
 Material* CoreEngine::CreateMaterial(LPCWSTR vertexShaderFile, LPCWSTR pixelShaderFile)
 {
 	return renderer->CreateMaterial(vertexShaderFile, pixelShaderFile);
-}
-
-Texture* CoreEngine::CreateTextures(const wchar_t** filenames, int size)
-{
-	Texture* textures = new Texture[size];
-	renderer->CreateTextures(filenames, size, &textures);
-	return textures;
 }
 
 #pragma region Windows Message Processing

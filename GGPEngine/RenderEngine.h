@@ -53,7 +53,7 @@ protected:
 
 	Mesh*		CreateMesh(const char* filename);
 	Material*	CreateMaterial(LPCWSTR vertexShaderFile, LPCWSTR pixelShaderFile);
-	void		CreateTextures(const wchar_t** filenames, int size, Texture** textures);
+
 private:
 	// Window handles and such
 	HINSTANCE hAppInst;
