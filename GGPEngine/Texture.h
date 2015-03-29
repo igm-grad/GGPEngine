@@ -4,9 +4,13 @@
 class Texture
 {
 public:
+	const char*	textureKey;
+	const char* samplerKey;
+
+protected:
 	ID3D11ShaderResourceView*		shaderResourceView;
 	ID3D11SamplerState*				sampler;
-	
+
 	Texture(ID3D11DeviceContext* deviceContext, ID3D11Device* device, const wchar_t* filename);
 	Texture();
 	~Texture();
