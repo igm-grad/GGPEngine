@@ -50,17 +50,17 @@ void Material::SetPixelShader(SimplePixelShader* simplePixelShader)
 	sPixelShader = simplePixelShader;
 }
 
-//void Material::SetResource(const wchar_t* filename, const char* name)
-//{
-//	if (resourceMap.find(name) != resourceMap.end()) {
-//		resourceMap[name]->Release();
-//	}
-//
-//	ID3D11ShaderResourceView* shaderResourceView;
-//	
-//	CreateWICTextureFromFile(device, deviceContext, filename, 0, &shaderResourceView);
-//	resourceMap[name] = shaderResourceView;
-//}
+void Material::SetResource(const wchar_t* filename, const char* name)
+{
+	if (resourceMap.find(name) != resourceMap.end()) {
+		resourceMap[name]->Release();
+	}
+
+	ID3D11ShaderResourceView* shaderResourceView;
+	
+	CreateWICTextureFromFile(device, deviceContext, filename, 0, &shaderResourceView);
+	resourceMap[name] = shaderResourceView;
+}
 
 void Material::SetSampler(const char* name)
 {

@@ -8,7 +8,6 @@
 #include <vector>
 #include "GameObject.h"
 #include "Camera.h"
-#include "Texture.h"
 
 #ifdef _WINDLL
 #define GPPEngineAPI   __declspec( dllexport )
@@ -53,6 +52,7 @@ protected:
 
 	Mesh*		CreateMesh(const char* filename);
 	Material*	CreateMaterial(LPCWSTR vertexShaderFile, LPCWSTR pixelShaderFile);
+
 
 private:
 	// Window handles and such
