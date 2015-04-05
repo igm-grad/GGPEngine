@@ -240,12 +240,13 @@ DirectionalLight* CoreEngine::CreateDirectionalLight(XMFLOAT4& ambientColor, XMF
 	return directionalLight;
 }
 
-PointLight*	CoreEngine::CreatePointLight(XMFLOAT4& ambientColor, XMFLOAT4& diffuseColor, XMFLOAT3& position)
+PointLight*	CoreEngine::CreatePointLight(XMFLOAT4& ambientColor, XMFLOAT4& diffuseColor, XMFLOAT3& position, float radius)
 {
 	PointLight* pointLight = renderer->CreatePointLight();
 	pointLight->ambientColor = ambientColor;
 	pointLight->diffuseColor = diffuseColor;
 	pointLight->position = position;
+	pointLight->radius = radius;
 	return pointLight;
 }
 

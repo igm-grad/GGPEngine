@@ -17,7 +17,7 @@ struct PointLight
 	XMFLOAT4	ambientColor;
 	XMFLOAT4	diffuseColor;
 	XMFLOAT3	position;
-	float		padding;
+	float		radius;
 };
 
 struct SpotLight

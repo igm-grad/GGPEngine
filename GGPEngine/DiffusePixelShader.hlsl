@@ -14,7 +14,7 @@ struct PointLight
 	float4	ambientColor;
 	float4	diffuseColor;
 	float3	position;
-	float	padding;
+	float	radius;
 };
 
 struct Pixel
@@ -37,16 +37,21 @@ float4 main(Pixel pixel) : SV_TARGET
 {
 	pixel.normal = normalize(pixel.normal);
 	float4 colorAccumulator = float4(0.0f, 0.0f, 0.0f, 1.0f);
+
+	[unroll]
 	for (int i = 0; i < DIRECTIONAL_LIGHT_COUNT; i++) {
 		float3	directionToLight	=	normalize(-directionalLights[i].direction);
 		float	contribution		=	saturate(dot(pixel.normal, directionToLight));
 		colorAccumulator			+=	((contribution * directionalLights[i].diffuseColor) + directionalLights[i].ambientColor);
 	}
 
+	[unroll]
 	for (int j = 0; j < POINT_LIGHT_COUNT; j++) {
-		float3	directionToLight = normalize(pointLights[j].position - pixel.positionT);
+		float3  pixelToLight = pointLights[j].position - pixel.positionT;
+		float3	directionToLight = normalize(pixelToLight);
 		float	contribution = saturate(dot(pixel.normal, directionToLight));
-		colorAccumulator += ((contribution * pointLights[j].diffuseColor) + pointLights[j].ambientColor);
+		float   attenuation = 1 - (length(pixelToLight) * (1 / pointLights[j].radius));
+		colorAccumulator += ((contribution * pointLights[j].diffuseColor) + pointLights[j].ambientColor) * attenuation;
 	}
 
 	float4 textureColor = diffuseTexture.Sample(diffuseSampler, pixel.uv);
