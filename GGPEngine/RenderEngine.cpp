@@ -207,8 +207,19 @@ void RenderEngine::Update(float totalTime, std::vector<GameObject*> gameObjects)
 		gameObject->material->sVertexShader->SetMatrix4x4("projection", defaultCamera->projection);
 		gameObject->material->sVertexShader->SetShader();
 
-		gameObject->material->sPixelShader->SetData("directionalLights", &directionLights[0], sizeof(DirectionalLight) * directionLights.size());
-		//gameObject->material->sPixelShader->SetData("pointLights", &pointLights[0], sizeof(PointLight) * pointLights.size());
+		// TO DO: This is gross. Less branching would be optimal since lights are the same for every object currently.
+		if (directionLights.size() > 0) {
+			gameObject->material->sPixelShader->SetData("directionalLights", &directionLights[0], sizeof(DirectionalLight) * directionLights.size());
+		}
+
+		if (pointLights.size() > 0) {
+			gameObject->material->sPixelShader->SetData("pointLights", &pointLights[0], sizeof(PointLight) * pointLights.size());
+		}
+
+		if (spotLights.size() > 0) {
+			gameObject->material->sPixelShader->SetData("spotLights", &spotLights[0], sizeof(SpotLight) * spotLights.size());
+		}
+
 		gameObject->material->UpdatePixelShaderResources();
 		gameObject->material->UpdatePixelShaderSamplers();
 		gameObject->material->sPixelShader->SetShader();
