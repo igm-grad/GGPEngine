@@ -17,6 +17,16 @@ struct PointLight
 	float	radius;
 };
 
+struct SpotLight
+{
+	float4	ambientColor;
+	float4	diffuseColor;
+	float3	direction;
+	float	radius;
+	float3	position;
+	float	range;
+};
+
 struct Pixel
 {
 	float4	position	: SV_POSITION;
