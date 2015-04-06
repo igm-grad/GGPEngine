@@ -60,6 +60,8 @@ protected:
 
 	Camera*				CreateCamera();
 
+	void				CullGameObjectsFromCamera(Camera* camera, std::vector<GameObject*> list);
+
 private:
 	// Window handles and such
 	HINSTANCE hAppInst;

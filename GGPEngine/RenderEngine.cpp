@@ -1,6 +1,7 @@
 #include "RenderEngine.h"
 #include <WindowsX.h>
 #include <sstream>
+#include <cmath>
 
 RenderEngine::RenderEngine(HINSTANCE hInstance, WNDPROC MainWndProc) :
 	hAppInst(hInstance),
@@ -282,6 +283,58 @@ Camera* RenderEngine::CreateCamera()
 {
 	cameras.push_back(Camera());
 	return &cameras.back();
+}
+
+void RenderEngine::CullGameObjectsFromCamera(Camera* camera, std::vector<GameObject*> list)
+{
+	// Game Objects which will be within horizontal FOV
+	std::vector <GameObject*> culledList;
+
+	// Horizontal FOV in radians
+	float HorizontalFOV = atan(AspectRatio()) / 2;
+
+	// Iterate through all Game Obejcts
+	// Find Position Vector of Game Objects from camera. Positionvector = (GameObjectPosition - CameraPosition)
+	// If Coz Inverse of (PositionVector dot Forward / |Position| * |Forward|) < FOV / 2, Game Object is in view. 
+	for (int i = 0; i < list.size(); ++i)
+	{
+		// If XMVector functions work the way I think they work implement the code below
+		XMVECTOR GameObjectPosition = XMLoadFloat3(&list[i]->position);
+		XMVECTOR CameraPosition = XMLoadFloat3(&camera->position);
+
+		XMVECTOR PositionVector = GameObjectPosition - CameraPosition;
+
+		XMVECTOR ForwardDirection = XMLoadFloat3(&camera->forward);
+
+		XMVECTOR PositionDotForward = XMVector2Dot(PositionVector, ForwardDirection);
+
+		XMVECTOR PositionMagnitue = XMVector3Length(PositionVector);
+		XMVECTOR ForwardDirectionMagnitude = XMVector3Length(ForwardDirection);
+
+		float numerator = XMVectorGetIntX(PositionDotForward) + XMVectorGetIntY(PositionDotForward) + XMVectorGetIntZ(PositionDotForward);
+		float denominator = XMVectorGetIntX(PositionVector) + XMVectorGetIntY(PositionVector) + XMVectorGetIntZ(PositionVector) + XMVectorGetIntX(ForwardDirection) + XMVectorGetIntY(ForwardDirection) + XMVectorGetIntZ(ForwardDirection);
+
+		//// Else my manual solution after getting position vector
+		//XMFLOAT3 positionVector;
+		//XMStoreFloat3(&positionVector, PositionVector);
+
+		//// manual dot product between position vector and forward direction
+		//float numerator = (positionVector.x * camera->forward.x) + (positionVector.z * camera->forward.z) + (positionVector.z * camera->forward.z);
+
+		//// manual magnitude of position vector and forward direction
+		//float positionMagnitude = sqrt(pow(positionVector.x, 2) + pow(positionVector.y, 2) + pow(positionVector.y, 2));
+		//float forwardDirectionMagnitude = sqrt(pow(camera->forward.x, 2) + pow(camera->forward.y, 2) + pow(camera->forward.y, 2));
+
+		//float denominator = positionMagnitude + forwardDirectionMagnitude;
+
+		// both solutions can lead to final answer (I think)
+		float theta = acos(numerator / denominator);
+		if (theta < HorizontalFOV)
+			culledList.push_back(list[i]);
+		
+		// sort culled list
+	}
+
 }
 
 bool RenderEngine::InitMainWindow() {
