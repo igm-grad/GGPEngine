@@ -20,6 +20,8 @@ public:
 	XMFLOAT4X4	view;
 	XMFLOAT4X4	projection;
 	float		movementSpeed;
+	float		fov;
+	float		farPlane;
 
 	Camera() : position({ 0.0f, 0.0f, 0.0f }), rotation({ 0.0f, 0.0f, 0.0f }), forward({ 0.0f, 0.0f, 1.0f }), up({0.0f, 1.0f, 0.0f}), movementSpeed(0.01f) {};
 	~Camera();

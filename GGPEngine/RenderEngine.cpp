@@ -285,54 +285,68 @@ Camera* RenderEngine::CreateCamera()
 	return &cameras.back();
 }
 
+float RenderEngine::getAngle(float ax, float ay, float bx, float by)
+{
+	// manual dot product between position vector and forward direction
+	float numerator = (ax * bx) + (ay * by);
+
+	// manual magnitude of position vector and forward direction
+	float positionMagnitude = sqrt(ax * ax + ay * ay);
+	float forwardDirectionMagnitude = sqrt(bx * bx + by * by);
+
+	float denominator = positionMagnitude + forwardDirectionMagnitude;
+
+	// calculate angle
+	float theta = acos(numerator / denominator);
+	return theta;
+}
+
 void RenderEngine::CullGameObjectsFromCamera(Camera* camera, std::vector<GameObject*> list)
 {
-	// Game Objects which will be within horizontal FOV
+	// Game Objects which will be within far plane
 	std::vector <GameObject*> culledList;
+
+	float sqdistance = 0.f;
+	float sqfarplane = camera->farPlane * camera->farPlane;
+	// First eliminate objects outside of far plane
+	for (int i = 0; i < list.size(); ++i)
+	{
+		// use distance formula to find out if objects lie outside far plane
+		sqdistance = pow(list[i]->position.x - camera->position.x, 2) + pow(list[i]->position.y - camera->position.y, 2) + pow(list[i]->position.z - camera->position.z, 2);
+		if (sqdistance < sqfarplane)
+			culledList.push_back(list[i]);
+	}
 
 	// Horizontal FOV in radians
 	float HorizontalFOV = atan(AspectRatio()) / 2;
 
-	// Iterate through all Game Obejcts
+	// Vertical FOV in radians
+	float VerticalFOV = camera->fov / 2;
+
+	// Iterate through all Game Obejcts in culled list
 	// Find Position Vector of Game Objects from camera. Positionvector = (GameObjectPosition - CameraPosition)
 	// If Coz Inverse of (PositionVector dot Forward / |Position| * |Forward|) < FOV / 2, Game Object is in view. 
-	for (int i = 0; i < list.size(); ++i)
+	for (int i = 0; i < culledList.size(); ++i)
 	{
-		// If XMVector functions work the way I think they work implement the code below
-		XMVECTOR GameObjectPosition = XMLoadFloat3(&list[i]->position);
+		// get Position Vector
+		XMVECTOR GameObjectPosition = XMLoadFloat3(&culledList[i]->position);
 		XMVECTOR CameraPosition = XMLoadFloat3(&camera->position);
 
 		XMVECTOR PositionVector = GameObjectPosition - CameraPosition;
 
-		XMVECTOR ForwardDirection = XMLoadFloat3(&camera->forward);
+		XMFLOAT3 positionVector;
+		XMStoreFloat3(&positionVector, PositionVector);
 
-		XMVECTOR PositionDotForward = XMVector2Dot(PositionVector, ForwardDirection);
+		// get object angle in horizontal plane (x-z)
+		float horizontalAngle = getAngle(positionVector.x, positionVector.z, camera->forward.x, camera->forward.z);
 
-		XMVECTOR PositionMagnitue = XMVector3Length(PositionVector);
-		XMVECTOR ForwardDirectionMagnitude = XMVector3Length(ForwardDirection);
+		// get object angle in vertical plane (y-z)
+		float verticalAngle = getAngle(positionVector.y, positionVector.z, camera->forward.y, camera->forward.z);
 
-		float numerator = XMVectorGetIntX(PositionDotForward) + XMVectorGetIntY(PositionDotForward) + XMVectorGetIntZ(PositionDotForward);
-		float denominator = XMVectorGetIntX(PositionVector) + XMVectorGetIntY(PositionVector) + XMVectorGetIntZ(PositionVector) + XMVectorGetIntX(ForwardDirection) + XMVectorGetIntY(ForwardDirection) + XMVectorGetIntZ(ForwardDirection);
-
-		//// Else my manual solution after getting position vector
-		//XMFLOAT3 positionVector;
-		//XMStoreFloat3(&positionVector, PositionVector);
-
-		//// manual dot product between position vector and forward direction
-		//float numerator = (positionVector.x * camera->forward.x) + (positionVector.z * camera->forward.z) + (positionVector.z * camera->forward.z);
-
-		//// manual magnitude of position vector and forward direction
-		//float positionMagnitude = sqrt(pow(positionVector.x, 2) + pow(positionVector.y, 2) + pow(positionVector.y, 2));
-		//float forwardDirectionMagnitude = sqrt(pow(camera->forward.x, 2) + pow(camera->forward.y, 2) + pow(camera->forward.y, 2));
-
-		//float denominator = positionMagnitude + forwardDirectionMagnitude;
-
-		// both solutions can lead to final answer (I think)
-		float theta = acos(numerator / denominator);
-		if (theta < HorizontalFOV)
-			culledList.push_back(list[i]);
+		if (horizontalAngle < HorizontalFOV && verticalAngle < VerticalFOV)
+			RenderList.push_back(culledList[i]);
 		
-		// sort culled list
+		// sort Render list
 	}
 
 }

@@ -61,6 +61,7 @@ protected:
 	Camera*				CreateCamera();
 
 	void				CullGameObjectsFromCamera(Camera* camera, std::vector<GameObject*> list);
+	float				getAngle(float ax, float ay, float bx, float by);
 
 private:
 	// Window handles and such
@@ -109,5 +110,7 @@ private:
 	bool InitDirect3D();
 
 	friend class CoreEngine;
+
+	std::vector<GameObject*>		RenderList;
 };
 
