@@ -1,5 +1,6 @@
 #define DIRECTIONAL_LIGHT_COUNT 1
 #define POINT_LIGHT_COUNT 1
+#define SPOT_LIGHT_COUNT 1
 
 struct DirectionalLight
 {
@@ -41,6 +42,7 @@ cbuffer			lights			: register (b0)
 {
 	DirectionalLight	directionalLights[DIRECTIONAL_LIGHT_COUNT];
 	PointLight			pointLights[POINT_LIGHT_COUNT];
+	SpotLight			spotLights[SPOT_LIGHT_COUNT];
 }
 
 float4 main(Pixel pixel) : SV_TARGET
