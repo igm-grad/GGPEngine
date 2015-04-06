@@ -250,13 +250,15 @@ PointLight*	CoreEngine::CreatePointLight(XMFLOAT4& ambientColor, XMFLOAT4& diffu
 	return pointLight;
 }
 
-SpotLight* CoreEngine::CreateSpotLight(XMFLOAT4& ambientColor, XMFLOAT4& diffuseColor, XMFLOAT3& direction, XMFLOAT3& position)
+SpotLight* CoreEngine::CreateSpotLight(XMFLOAT4& ambientColor, XMFLOAT4& diffuseColor, XMFLOAT3& direction, XMFLOAT3& position, float radius, float range)
 {
 	SpotLight* spotLight = renderer->CreateSpotLight();
 	spotLight->ambientColor = ambientColor;
 	spotLight->diffuseColor = diffuseColor;
 	spotLight->direction = direction;
 	spotLight->position = position;
+	spotLight->radius = radius;
+	spotLight->range = range;
 	return spotLight;
 }
 
