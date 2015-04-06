@@ -58,6 +58,8 @@ protected:
 	PointLight*			CreatePointLight();
 	SpotLight*			CreateSpotLight();
 
+	Camera*				CreateCamera();
+
 private:
 	// Window handles and such
 	HINSTANCE hAppInst;
@@ -99,6 +101,7 @@ private:
 	std::vector<SpotLight>			spotLights;
 
 	Camera* defaultCamera;
+	std::vector<Camera> cameras;
 
 	bool InitMainWindow();
 	bool InitDirect3D();
