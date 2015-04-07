@@ -23,7 +23,8 @@ struct Pixel
 	float3 normal	: NORMAL;
 	float3 positionT: TEXCOORD;
 	float3 tangent	: TEXCOORD1;
-	float2 uv		: TEXCOORD2;
+	float3 bitangent: TEXCOORD2;
+	float2 uv		: TEXCOORD3;
 };
 
 SamplerState	omniSampler		: register(s0);
@@ -37,19 +38,18 @@ cbuffer			lights			: register (b0)
 
 float4 main(Pixel pixel) : SV_TARGET
 {
-	pixel.normal = normalize(pixel.normal);
 	pixel.tangent = normalize(pixel.tangent);
-
-	float3 binormal = cross(pixel.tangent, pixel.normal);
+	pixel.bitangent = normalize(pixel.bitangent);
+	pixel.normal = normalize(pixel.normal);
 	float3x3 TBN = 
 	{	
 		pixel.tangent.x, pixel.tangent.y, pixel.tangent.z,
-		binormal.x, binormal.y, binormal.z,
+		pixel.bitangent.x, pixel.bitangent.y, pixel.bitangent.z,
 		pixel.normal.x, pixel.normal.y, pixel.normal.z 
 	};
 
 	float3 normal = normalTexture.Sample(omniSampler, pixel.uv).xyz;
-	normal = (normal * 2.0f) - 1.0f;
+	normal = normal * 255.f/128.f - 1.0f;
 	normal = mul(TBN, normal);
 
 	float4 colorAccumulator = float4(0.0f, 0.0f, 0.0f, 1.0f);

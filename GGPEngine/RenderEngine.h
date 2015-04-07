@@ -8,6 +8,7 @@
 #include <vector>
 #include "GameObject.h"
 #include "Camera.h"
+#include "Lighting.h"
 
 #ifdef _WINDLL
 #define GPPEngineAPI   __declspec( dllexport )
@@ -50,9 +51,14 @@ protected:
 	void CalculateFrameStats(float totalTime);
 	void Update(float deltaTime, std::vector<GameObject*> list);
 
-	Mesh*		CreateMesh(const char* filename);
-	Material*	CreateMaterial(LPCWSTR vertexShaderFile, LPCWSTR pixelShaderFile);
+	Mesh*				CreateMesh(const char* filename);
+	Material*			CreateMaterial(LPCWSTR vertexShaderFile, LPCWSTR pixelShaderFile);
 
+	DirectionalLight*	CreateDirectionalLight();
+	PointLight*			CreatePointLight();
+	SpotLight*			CreateSpotLight();
+
+	Camera*				CreateCamera();
 
 private:
 	// Window handles and such
@@ -90,7 +96,12 @@ private:
 	int windowHeight;
 	bool enable4xMsaa;
 
+	std::vector<DirectionalLight>	directionLights;
+	std::vector<PointLight>			pointLights;
+	std::vector<SpotLight>			spotLights;
+
 	Camera* defaultCamera;
+	std::vector<Camera> cameras;
 
 	bool InitMainWindow();
 	bool InitDirect3D();

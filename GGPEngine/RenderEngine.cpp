@@ -207,6 +207,19 @@ void RenderEngine::Update(float totalTime, std::vector<GameObject*> gameObjects)
 		gameObject->material->sVertexShader->SetMatrix4x4("projection", defaultCamera->projection);
 		gameObject->material->sVertexShader->SetShader();
 
+		// TO DO: This is gross. Less branching would be optimal since lights are the same for every object currently.
+		if (directionLights.size() > 0) {
+			gameObject->material->sPixelShader->SetData("directionalLights", &directionLights[0], sizeof(DirectionalLight) * directionLights.size());
+		}
+
+		if (pointLights.size() > 0) {
+			gameObject->material->sPixelShader->SetData("pointLights", &pointLights[0], sizeof(PointLight) * pointLights.size());
+		}
+
+		if (spotLights.size() > 0) {
+			gameObject->material->sPixelShader->SetData("spotLights", &spotLights[0], sizeof(SpotLight) * spotLights.size());
+		}
+
 		gameObject->material->UpdatePixelShaderResources();
 		gameObject->material->UpdatePixelShaderSamplers();
 		gameObject->material->sPixelShader->SetShader();
@@ -245,6 +258,30 @@ Mesh* RenderEngine::CreateMesh(const char* filename)
 Material* RenderEngine::CreateMaterial(LPCWSTR vertexShaderFile, LPCWSTR pixelShaderFile)
 {
 	return new Material(device, deviceContext, vertexShaderFile, pixelShaderFile);
+}
+
+DirectionalLight* RenderEngine::CreateDirectionalLight()
+{
+	directionLights.push_back(DirectionalLight());
+	return &directionLights.back();
+}
+
+PointLight*	RenderEngine::CreatePointLight()
+{
+	pointLights.push_back(PointLight());
+	return &pointLights.back();
+}
+
+SpotLight*	RenderEngine::CreateSpotLight()
+{
+	spotLights.push_back(SpotLight());
+	return &spotLights.back();
+}
+
+Camera* RenderEngine::CreateCamera()
+{
+	cameras.push_back(Camera());
+	return &cameras.back();
 }
 
 bool RenderEngine::InitMainWindow() {
