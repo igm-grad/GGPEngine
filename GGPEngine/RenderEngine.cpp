@@ -278,6 +278,12 @@ SpotLight*	RenderEngine::CreateSpotLight()
 	return &spotLights.back();
 }
 
+Camera* RenderEngine::CreateCamera()
+{
+	cameras.push_back(Camera());
+	return &cameras.back();
+}
+
 bool RenderEngine::InitMainWindow() {
 	// Actually create the window
 	WNDCLASS wc;

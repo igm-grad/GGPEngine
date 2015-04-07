@@ -262,6 +262,17 @@ SpotLight* CoreEngine::CreateSpotLight(XMFLOAT4& ambientColor, XMFLOAT4& diffuse
 	return spotLight;
 }
 
+Camera* CoreEngine::CreateCamera(XMFLOAT3& position, XMFLOAT3& rotation, XMFLOAT3& forward, XMFLOAT3& up, float movementSpeed)
+{
+	Camera* camera = renderer->CreateCamera();
+	camera->position = position;
+	camera->rotation = rotation;
+	camera->forward = forward;
+	camera->up = up;
+	camera->movementSpeed = movementSpeed;
+	return camera;
+}
+
 #pragma region Windows Message Processing
 
 LRESULT CoreEngine::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
