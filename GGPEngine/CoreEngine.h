@@ -1,4 +1,5 @@
 #pragma once
+#pragma warning( disable: 4251 )
 
 #ifdef _WINDLL
 #define GPPEngineAPI   __declspec( dllexport )
