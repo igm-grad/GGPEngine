@@ -2,6 +2,7 @@
 #include <WindowsX.h>
 #include <sstream>
 #include <cmath>
+#include <algorithm>
 
 RenderEngine::RenderEngine(HINSTANCE hInstance, WNDPROC MainWndProc) :
 	hAppInst(hInstance),
@@ -191,7 +192,14 @@ void RenderEngine::Update(float totalTime, std::vector<GameObject*> gameObjects)
 	// Update Camera
 	defaultCamera->Update();
 
-	for (GameObject* gameObject : gameObjects) {
+	// List that will hold objects to be drawn
+	std::vector<GameObject*> renderList;
+
+	// For now use default Camera
+	renderList = CullGameObjectsFromCamera(defaultCamera, gameObjects);
+
+
+	for (GameObject* gameObject : renderList) {
 		// Set up the input assembler
 		//  - These technically don't need to be set every frame, unless you're changing the
 		//    input layout (different kinds of vertices) or the topology (different primitives)
@@ -294,17 +302,20 @@ float RenderEngine::getAngle(float ax, float ay, float bx, float by)
 	float positionMagnitude = sqrt(ax * ax + ay * ay);
 	float forwardDirectionMagnitude = sqrt(bx * bx + by * by);
 
-	float denominator = positionMagnitude + forwardDirectionMagnitude;
+	float denominator = positionMagnitude * forwardDirectionMagnitude;
 
 	// calculate angle
 	float theta = acos(numerator / denominator);
 	return theta;
 }
 
-void RenderEngine::CullGameObjectsFromCamera(Camera* camera, std::vector<GameObject*> list)
+std::vector<GameObject*> RenderEngine::CullGameObjectsFromCamera(Camera* camera, std::vector<GameObject*> list)
 {
 	// Game Objects which will be within far plane
 	std::vector <GameObject*> culledList;
+
+	// Game Objects which will be whithin horizontal and vertical FOV
+	std::vector<GameObject*> RenderList;
 
 	float sqdistance = 0.f;
 	float sqfarplane = camera->farPlane * camera->farPlane;
@@ -334,6 +345,9 @@ void RenderEngine::CullGameObjectsFromCamera(Camera* camera, std::vector<GameObj
 
 		XMVECTOR PositionVector = GameObjectPosition - CameraPosition;
 
+		// normalize PositionVector
+		PositionVector = XMVector3Normalize(PositionVector);
+
 		XMFLOAT3 positionVector;
 		XMStoreFloat3(&positionVector, PositionVector);
 
@@ -345,10 +359,13 @@ void RenderEngine::CullGameObjectsFromCamera(Camera* camera, std::vector<GameObj
 
 		if (horizontalAngle < HorizontalFOV && verticalAngle < VerticalFOV)
 			RenderList.push_back(culledList[i]);
-		
-		// sort Render list
 	}
 
+	// sort Render list. For now std::sort to get quick results.
+	std::sort(RenderList.begin(), RenderList.end());
+
+	// return the list which needs to be drawn
+	return RenderList;
 }
 
 bool RenderEngine::InitMainWindow() {

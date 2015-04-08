@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.30501.0
+VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GGPEngine", "GGPEngine\GGPEngine.vcxproj", "{596D301E-50B2-4205-A1A6-B04C2D4732A3}"
 EndProject
@@ -13,6 +13,8 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DirectXTK_Desktop_2013", "DirectXTK\DirectXTK_Desktop_2013.vcxproj", "{E0B52AE7-E160-4D32-BF3F-910B785E5A8E}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Demo04_Materials", "Demo04_Materials\Demo04_Materials.vcxproj", "{73D568C0-B767-468E-B01E-3D754B216839}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Demo05_FrustumCulling", "Demo05_FrustumCulling\Demo05_FrustumCulling.vcxproj", "{D768EE39-8D86-4531-A1F0-334BF6B1726F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -48,6 +50,12 @@ Global
 		{73D568C0-B767-468E-B01E-3D754B216839}.Release|Win32.ActiveCfg = Release|Win32
 		{73D568C0-B767-468E-B01E-3D754B216839}.Release|Win32.Build.0 = Release|Win32
 		{73D568C0-B767-468E-B01E-3D754B216839}.Release|x64.ActiveCfg = Release|Win32
+		{D768EE39-8D86-4531-A1F0-334BF6B1726F}.Debug|Win32.ActiveCfg = Debug|Win32
+		{D768EE39-8D86-4531-A1F0-334BF6B1726F}.Debug|Win32.Build.0 = Debug|Win32
+		{D768EE39-8D86-4531-A1F0-334BF6B1726F}.Debug|x64.ActiveCfg = Debug|Win32
+		{D768EE39-8D86-4531-A1F0-334BF6B1726F}.Release|Win32.ActiveCfg = Release|Win32
+		{D768EE39-8D86-4531-A1F0-334BF6B1726F}.Release|Win32.Build.0 = Release|Win32
+		{D768EE39-8D86-4531-A1F0-334BF6B1726F}.Release|x64.ActiveCfg = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

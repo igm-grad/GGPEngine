@@ -51,17 +51,17 @@ protected:
 	void CalculateFrameStats(float totalTime);
 	void Update(float deltaTime, std::vector<GameObject*> list);
 
-	Mesh*				CreateMesh(const char* filename);
-	Material*			CreateMaterial(LPCWSTR vertexShaderFile, LPCWSTR pixelShaderFile);
+	Mesh*									CreateMesh(const char* filename);
+	Material*								CreateMaterial(LPCWSTR vertexShaderFile, LPCWSTR pixelShaderFile);
 
-	DirectionalLight*	CreateDirectionalLight();
-	PointLight*			CreatePointLight();
-	SpotLight*			CreateSpotLight();
+	DirectionalLight*						CreateDirectionalLight();
+	PointLight*								CreatePointLight();
+	SpotLight*								CreateSpotLight();
 
-	Camera*				CreateCamera();
+	Camera*									CreateCamera();
 
-	void				CullGameObjectsFromCamera(Camera* camera, std::vector<GameObject*> list);
-	float				getAngle(float ax, float ay, float bx, float by);
+	std::vector<GameObject*>				CullGameObjectsFromCamera(Camera* camera, std::vector<GameObject*> list);
+	float									getAngle(float ax, float ay, float bx, float by);
 
 private:
 	// Window handles and such
@@ -110,7 +110,5 @@ private:
 	bool InitDirect3D();
 
 	friend class CoreEngine;
-
-	std::vector<GameObject*>		RenderList;
 };
 
