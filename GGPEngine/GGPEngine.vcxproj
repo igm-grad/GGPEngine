@@ -95,6 +95,7 @@ xcopy /y "$(SolutionDir)libs\awesomium\1.7.5.0\build\bin\awesomium_process.exe" 
     <ClInclude Include="RenderEngine.h" />
     <ClInclude Include="RigidBody.h" />
     <ClInclude Include="SimpleShader.h" />
+    <ClInclude Include="UI.h" />
     <ClInclude Include="Vertex.h" />
   </ItemGroup>
   <ItemGroup>
@@ -112,6 +113,7 @@ xcopy /y "$(SolutionDir)libs\awesomium\1.7.5.0\build\bin\awesomium_process.exe" 
     <ClCompile Include="RenderEngine.cpp" />
     <ClCompile Include="RigidBody.cpp" />
     <ClCompile Include="SimpleShader.cpp" />
+    <ClCompile Include="UI.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="DiffuseNormalPixelShader.hlsl">
