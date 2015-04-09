@@ -83,6 +83,22 @@ void CoreEngine::Update()
 				auto go = gameObjects[0];
 				go->position.x -= 0.001f;
 			}
+			if (input->GetKey(KEYCODE_C)) {
+				auto go = gameObjects[0];
+				go->position.y += 0.001f;
+			}
+			if (input->GetKey(KEYCODE_D)) {
+				auto go = gameObjects[0];
+				go->position.y -= 0.001f;
+			}
+			if (input->GetKey(KEYCODE_E)) {
+				auto go = gameObjects[0];
+				go->position.z += 0.001f;
+			}
+			if (input->GetKey(KEYCODE_F)) {
+				auto go = gameObjects[0];
+				go->position.z -= 0.001f;
+			}
 			if (input->GetKeyDown(KEYCODE_A)) {
 				OutputDebugStringA("KeyDown A\n");
 			}
