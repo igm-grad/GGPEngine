@@ -1,5 +1,6 @@
 #define DIRECTIONAL_LIGHT_COUNT 1
 #define POINT_LIGHT_COUNT 1
+#define SPOT_LIGHT_COUNT 1
 
 struct DirectionalLight
 {
@@ -14,7 +15,17 @@ struct PointLight
 	float4	ambientColor;
 	float4	diffuseColor;
 	float3	position;
-	float	padding;
+	float	radius;
+};
+
+struct SpotLight
+{
+	float4	ambientColor;
+	float4	diffuseColor;
+	float3	direction;
+	float	radius;
+	float3	position;
+	float	range;
 };
 
 struct Pixel
@@ -34,6 +45,15 @@ cbuffer			lights			: register (b0)
 {
 	DirectionalLight	directionalLights[DIRECTIONAL_LIGHT_COUNT];
 	PointLight			pointLights[POINT_LIGHT_COUNT];
+	SpotLight			spotLights[SPOT_LIGHT_COUNT];
+}
+
+
+float4 lightContribution(float4 diffuseColor, float4 ambientColor, float3 pixelNormal, float3 directionToLight)
+{
+	directionToLight = normalize(directionToLight);
+	float	contribution = saturate(dot(pixelNormal, directionToLight));
+	return ((contribution * diffuseColor) + ambientColor);
 }
 
 float4 main(Pixel pixel) : SV_TARGET
@@ -50,19 +70,42 @@ float4 main(Pixel pixel) : SV_TARGET
 
 	float3 normal = normalTexture.Sample(omniSampler, pixel.uv).xyz;
 	normal = normal * 255.f/128.f - 1.0f;
-	normal = mul(TBN, normal);
+	normal = mul(normal, TBN);
 
-	float4 colorAccumulator = float4(0.0f, 0.0f, 0.0f, 1.0f);
+	float4 colorAccumulator = float4(0.0f, 0.0f, 0.0f, 0.0f);
 	for (int i = 0; i < DIRECTIONAL_LIGHT_COUNT; i++) {
-		float3	directionToLight = normalize(-directionalLights[i].direction);
-		float	contribution = saturate(dot(normal, directionToLight));
-		colorAccumulator += ((contribution * directionalLights[i].diffuseColor) + directionalLights[i].ambientColor);
+		colorAccumulator += lightContribution(directionalLights[i].diffuseColor, directionalLights[i].ambientColor, normal, -directionalLights[i].direction);
 	}
 
 	for (int j = 0; j < POINT_LIGHT_COUNT; j++) {
-		float3	directionToLight = normalize(pointLights[j].position - pixel.positionT);
-		float	contribution = saturate(dot(normal, directionToLight));
-		colorAccumulator += ((contribution * pointLights[j].diffuseColor) + pointLights[j].ambientColor);
+		float3  pixelToLight = pointLights[j].position - pixel.positionT;
+			float4	contribution = lightContribution(pointLights[j].diffuseColor, pointLights[j].ambientColor, normal, pixelToLight);
+			float   attenuation = 1 - (length(pixelToLight) * (1 / pointLights[j].radius));
+		colorAccumulator += contribution * saturate(attenuation);
+	}
+
+	for (int k = 0; k < SPOT_LIGHT_COUNT; k++)
+	{
+		float3  pixelToLight = spotLights[k].position - pixel.positionT;
+			float4	contribution = lightContribution(spotLights[k].diffuseColor, spotLights[k].ambientColor, normal, pixelToLight);
+
+			float3	directionToLight = normalize(pixelToLight);
+			float   linearAttenuation = lerp(1.0f, 0.0f, length(pixelToLight) / spotLights[k].range);
+
+		float   phi = radians(spotLights[k].radius);
+		float	theta = radians(spotLights[k].radius * 0.75f);
+		float	cosAlpha = max(0.0f, (dot(directionToLight, normalize(-spotLights[k].direction))));
+
+		float	totalAttenuation = 0.0f;
+		if (cosAlpha > theta) {
+			totalAttenuation = 1.0f;
+		}
+		else if (cosAlpha > phi) { // Arbitrary Phi value
+			totalAttenuation = pow((cosAlpha - phi) / (theta - phi), 32);
+		}
+
+		totalAttenuation *= linearAttenuation;
+		colorAccumulator += ((contribution * spotLights[k].diffuseColor) + spotLights[k].ambientColor) * saturate(totalAttenuation);
 	}
 
 	float4 textureColor = diffuseTexture.Sample(omniSampler, pixel.uv);
