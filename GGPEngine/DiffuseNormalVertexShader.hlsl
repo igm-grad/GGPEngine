@@ -1,6 +1,6 @@
 struct Vertex
 {
-	float4 tangent	: TEXCOORD;
+	//float4 tangent	: TEXCOORD;
 	float3 position : POSITION;
 	float3 normal	: NORMAL;
 	float2 uv		: TEXCOORD1;
@@ -31,8 +31,8 @@ Pixel main(Vertex vertex)
 	pixel.position = mul(float4(vertex.position, 1.0f), clip);
 	pixel.normal = mul(vertex.normal, (float3x3)world);
 	pixel.positionT = mul(float4(vertex.position, 1.0f), world).xyz;
-	pixel.tangent = vertex.tangent.xyz;
-	pixel.bitangent = cross(vertex.normal, vertex.tangent.xyz) * vertex.tangent.w;
+	//pixel.tangent = vertex.tangent.xyz;
+	//pixel.bitangent = cross(vertex.normal, vertex.tangent.xyz) * vertex.tangent.w;
 	pixel.uv = vertex.uv;
 
 	return pixel;
