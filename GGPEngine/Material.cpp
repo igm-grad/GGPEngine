@@ -62,33 +62,16 @@ void Material::SetResource(const wchar_t* filename, const char* name)
 	resourceMap[name] = shaderResourceView;
 }
 
-void Material::CreateTexture2D(int width, int height, const char* name)
+void Material::SetResource(ID3D11Resource* resource, const char* name)
 {
-	if (auxResourceMap.find(name) != auxResourceMap.end()) {
-		auxResourceMap[name]->Release();
-	}
-
-	ID3D11Texture2D* r_buffer;
-	device->CreateTexture2D(&CD3D11_TEXTURE2D_DESC(DXGI_FORMAT_B8G8R8A8_UNORM, width, height, 1, 1), nullptr, &r_buffer);
-	auxResourceMap[name] = r_buffer;
-
-
 	if (resourceMap.find(name) != resourceMap.end()) {
 		resourceMap[name]->Release();
 	}
 
 	ID3D11ShaderResourceView* shaderResourceView;
-	device->CreateShaderResourceView(r_buffer, nullptr, &shaderResourceView);
+
+	device->CreateShaderResourceView(resource, nullptr, &shaderResourceView);
 	resourceMap[name] = shaderResourceView;
-}
-
-void Material::UpdateResourceFromBuffer(const unsigned char* buffer, CD3D11_BOX * box, int srcRowSpan, const char* name)
-{
-	if (auxResourceMap.find(name) == auxResourceMap.end()) {
-		return;
-	}
-
-	deviceContext->UpdateSubresource(auxResourceMap[name], 0, box, buffer, srcRowSpan, 0);
 }
 
 void Material::SetSampler(const char* name)

@@ -123,9 +123,8 @@ void CoreEngine::Update()
 			int x = input->mousePosition.x;
 			int y = input->mousePosition.y;
 
-			char str[100];
-			sprintf_s(str, "X: %d, Y: %d\n", x, y);
-			OutputDebugStringA(str);
+			
+			
 
 #pragma endregion
 
@@ -334,30 +333,37 @@ LRESULT CoreEngine::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		return 0;
 
 	case WM_LBUTTONDOWN:
-		input->OnMouseDown(MOUSEBUTTON_LEFT, wParam, lParam);
+		if (!renderer->wmMouseButtonDownHook(wParam, lParam, MouseButton::MOUSEBUTTON_LEFT))
+			input->OnMouseDown(MOUSEBUTTON_LEFT, wParam, lParam);
 		return 0;
 	case WM_MBUTTONDOWN:
-		input->OnMouseDown(MOUSEBUTTON_MIDDLE, wParam, lParam);
+		if (!renderer->wmMouseButtonDownHook(wParam, lParam, MouseButton::MOUSEBUTTON_MIDDLE))
+			input->OnMouseDown(MOUSEBUTTON_MIDDLE, wParam, lParam);
 		return 0;
 	case WM_RBUTTONDOWN:
-		input->OnMouseDown(MOUSEBUTTON_RIGHT, wParam, lParam);
+		if (!renderer->wmMouseButtonDownHook(wParam, lParam, MouseButton::MOUSEBUTTON_RIGHT)) 
+			input->OnMouseDown(MOUSEBUTTON_RIGHT, wParam, lParam);
 		return 0;
 	case WM_XBUTTONDOWN:
 		input->OnMouseDown(MOUSEBUTTON_X, wParam, lParam);
 		return 0;
 	case WM_LBUTTONUP:
-		input->OnMouseUp(MOUSEBUTTON_LEFT, wParam, lParam);
+		if (!renderer->wmMouseButtonUpHook(wParam, lParam, MouseButton::MOUSEBUTTON_LEFT))
+			input->OnMouseUp(MOUSEBUTTON_LEFT, wParam, lParam);
 		return 0;
 	case WM_MBUTTONUP:
-		input->OnMouseUp(MOUSEBUTTON_MIDDLE, wParam, lParam);
+		if (!renderer->wmMouseButtonUpHook(wParam, lParam, MouseButton::MOUSEBUTTON_MIDDLE))
+			input->OnMouseUp(MOUSEBUTTON_MIDDLE, wParam, lParam);
 		return 0;
 	case WM_RBUTTONUP:
-		input->OnMouseUp(MOUSEBUTTON_RIGHT, wParam, lParam);
+		if (!renderer->wmMouseButtonUpHook(wParam, lParam, MouseButton::MOUSEBUTTON_RIGHT))
+			input->OnMouseUp(MOUSEBUTTON_RIGHT, wParam, lParam);
 		return 0;
 	case WM_XBUTTONUP:
 		input->OnMouseUp(MOUSEBUTTON_X, wParam, lParam);
 		return 0;
 	case WM_MOUSEMOVE:
+		renderer->wmMouseMoveHook(wParam, lParam);
 		input->OnMouseMove(wParam, lParam);
 		return 0;
 	case WM_KEYDOWN:

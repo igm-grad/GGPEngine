@@ -1,4 +1,5 @@
 #include "RenderEngine.h"
+#include "UI.h"
 #include <WindowsX.h>
 #include <sstream>
 
@@ -506,7 +507,23 @@ float RenderEngine::AspectRatio() const
 
 #pragma endregion
 
-
+#pragma region Input Processing
+bool RenderEngine::wmMouseMoveHook(WPARAM wParam, LPARAM lParam) {
+	if (ui)
+		return ui->wmMouseMoveHook(wParam, lParam);
+	return false;
+}
+bool RenderEngine::wmMouseButtonDownHook(WPARAM wParam, LPARAM lParam, MouseButton btn) {
+	if (ui)
+		return ui->wmMouseButtonDownHook(wParam, lParam, btn);
+	return false;
+}
+bool RenderEngine::wmMouseButtonUpHook(WPARAM wParam, LPARAM lParam, MouseButton btn) {
+	if (ui)
+		return ui->wmMouseButtonUpHook(wParam, lParam, btn);
+	return false;
+}
+#pragma endregion
 
 
 

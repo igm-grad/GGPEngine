@@ -10,13 +10,12 @@
 #include "GameObject.h"
 #include "Camera.h"
 #include "Lighting.h"
+#include "InputManager.h"
 
 #ifdef _WINDLL
 #define GPPEngineAPI   __declspec( dllexport )
-#include "UI.h"
 #else
 #define GPPEngineAPI   __declspec( dllimport )
-class UI;
 #endif
 
 // Convenience macro for releasing a COM object
@@ -43,6 +42,8 @@ class UI;
 
 using namespace DirectX;
 
+class UI; //Forward declaration
+
 class  RenderEngine
 {
 protected:
@@ -53,7 +54,7 @@ protected:
 	void OnResize();
 	void CalculateFrameStats(float totalTime);
 	void Update(float deltaTime, std::vector<GameObject*> list);
-
+	
 	Mesh*				CreateMesh(const char* filename);
 	Material*			CreateMaterial(LPCWSTR vertexShaderFile, LPCWSTR pixelShaderFile);
 
@@ -74,6 +75,9 @@ private:
 	void wmSizeHook(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam, bool *gamePaused);
 	void wmEnterSizeMoveHook(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 	void wmExitSizeMoveHook(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
+	bool wmMouseMoveHook(WPARAM wParam, LPARAM lParam);
+	bool wmMouseButtonDownHook(WPARAM wParam, LPARAM lParam, MouseButton btn);
+	bool wmMouseButtonUpHook(WPARAM wParam, LPARAM lParam, MouseButton btn);
 
 	// Game and window state tracking
 	bool      minimized;
