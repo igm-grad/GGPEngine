@@ -57,6 +57,13 @@ bool RenderEngine::Initialize()
 		return false;
 	}
 
+	if (true) { //TODO: Use UI toggle
+		ui = new UI(this);
+		if (!ui->Initialize()) {
+			return false;
+		}
+	}
+
 	return true;
 }
 
@@ -127,6 +134,9 @@ void RenderEngine::OnResize()
 	viewport.MinDepth = 0.0f;
 	viewport.MaxDepth = 1.0f;
 	deviceContext->RSSetViewports(1, &viewport);
+
+	if (ui)
+		ui->forceReload = true;
 }
 #pragma endregion
 
@@ -187,6 +197,26 @@ void RenderEngine::Update(float totalTime, std::vector<GameObject*> gameObjects)
 		1.0f,
 		0);
 
+	// Alpha Blending (UI needs this)
+	D3D11_BLEND_DESC blendDesc;
+
+	blendDesc.AlphaToCoverageEnable = false;
+	blendDesc.IndependentBlendEnable = false;
+	blendDesc.RenderTarget[0] = {
+		true,
+		D3D11_BLEND_SRC_ALPHA,
+		D3D11_BLEND_INV_SRC_ALPHA,
+		D3D11_BLEND_OP_ADD,
+		D3D11_BLEND_ONE,
+		D3D11_BLEND_ZERO,
+		D3D11_BLEND_OP_ADD,
+		D3D11_COLOR_WRITE_ENABLE_ALL
+	};
+
+	device->CreateBlendState(&blendDesc, &blendState);
+
+	deviceContext->OMSetBlendState(blendState, nullptr, ~0);
+
 	// Update Camera
 	defaultCamera->Update();
 
@@ -241,6 +271,11 @@ void RenderEngine::Update(float totalTime, std::vector<GameObject*> gameObjects)
 			gameObject->mesh->indexCount,	// The number of indices we're using in this draw
 			0,
 			0);
+	}
+
+	if (ui) {
+		ui->Update(); // Maybe now as frequently?
+		ui->Draw();
 	}
 
 	// Present the buffer

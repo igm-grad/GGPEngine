@@ -14,5 +14,5 @@ float4 main(VertexToPixel input) : SV_TARGET
 	// - Note that this color (like all values that pass through the rasterizer)
 	//   is interpolated for each pixel between the corresponding 
 	//   vertices of the triangle
-	return input.color;
+	return float4((float3) input.color,1);
 }

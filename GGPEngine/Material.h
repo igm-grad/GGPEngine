@@ -14,11 +14,15 @@ class GPPEngineAPI Material
 {
 public:
 	void SetResource(const wchar_t* filename, const char* name);
+
+	void CreateTexture2D(int width, int height, const char* name);
+	void UpdateResourceFromBuffer(const unsigned char* buffer, CD3D11_BOX * box, int width, const char* name);
 	void SetSampler(const char* name);								// TO DO: We only setting a basic sampler for a key... need to think this through
 
 protected:
 	std::map<const char*, ID3D11ShaderResourceView*>	resourceMap;
 	std::map<const char*, ID3D11SamplerState*>			samplerMap;
+	std::map<const char*, ID3D11Resource*>				auxResourceMap;
 	ID3D11DeviceContext*								deviceContext;
 	ID3D11Device*										device;
 	SimpleVertexShader*									sVertexShader;
@@ -35,6 +39,8 @@ protected:
 	void UpdatePixelShaderResources();
 	void UpdatePixelShaderSamplers();
 
+	friend class D3DSurface;
+	friend class UI;
 	friend class RenderEngine;
 	friend class GameObject;
 };

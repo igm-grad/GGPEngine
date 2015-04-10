@@ -13,8 +13,10 @@
 
 #ifdef _WINDLL
 #define GPPEngineAPI   __declspec( dllexport )
+#include "UI.h"
 #else
 #define GPPEngineAPI   __declspec( dllimport )
+class UI;
 #endif
 
 // Convenience macro for releasing a COM object
@@ -61,6 +63,8 @@ protected:
 
 	Camera*				CreateCamera();
 
+	UI* ui;
+
 private:
 	// Window handles and such
 	HINSTANCE hAppInst;
@@ -91,6 +95,9 @@ private:
 	D3D_DRIVER_TYPE driverType;
 	D3D_FEATURE_LEVEL featureLevel;
 
+	//Blend for UI
+	ID3D11BlendState* blendState;
+
 	// Derived class can set these in derived constructor to customize starting values.
 	std::wstring windowCaption;
 	int windowWidth;
@@ -107,6 +114,7 @@ private:
 	bool InitMainWindow();
 	bool InitDirect3D();
 
+	friend class UI;
 	friend class CoreEngine;
 };
 
