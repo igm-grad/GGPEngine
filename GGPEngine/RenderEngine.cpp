@@ -279,6 +279,15 @@ SpotLight*	RenderEngine::CreateSpotLight()
 	return &spotLights.back();
 }
 
+ParticleSystem*	RenderEngine::CreateParticleSystem(const char* attributes, UINT maxParticles)
+{
+	ParticleSystem* partSys = new ParticleSystem();
+	partSys->Init(device, NULL, NULL, maxParticles);
+
+
+	return partSys;
+}
+
 Camera* RenderEngine::CreateCamera()
 {
 	cameras.push_back(Camera());

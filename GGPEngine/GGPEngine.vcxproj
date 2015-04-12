@@ -73,6 +73,7 @@
     <ClInclude Include="Camera.h" />
     <ClInclude Include="CoreEngine.h" />
     <ClInclude Include="dxerr.h" />
+    <ClInclude Include="Effects.h" />
     <ClInclude Include="EulerIntegrator.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="GameTimer.h" />
@@ -81,6 +82,7 @@
     <ClInclude Include="Lighting.h" />
     <ClInclude Include="Material.h" />
     <ClInclude Include="Mesh.h" />
+    <ClInclude Include="ParticleSystem.h" />
     <ClInclude Include="PhysicsEngine.h" />
     <ClInclude Include="RenderEngine.h" />
     <ClInclude Include="RigidBody.h" />
@@ -92,6 +94,7 @@
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="CoreEngine.cpp" />
     <ClCompile Include="dxerr.cpp" />
+    <ClCompile Include="Effects.cpp" />
     <ClCompile Include="EulerIntegrator.cpp" />
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="GameTimer.cpp" />
@@ -99,6 +102,7 @@
     <ClCompile Include="Integrator.cpp" />
     <ClCompile Include="Material.cpp" />
     <ClCompile Include="Mesh.cpp" />
+    <ClCompile Include="ParticleSystem.cpp" />
     <ClCompile Include="PhysicsEngine.cpp" />
     <ClCompile Include="RenderEngine.cpp" />
     <ClCompile Include="RigidBody.cpp" />

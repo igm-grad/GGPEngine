@@ -57,6 +57,7 @@ protected:
 	DirectionalLight*	CreateDirectionalLight();
 	PointLight*			CreatePointLight();
 	SpotLight*			CreateSpotLight();
+	ParticleSystem*		CreateParticleSystem(const char* attributes, UINT maxParticles);
 
 	Camera*				CreateCamera();
 

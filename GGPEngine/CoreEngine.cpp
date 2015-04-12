@@ -241,6 +241,32 @@ Material* CoreEngine::CreateMaterial(LPCWSTR vertexShaderFile, LPCWSTR pixelShad
 	return renderer->CreateMaterial(vertexShaderFile, pixelShaderFile);
 }
 
+void CoreEngine::AddParticleSystem(GameObject* targetObject, ParticleSystem* addedPartSystem)
+{
+	//Look at Target's Effects.
+
+	//Add the particle system to Target's Effects Systems.
+}
+
+ParticleSystem* CoreEngine::CreateParticleSystem(string attributes, UINT maxParticles)
+{
+	ParticleSystem* partSys = renderer->CreateParticleSystem("", maxParticles);
+
+
+
+	return partSys;
+}
+
+ParticleSystem* CoreEngine::CreateParticleSystemThenAdd(GameObject* targetObject, string attributes, UINT maxParticles)
+{
+	//Create the particle system using the other call.
+	ParticleSystem* partSys = CreateParticleSystem("", maxParticles);
+
+	AddParticleSystem(targetObject, partSys);
+
+	return partSys;
+}
+
 DirectionalLight* CoreEngine::CreateDirectionalLight(XMFLOAT4& ambientColor, XMFLOAT4& diffuseColor, XMFLOAT3& direction)
 {
 	DirectionalLight* directionalLight = renderer->CreateDirectionalLight();

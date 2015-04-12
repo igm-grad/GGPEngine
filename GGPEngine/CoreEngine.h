@@ -55,6 +55,10 @@ public:
 
 	Material*		CreateMaterial(LPCWSTR vertexShaderFile, LPCWSTR pixelShaderFile);
 
+	void				AddParticleSystem(GameObject* targetObject, ParticleSystem* addedPartSystem);
+	ParticleSystem*		CreateParticleSystem(string attributes, UINT maxParticles = 15);
+	ParticleSystem*		CreateParticleSystemThenAdd(GameObject* targetObject, string attributes, UINT maxParticles = 15);
+	
 	DirectionalLight*	CreateDirectionalLight(XMFLOAT4& ambientColor, XMFLOAT4& diffuseColor, XMFLOAT3& direction);
 	PointLight*			CreatePointLight(XMFLOAT4& ambientColor, XMFLOAT4& diffuseColor, XMFLOAT3& position, float radius);
 	SpotLight*			CreateSpotLight(XMFLOAT4& ambientColor, XMFLOAT4& diffuseColor, XMFLOAT3& direction, XMFLOAT3& position, float radius, float range);
