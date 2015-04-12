@@ -20,64 +20,11 @@ void Camera::UpdateProjection(float fov, float aspectRatio, float zNear, float z
 
 void Camera::Update()
 {
-	XMVECTOR EyePosition = XMLoadFloat3(&position);
-	XMVECTOR UpDirection = XMLoadFloat3(&up);
-	XMVECTOR EyeDirection = XMLoadFloat3(&forward);
-	XMVECTOR rollPitchYaw = XMLoadFloat3(&rotation);
-	XMVECTOR orientation = XMQuaternionRotationRollPitchYawFromVector(rollPitchYaw);
-	EyeDirection = XMQuaternionMultiply(EyeDirection, orientation);
-	XMStoreFloat3(&forward,EyeDirection);
+	transform->getWorldTransform();
+	XMVECTOR EyePosition = XMLoadFloat3(&transform->position);
+	XMVECTOR UpDirection = XMLoadFloat3(&transform->up);
+	XMVECTOR EyeDirection = XMLoadFloat3(&transform->forward);
+
 	XMStoreFloat4x4(&view, XMMatrixTranspose(XMMatrixLookToLH(EyePosition, EyeDirection, UpDirection)));
-	rotation = { 0.0f, 0.0f, 0.0f };
 }
 
-void Camera::MoveForward()
-{
-	position.x += forward.x * movementSpeed;
-	position.y += forward.y * movementSpeed;
-	position.z += forward.z * movementSpeed;
-}
-
-void Camera::MoveBackward()
-{
-	position.x -= forward.x * movementSpeed;
-	position.y -= forward.y * movementSpeed;
-	position.z -= forward.z * movementSpeed;
-}
-
-void Camera::MoveRight()
-{
-	XMVECTOR V1 = XMLoadFloat3(&forward);
-	XMVECTOR V2 = XMLoadFloat3(&up);
-	
-	XMFLOAT3 right;
-	XMStoreFloat3(&right, XMVector3Cross(V1, V2));
-
-	position.x -= right.x * movementSpeed;
-	position.y -= right.y * movementSpeed;
-	position.z -= right.z * movementSpeed;
-}
-
-void Camera::MoveLeft()
-{
-	XMVECTOR V1 = XMLoadFloat3(&forward);
-	XMVECTOR V2 = XMLoadFloat3(&up);
-
-	XMFLOAT3 right;
-	XMStoreFloat3(&right, XMVector3Cross(V1, V2));
-
-	position.x += right.x * movementSpeed;
-	position.y += right.y * movementSpeed;
-	position.z += right.z * movementSpeed;
-}
-
-void Camera::RotatePitch(float pitch)
-{
-	rotation.x += pitch * movementSpeed;
-
-}
-
-void Camera::RotateYaw(float yaw)
-{
-	rotation.y += yaw * movementSpeed;
-}
