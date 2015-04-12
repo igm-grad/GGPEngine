@@ -68,77 +68,26 @@ void CoreEngine::Update()
 		}
 		else
 		{
+			for (Behavior behavior : behaviors) {
+				for (const auto &keyValuePair : behavior.keyInputMap)
+				{
+					if (input->GetKeyDown(keyValuePair.first)) {
+						keyValuePair.second(behavior);
+					}
+				}
+			}
+
 			// Standard game loop type stuff
 			physics->Update(timer.TotalTime());
 
 			// There must be a logics update method
 			// TODO: transfer this code to a gamoobject 
 			// component update method
-#pragma region Input tests
-			if (input->GetKey(KEYCODE_W)) {
-				auto go = gameObjects[0];
-				go->transform->MoveForward();
-			}
-			if (input->GetKey(KEYCODE_S)) {
-				auto go = gameObjects[0];
-				go->transform->MoveBackward();
-			}
-			if (input->GetKey(KEYCODE_A)) {
-				auto go = gameObjects[0];
-				go->transform->MoveLeft();
-			}
-			if (input->GetKey(KEYCODE_D)) {
-				auto go = gameObjects[0];
-				go->transform->MoveRight();
-			}
-			if (input->GetKeyDown(KEYCODE_A)) {
-				OutputDebugStringA("KeyDown A\n");
-			}
-			if (input->GetKeyUp(KEYCODE_A)) {
-				OutputDebugStringA("KeyUp A\n");
-			}
 
-			if (input->GetMouseButtonDown(MOUSEBUTTON_LEFT))
-			{
-				OutputDebugStringA("mouse down left\n");
-			}
-
-			if (input->GetMouseButtonUp(MOUSEBUTTON_LEFT))
-			{
-				OutputDebugStringA("mouse up left\n");
-			}
-
-			if (input->GetMouseButtonDown(MOUSEBUTTON_RIGHT))
-			{
-				OutputDebugStringA("mouse down right\n");
-			}
-
-			if (input->GetMouseButtonUp(MOUSEBUTTON_RIGHT))
-			{
-				OutputDebugStringA("mouse up right\n");
-			}
-
-			if (input->GetMouseButtonDown(MOUSEBUTTON_MIDDLE))
-			{
-				OutputDebugStringA("mouse down middle\n");
-			}
-
-			if (input->GetMouseButtonUp(MOUSEBUTTON_MIDDLE))
-			{
-				OutputDebugStringA("mouse up middle\n");
-			}
-
-			int x = input->mousePosition.x;
-			int y = input->mousePosition.y;
-
-			char str[100];
-			sprintf_s(str, "X: %d, Y: %d\n", x, y);
-			OutputDebugStringA(str);
-
-#pragma endregion
 
 			//renderer->CalculateFrameStats(timer.TotalTime());
-			renderer->Update(timer.DeltaTime(), gameObjects);
+			renderer->UpdateScene(&gameObjects[0], gameObjects.size(), timer.TotalTime());
+			renderer->DrawScene(&gameObjects[0], gameObjects.size(), timer.TotalTime());
 
 			// Flush the InputManager at the end of every frame
 			input->Flush();
@@ -282,6 +231,12 @@ Camera* CoreEngine::CreateCamera(XMFLOAT3& position, XMFLOAT3& rotation, XMFLOAT
 	camera->transform->up = up;
 	camera->transform->movementSpeed = movementSpeed;
 	return camera;
+}
+
+Behavior* CoreEngine::CreateBehavior()
+{
+	behaviors.push_back(Behavior());
+	return &behaviors.back();
 }
 
 #pragma region Windows Message Processing

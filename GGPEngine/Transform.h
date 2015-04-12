@@ -4,7 +4,13 @@
 
 using namespace DirectX;
 
-class Transform
+#ifdef _WINDLL
+#define GPPEngineAPI   __declspec( dllexport )
+#else
+#define GPPEngineAPI   __declspec( dllimport )
+#endif
+
+class GPPEngineAPI Transform
 {
 public:
 	XMFLOAT3	rotation;

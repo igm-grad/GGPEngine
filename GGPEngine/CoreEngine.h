@@ -15,6 +15,7 @@
 #include "GameObject.h"
 #include "Mesh.h"
 #include "Material.h"
+#include "Behavior.h"
 #include <vector>
 #include <unordered_map>
 
@@ -29,6 +30,7 @@ public:
 	std::unordered_map <std::string, Mesh*> meshIndex;
 
 	std::vector<GameObject*>	gameObjects;
+	std::vector<Behavior>		behaviors;
 
 	CoreEngine(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine, int showCmd);
 	CoreEngine();
@@ -59,6 +61,8 @@ public:
 	PointLight*			CreatePointLight(XMFLOAT4& ambientColor, XMFLOAT4& diffuseColor, XMFLOAT3& position, float radius);
 	SpotLight*			CreateSpotLight(XMFLOAT4& ambientColor, XMFLOAT4& diffuseColor, XMFLOAT3& direction, XMFLOAT3& position, float radius, float range);
 	Camera*				CreateCamera(XMFLOAT3& position, XMFLOAT3& rotation, XMFLOAT3& forward, XMFLOAT3& up, float movementSpeed);
+
+	Behavior*			CreateBehavior();
 
 	LRESULT MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam); // Must be public
 

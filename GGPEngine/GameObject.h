@@ -3,6 +3,7 @@
 #include "Mesh.h"
 #include "Material.h"
 #include "Transform.h"
+#include "Behavior.h"
 
 #ifdef _WINDLL
 #define GPPEngineAPI   __declspec( dllexport )
@@ -22,7 +23,14 @@ public:
 
 	GameObject(Mesh* mesh) : mesh(mesh) {};
 	GameObject() : GameObject(NULL) {};
-	~GameObject() { delete(mesh); delete(material); delete(transform);  };
+	~GameObject() { delete(mesh); delete(material); delete(transform);  delete(behavior); };
 
+	Behavior*	GetBehavior();
+	void		SetBehavior(Behavior *behavior);
+
+protected:
+
+private:
+	Behavior*	mBehavior;
 };
 

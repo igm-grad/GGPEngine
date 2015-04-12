@@ -2,15 +2,30 @@
 #include <stdlib.h>
 #include <Windows.h>
 
+void RenderCallback(Behavior& behavior, double deltaTime)
+{
+	behavior.gameObject->transform->RotatePitch(deltaTime);
+}
+
+void KeyDownCallback(Behavior& behavior)
+{
+	behavior.gameObject->transform->RotatePitch(10);
+}
+
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 	PSTR cmdLine, int showCmd)
 {
 	CoreEngine * engine = new CoreEngine(hInstance, prevInstance, cmdLine, showCmd);
 	engine->Initialize();
 
-	GameObject* gameObject = engine->Sphere();
+
+	GameObject* gameObject = engine->Cube();
 	gameObject->material = engine->DiffuseMaterial();
 	gameObject->material->SetResource(L"Textures/DiffuseTexture1.JPG", "diffuseTexture");
+	
+	Behavior* behavior = engine->CreateBehavior();
+	behavior->SetCallbackForKeyDown(KeyDownCallback, KEYCODE_X);
+	behavior->gameObject = gameObject;
 
 	/*gameObject->material = engine->DiffuseNormalMaterial();
 	gameObject->material->SetResource(L"Textures/DiffuseTexture2.JPG", "diffuseTexture");
