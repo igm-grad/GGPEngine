@@ -30,10 +30,10 @@ struct SpotLight
 
 struct Pixel
 {
-	float4	position	: SV_POSITION;
-	float3	normal		: NORMAL;
-	float3	positionT	: TEXCOORD;
-	float2	uv			: TEXCOORD1;
+	float4 position	: SV_POSITION;
+	float3 normal	: NORMAL;
+	float3 positionT: POSITIONT;
+	float2 uv		: TEXCOORD;
 };
 
 SamplerState	diffuseSampler	: register(s0);
@@ -45,46 +45,51 @@ cbuffer			lights			: register (b0)
 	SpotLight			spotLights[SPOT_LIGHT_COUNT];
 }
 
+float4 lightContribution(float4 diffuseColor, float4 ambientColor, float3 pixelNormal, float3 directionToLight)
+{
+	directionToLight = normalize(directionToLight);
+	float	contribution = saturate(dot(pixelNormal, directionToLight));
+	return ((contribution * diffuseColor) + ambientColor);
+}
+
 float4 main(Pixel pixel) : SV_TARGET
 {
 	pixel.normal = normalize(pixel.normal);
 	float4 colorAccumulator = float4(0.0f, 0.0f, 0.0f, 1.0f);
 
 	for (int i = 0; i < DIRECTIONAL_LIGHT_COUNT; i++) {
-		float3	directionToLight	=	normalize(-directionalLights[i].direction);
-		float	contribution		=	saturate(dot(pixel.normal, directionToLight));
-		colorAccumulator			+=	((contribution * directionalLights[i].diffuseColor) + directionalLights[i].ambientColor);
+		colorAccumulator += lightContribution(directionalLights[i].diffuseColor, directionalLights[i].ambientColor, pixel.normal, -directionalLights[i].direction);
 	}
 
 	for (int j = 0; j < POINT_LIGHT_COUNT; j++) {
 		float3  pixelToLight = pointLights[j].position - pixel.positionT;
-		float3	directionToLight = normalize(pixelToLight);
-		float	contribution = saturate(dot(pixel.normal, directionToLight));
+		float4	contribution = lightContribution(pointLights[j].diffuseColor, pointLights[j].ambientColor, pixel.normal, pixelToLight);
 		float   attenuation = 1 - (length(pixelToLight) * (1 / pointLights[j].radius));
-		colorAccumulator += ((contribution * pointLights[j].diffuseColor) + pointLights[j].ambientColor) * attenuation;
+		colorAccumulator += contribution * saturate(attenuation);
 	}
 
 	for (int k = 0; k < SPOT_LIGHT_COUNT; k++)
 	{
-		//float3  pixelToLight = spotLights[k].position - pixel.positionT;
-		//float3	directionToLight = normalize(pixelToLight);
-		//float	contribution = saturate(dot(pixel.normal, directionToLight));
-		//float   linearAttenuation = lerp(1.0f, 0.0f, length(pixelToLight) / spotLights[k].range);
+		float3  pixelToLight = spotLights[k].position - pixel.positionT;
+		float4	contribution = lightContribution(spotLights[k].diffuseColor, spotLights[k].ambientColor, pixel.normal, pixelToLight);
 
-		//float   phi = radians(spotLights[k].radius);
-		//float	theta = radians(spotLights[k].radius * 0.75f);
-		//float	cosAlpha = max(0.0f, (dot(directionToLight, -normalize(spotLights[k].direction))));
+		float3	directionToLight = normalize(pixelToLight);
+		float   linearAttenuation = lerp(1.0f, 0.0f, length(pixelToLight) / spotLights[k].range);
 
-		//float	totalAttenuation = 0.0f;
-		//if (cosAlpha > theta) {
-		//	totalAttenuation = 1.0f;
-		//}
-		//else if (cosAlpha > phi) { // Arbitrary Phi value
-		//	totalAttenuation = pow((cosAlpha - phi) / (theta - phi), 32);
-		//}
+		float   phi = radians(spotLights[k].radius);
+		float	theta = radians(spotLights[k].radius * 0.75f);
+		float	cosAlpha = max(0.0f, (dot(directionToLight, normalize(-spotLights[k].direction))));
 
-		//totalAttenuation *= linearAttenuation;
-		//colorAccumulator += ((contribution * spotLights[k].diffuseColor) + spotLights[k].ambientColor) * totalAttenuation;
+		float	totalAttenuation = 0.0f;
+		if (cosAlpha > theta) {
+			totalAttenuation = 1.0f;
+		}
+		else if (cosAlpha > phi) { // Arbitrary Phi value
+			totalAttenuation = pow((cosAlpha - phi) / (theta - phi), 32);
+		}
+
+		totalAttenuation *= linearAttenuation;
+		colorAccumulator += ((contribution * spotLights[k].diffuseColor) + spotLights[k].ambientColor) * saturate(totalAttenuation);
 	}
 
 	float4 textureColor = diffuseTexture.Sample(diffuseSampler, pixel.uv);

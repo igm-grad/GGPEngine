@@ -2,6 +2,7 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <map>
 
 Mesh::Mesh(Vertex* vertices, int vertexCount, UINT* indices, int indexCount, ID3D11Device* device)
 {
@@ -24,6 +25,8 @@ Mesh::Mesh(const char* filename, ID3D11Device* device)
 	std::vector<XMFLOAT2> uvs;           // UVs from the file
 	std::vector<Vertex> verts;           // Verts we're assembling
 	std::vector<UINT> indices;           // Indices of these verts
+	std::map<int, std::vector<XMFLOAT3>> sharedTangentMap;
+	std::map<int, std::vector<XMFLOAT3>> sharedBitangentMap;
 	unsigned int triangleCounter = 0;    // Count of triangles/indices
 	char chars[100];                     // String for line reading
 
@@ -109,7 +112,62 @@ Mesh::Mesh(const char* filename, ID3D11Device* device)
 			indices.push_back(triangleCounter++);
 			indices.push_back(triangleCounter++);
 			indices.push_back(triangleCounter++);
+
+			float x1 = v2.Position.x - v1.Position.x;
+			float x2 = v3.Position.x - v1.Position.x;
+			float y1 = v2.Position.y - v1.Position.y;
+			float y2 = v3.Position.y - v1.Position.y;
+			float z1 = v2.Position.z - v1.Position.z;
+			float z2 = v3.Position.z - v1.Position.z;
+
+			float s1 = v2.UV.x - v1.UV.x;
+			float s2 = v3.UV.x - v1.UV.x;
+			float t1 = v2.UV.y - v1.UV.y;
+			float t2 = v3.UV.y - v1.UV.y;
+		
+			float r = 1.0f / ((s1 * t2) - (s2 * t1));
+			XMFLOAT3 tangent =		{ (((t2 * x1) - (t1 * x2)) * r), (((t2 * y1) - (t1 * y2)) * r), (((t2 * z1) - (t1 * z2)) * r) };
+			XMFLOAT3 bitangent =	{ (((s2 * x1) - (s1 * x2)) * r), (((s2 * y1) - (s1 * y2)) * r), (((s2 * z1) - (s1 * z2)) * r) };
+
+			for (int j = 3; j >= 0; j--) {
+				int index = triangleCounter - j;
+				if (sharedTangentMap.find(index) == sharedTangentMap.end()) {
+					std::vector<XMFLOAT3> tangents = { tangent };
+					std::vector<XMFLOAT3> bitangents = { bitangent };
+					sharedTangentMap.insert({ index, tangents });
+					sharedBitangentMap.insert({ index, bitangents });
+				}
+				else {
+					sharedTangentMap.at(index).push_back(tangent);
+					sharedBitangentMap.at(index).push_back(bitangent);
+				}
+			}
+
 		}
+	}
+
+	for (int i = 0; i < verts.size(); i++)
+	{
+		std::vector<XMFLOAT3>& faceTangents = sharedTangentMap.at(i);
+		std::vector<XMFLOAT3>& faceBitangents = sharedBitangentMap.at(i);
+		XMVECTOR vertexTangent = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
+		XMVECTOR vertexBitangent = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
+		XMVECTOR vertexNormal = XMLoadFloat3(&verts[i].Normal);
+
+		for (int j = 0; j < faceTangents.size(); j++) {
+			XMVECTOR faceTangent = XMLoadFloat3(&faceTangents[j]);
+			vertexTangent += faceTangent;
+
+			XMVECTOR faceBitangent = XMLoadFloat3(&faceBitangents[j]);
+			vertexBitangent += faceBitangent;
+		}
+		vertexBitangent /= faceBitangents.size();
+		vertexTangent = XMVector3Normalize(vertexTangent / faceTangents.size());
+		vertexTangent = XMVector3Normalize((vertexTangent - vertexNormal * XMVector3Dot(vertexNormal, vertexTangent)));
+		XMStoreFloat4(&verts[i].Tangent, vertexTangent);
+
+		XMStoreFloat(&verts[i].Tangent.w, XMVector3Dot((XMVector3Cross(vertexNormal, vertexTangent)), vertexBitangent));
+		verts[i].Tangent.w = (verts[i].Tangent.w < 0.0f) ? -1.0 : 1.0f;
 	}
 
 	// Close
