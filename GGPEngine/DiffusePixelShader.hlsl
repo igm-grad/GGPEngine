@@ -30,10 +30,10 @@ struct SpotLight
 
 struct Pixel
 {
-	float4	position	: SV_POSITION;
-	float3	normal		: NORMAL;
-	float3	positionT	: TEXCOORD;
-	float2	uv			: TEXCOORD1;
+	float4 position	: SV_POSITION;
+	float3 normal	: NORMAL;
+	float3 positionT: POSITIONT;
+	float2 uv		: TEXCOORD;
 };
 
 SamplerState	diffuseSampler	: register(s0);

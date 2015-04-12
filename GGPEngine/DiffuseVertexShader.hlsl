@@ -1,5 +1,6 @@
 struct Vertex
 {
+	float4 tangent	: TANGENT;
 	float3 position : POSITION;
 	float3 normal	: NORMAL;
 	float2 uv		: TEXCOORD;
@@ -9,8 +10,8 @@ struct Pixel
 {
 	float4 position	: SV_POSITION;
 	float3 normal	: NORMAL;
-	float3 positionT: TEXCOORD;
-	float2 uv		: TEXCOORD1;
+	float3 positionT: POSITIONT;
+	float2 uv		: TEXCOORD;
 };
 
 cbuffer transform : register(b0)
