@@ -85,6 +85,7 @@
     <ClInclude Include="RenderEngine.h" />
     <ClInclude Include="RigidBody.h" />
     <ClInclude Include="SimpleShader.h" />
+    <ClInclude Include="Transform.h" />
     <ClInclude Include="Vertex.h" />
   </ItemGroup>
   <ItemGroup>
@@ -102,6 +103,7 @@
     <ClCompile Include="RenderEngine.cpp" />
     <ClCompile Include="RigidBody.cpp" />
     <ClCompile Include="SimpleShader.cpp" />
+    <ClCompile Include="Transform.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="DiffuseNormalPixelShader.hlsl">
