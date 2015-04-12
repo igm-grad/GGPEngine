@@ -219,7 +219,7 @@ Mesh* CoreEngine::CreateMesh(const char* filename)
 
 Material* CoreEngine::BasicMaterial()
 {
-	return CreateMaterial(L"VertexShader.cso", L"PixelShader.cso");
+	return CreateMaterial(L"DebugVertexShader.cso", L"DebugPixelShader.cso");
 }
 
 Material* CoreEngine::DiffuseMaterial()
