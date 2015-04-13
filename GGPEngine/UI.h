@@ -48,7 +48,7 @@ class UI : public Awesomium::JSMethodHandler
 private:
 	Awesomium::WebCore* webCore;
 	std::unique_ptr<Awesomium::WebView, void(*)(Awesomium::WebView *)> view;
-	const char * url;
+	LPCWSTR url;
 
 	std::unique_ptr<D3DSurfaceFactory> surfaceFactory;
 	D3DSurface * surface;
@@ -101,7 +101,7 @@ private:
 	}
 
 	Awesomium::JSValue OnSkill(Awesomium::WebView * view, Awesomium::JSArray const & args);
-	void UpdateBossHealth();
+	
 
 public:
 	UI(RenderEngine* e);
@@ -110,8 +110,9 @@ public:
 	void Draw();
 	void Update();
 
-	void SetURL(const char * url);
+	void SetURL(LPCWSTR url);
 	bool IsUIPixel(unsigned x, unsigned y);
+	bool ExecuteJavascript(std::string javascript);
 
 	friend class RenderEngine;
 	friend class D3DSurface;

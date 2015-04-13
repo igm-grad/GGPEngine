@@ -118,6 +118,9 @@ private:
 	bool InitMainWindow();
 	bool InitDirect3D();
 
+	bool InitUI(LPCWSTR url);
+	bool UIExecuteJavascript(std::string javascript);
+
 	friend class UI;
 	friend class CoreEngine;
 };

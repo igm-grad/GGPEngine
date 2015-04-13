@@ -36,7 +36,6 @@ UI::UI(RenderEngine* e) : view(nullptr, [](Awesomium::WebView * ptr) { ptr->Dest
 	isLoading = false;
 	forceReload = true;
 
-	this->url = URL;
 	this->e = e;
 	this->device = e->device;
 	this->deviceContext = e->deviceContext;
@@ -60,7 +59,7 @@ Awesomium::JSValue UI::OnSkill(Awesomium::WebView * view, Awesomium::JSArray con
 	{
 	case 1:
 		--m_bossHealth;
-		UpdateBossHealth();
+		//UpdateBossHealth();
 		break;
 	default:
 		break;
@@ -69,9 +68,9 @@ Awesomium::JSValue UI::OnSkill(Awesomium::WebView * view, Awesomium::JSArray con
 	return Awesomium::JSValue();
 }
 
-void UI::UpdateBossHealth() {
-	auto javascript = std::string("$('#progressbar').progressbar({ value: ") + std::to_string(m_bossHealth) + "}); ";
+bool UI::ExecuteJavascript(std::string javascript) {
 	view->ExecuteJavascript(Awesomium::ToWebString(javascript), Awesomium::WSLit(""));
+	return true;
 }
 
 bool UI::Initialize() {
@@ -96,7 +95,7 @@ void UI::SetView() {
 	view->LoadURL(Awesomium::WebURL(Awesomium::WSLit(URL)));
 }
 
-void UI::SetURL(const char * url) {
+void UI::SetURL(LPCWSTR url) {
 	this->url = url;
 }
 

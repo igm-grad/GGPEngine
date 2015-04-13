@@ -61,6 +61,9 @@ public:
 	SpotLight*			CreateSpotLight(XMFLOAT4& ambientColor, XMFLOAT4& diffuseColor, XMFLOAT3& direction, XMFLOAT3& position, float radius, float range);
 	Camera*				CreateCamera(XMFLOAT3& position, XMFLOAT3& rotation, XMFLOAT3& forward, XMFLOAT3& up, float movementSpeed);
 
+	bool InitializeUI(LPCWSTR url);
+	bool UIExecuteJavascript(std::string javascript);
+
 	LRESULT MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam); // Must be public
 
 private:

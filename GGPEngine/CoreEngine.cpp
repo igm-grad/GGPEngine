@@ -48,6 +48,13 @@ bool CoreEngine::Initialize()
 	return false;
 }
 
+bool CoreEngine::InitializeUI(LPCWSTR url) {
+	return renderer->InitUI(url);
+}
+
+bool CoreEngine::UIExecuteJavascript(std::string javascript) {
+	return renderer->UIExecuteJavascript(javascript);
+}
 void CoreEngine::Update()
 {
 	// Peek at the next message (and remove it from the queue)

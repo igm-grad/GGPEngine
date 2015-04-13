@@ -59,13 +59,6 @@ bool RenderEngine::Initialize()
 		return false;
 	}
 
-	if (true) { //TODO: Use UI toggle
-		ui = new UI(this);
-		if (!ui->Initialize()) {
-			return false;
-		}
-	}
-
 	return true;
 }
 
@@ -432,6 +425,21 @@ bool RenderEngine::InitDirect3D() {
 	OnResize();
 	
 	return true;
+}
+
+bool RenderEngine::InitUI(LPCWSTR url) {
+	ui = new UI(this);
+
+	ui->SetURL(url);
+
+	if (!ui->Initialize()) {
+		return false;
+	}
+}
+
+bool RenderEngine::UIExecuteJavascript(std::string javascript) {
+	if (!ui) return false;
+	return ui->ExecuteJavascript(javascript);
 }
 
 #pragma region Window Resizing Private
