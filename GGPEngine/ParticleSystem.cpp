@@ -1,6 +1,5 @@
 #include "ParticleSystem.h"
 
-
 ParticleSystem::ParticleSystem() : mInitVB(0), mDrawVB(0), mStreamOutVB(0), mTexArraySRV(0), mRandomTexSRV(0)
 {
 	mFirstRun = true;
@@ -72,8 +71,9 @@ void ParticleSystem::Update(float dt, float gameTime)
 
 void ParticleSystem::Draw(ID3D11DeviceContext* dc, const Camera& cam)
 {
-	/*XMMATRIX VP = cam.ViewProj();
-
+	XMFLOAT4X4 view = cam.view();
+	XMMATRIX VP = XMLoadFloat4x4(&view);
+	
 	//
 	// Set constants.
 	//
@@ -143,7 +143,7 @@ void ParticleSystem::Draw(ID3D11DeviceContext* dc, const Camera& cam)
 		mFX->DrawTech->GetPassByIndex(p)->Apply(0, dc);
 
 		dc->DrawAuto();
-	}*/
+	}
 }
 
 void ParticleSystem::BuildVB(ID3D11Device* device)

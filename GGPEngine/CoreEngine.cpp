@@ -243,8 +243,13 @@ Material* CoreEngine::CreateMaterial(LPCWSTR vertexShaderFile, LPCWSTR pixelShad
 
 void CoreEngine::AddParticleSystem(GameObject* targetObject, ParticleSystem* addedPartSystem)
 {
-	//Look at Target's Effects.
+	//Temporary:
+	//Replace target's particle system
+	targetObject->particleSystem = addedPartSystem;
 
+
+	//Future:
+	//Look at Target's Effects.
 	//Add the particle system to Target's Effects Systems.
 }
 
