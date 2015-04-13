@@ -75,13 +75,21 @@ void CoreEngine::Update()
 			// TODO: transfer this code to a gamoobject 
 			// component update method
 #pragma region Input tests
+			if (input->GetKey(KEYCODE_W)) {
+				auto go = gameObjects[0];
+				go->transform->MoveForward();
+			}
+			if (input->GetKey(KEYCODE_S)) {
+				auto go = gameObjects[0];
+				go->transform->MoveBackward();
+			}
 			if (input->GetKey(KEYCODE_A)) {
 				auto go = gameObjects[0];
-				go->position.x += 0.001f;
+				go->transform->MoveLeft();
 			}
-			if (input->GetKey(KEYCODE_B)) {
+			if (input->GetKey(KEYCODE_D)) {
 				auto go = gameObjects[0];
-				go->position.x -= 0.001f;
+				go->transform->MoveRight();
 			}
 			if (input->GetKeyDown(KEYCODE_A)) {
 				OutputDebugStringA("KeyDown A\n");
@@ -146,6 +154,7 @@ GameObject* CoreEngine::CreateGameObject()
 {
 	Mesh* mesh = NULL;
 	GameObject* obj = new GameObject(mesh);
+	obj->transform = new Transform();
 	gameObjects.push_back(obj);
 	return obj;
 }
@@ -154,6 +163,7 @@ GameObject* CoreEngine::CreateGameObject(const char* filename)
 {
 	Mesh* mesh = CreateMesh(filename);
 	GameObject* obj = new GameObject(mesh);
+	obj->transform = new Transform();
 	gameObjects.push_back(obj);
 	return obj;
 }
@@ -208,7 +218,7 @@ Mesh* CoreEngine::CreateMesh(const char* filename)
 
 Material* CoreEngine::BasicMaterial()
 {
-	return CreateMaterial(L"VertexShader.cso", L"PixelShader.cso");
+	return CreateMaterial(L"DebugVertexShader.cso", L"DebugPixelShader.cso");
 }
 
 Material* CoreEngine::DiffuseMaterial()
@@ -264,11 +274,12 @@ SpotLight* CoreEngine::CreateSpotLight(XMFLOAT4& ambientColor, XMFLOAT4& diffuse
 Camera* CoreEngine::CreateCamera(XMFLOAT3& position, XMFLOAT3& rotation, XMFLOAT3& forward, XMFLOAT3& up, float movementSpeed)
 {
 	Camera* camera = renderer->CreateCamera();
-	camera->position = position;
-	camera->rotation = rotation;
-	camera->forward = forward;
-	camera->up = up;
-	camera->movementSpeed = movementSpeed;
+	camera->transform = new Transform();
+	camera->transform->position = position;
+	camera->transform->rotation = rotation;
+	camera->transform->forward = forward;
+	camera->transform->up = up;
+	camera->transform->movementSpeed = movementSpeed;
 	return camera;
 }
 

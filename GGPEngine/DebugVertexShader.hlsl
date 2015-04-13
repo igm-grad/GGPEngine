@@ -8,10 +8,8 @@ struct Vertex
 
 struct Pixel
 {
-	float4 position	: SV_POSITION;
-	float3 normal	: NORMAL;
-	float3 positionT: POSITIONT;
-	float2 uv		: TEXCOORD;
+	float4 position		: SV_POSITION;
+	float4 color		: COLOR;
 };
 
 cbuffer transform : register(b0)
@@ -27,9 +25,9 @@ Pixel main( Vertex vertex )
 
 	Pixel pixel;
 	pixel.position = mul(float4(vertex.position, 1.0f), clip);
-	pixel.normal = mul(vertex.normal, (float3x3)world);
-	pixel.positionT = mul(float4(vertex.position, 1.0f), world).xyz;
-	pixel.uv = vertex.uv;
 
+	float3 normalColor = normalize(mul(vertex.normal, (float3x3)world));
+	pixel.color = float4(normalColor, 1.0f);
 	return pixel;
+
 }

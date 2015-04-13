@@ -1,19 +1,19 @@
 struct Vertex
 {
-	float4 tangent	: TEXCOORD;
+	float4 tangent	: TANGENT;
 	float3 position : POSITION;
 	float3 normal	: NORMAL;
-	float2 uv		: TEXCOORD1;
+	float2 uv		: TEXCOORD;
 };
 
 struct Pixel
 {
 	float4 position	: SV_POSITION;
 	float3 normal	: NORMAL;
-	float3 positionT: TEXCOORD;
-	float3 tangent	: TEXCOORD1;
-	float3 bitangent: TEXCOORD2;
-	float2 uv		: TEXCOORD3;
+	float3 positionT: POSITIONT;
+	float3 tangent	: TANGENT;
+	float3 bitangent: BINORMAL;
+	float2 uv		: TEXCOORD;
 };
 
 cbuffer transform : register(b0)

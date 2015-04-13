@@ -26,7 +26,8 @@ RenderEngine::RenderEngine(HINSTANCE hInstance, WNDPROC MainWndProc) :
 	wcCallback = MainWndProc;
 
 	defaultCamera = new Camera();
-	defaultCamera->position = { 0, 0, -10 };
+	defaultCamera->transform = new Transform();
+	defaultCamera->transform->position = { 0, 0, -10 };
 	defaultCamera->UpdateProjection(0.25f * 3.1415926535f, AspectRatio(), 0.1f, 100.0f);
 }
 
@@ -232,7 +233,7 @@ void RenderEngine::Update(float totalTime, std::vector<GameObject*> gameObjects)
 		//  - Allows us to send the data to the GPU buffer in one step
 		//  - Do this PER OBJECT, before drawing it
 		XMFLOAT4X4 world;
-		XMStoreFloat4x4(&world, XMMatrixTranspose(gameObject->getWorldTransform()));
+		XMStoreFloat4x4(&world, XMMatrixTranspose(gameObject->transform->getWorldTransform()));
 		gameObject->material->sVertexShader->SetMatrix4x4("world", world);
 		gameObject->material->sVertexShader->SetMatrix4x4("view", defaultCamera->view);
 		gameObject->material->sVertexShader->SetMatrix4x4("projection", defaultCamera->projection);
