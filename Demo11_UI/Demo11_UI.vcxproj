@@ -49,7 +49,8 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy /y "$(ProjectDir)*.html" "$(TargetDir)"</Command>
+      <Command>xcopy /y "$(ProjectDir)UI\*" "$(TargetDir)UI\*"
+xcopy /y "$(ProjectDir)Models\*" "$(TargetDir)Models\*"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">

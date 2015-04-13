@@ -3,7 +3,7 @@
 #include <Windowsx.h>
 #include <memory>
 
-#define URL     "file:///./test.html"
+#define URL     "file:///./UI/test.html"
 
 
 #pragma region D3Surface
@@ -208,8 +208,8 @@ bool UI::wmMouseMoveHook(WPARAM wParam, LPARAM lParam) {
 			view->InjectMouseDown(Awesomium::kMouseButton_Left);
 
 		view->InjectMouseMove(xPos, yPos);
-		return false;
 	}
+	return false;
 }
 
 bool UI::wmMouseButtonDownHook(WPARAM wParam, LPARAM lParam, MouseButton btn) {

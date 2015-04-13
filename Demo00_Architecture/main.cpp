@@ -12,7 +12,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 	CoreEngine * engine = new CoreEngine(hInstance, prevInstance, cmdLine, showCmd);
 	engine->Initialize();
 
-	GameObject* gameObject = engine->Sphere();
+	GameObject* gameObject = engine->CreateGameObject("Models\\Lego.obj");
 	gameObject->material = engine->BasicMaterial();
 
 	// Loop until we get a quit message from the engine
