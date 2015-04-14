@@ -17,20 +17,14 @@ class  GameObject
 {
 public:
 
+	UINT32		id;
 	Transform*	transform;
 	Mesh*		mesh;
 	Material*	material;
+	Behavior*	behavior;
 
 	GameObject(Mesh* mesh) : mesh(mesh) {};
 	GameObject() : GameObject(NULL) {};
 	~GameObject() { delete(mesh); delete(material); delete(transform);  delete(behavior); };
-
-	Behavior*	GetBehavior();
-	void		SetBehavior(Behavior *behavior);
-
-protected:
-
-private:
-	Behavior*	mBehavior;
 };
 

@@ -177,7 +177,7 @@ void RenderEngine::UpdateScene(GameObject** gameObjects, int gameObjectsCount, d
 {
 	for (int i = 0; i < gameObjectsCount; i++) {
 		if (gameObjects[i]->behavior) {
-			gameObjects[i]->behavior->renderCallback(gameObjects[i], deltaTime);
+			gameObjects[i]->behavior->renderCallback(*gameObjects[i], deltaTime);
 		}
 	}
 }

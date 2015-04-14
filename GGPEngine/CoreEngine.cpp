@@ -68,11 +68,23 @@ void CoreEngine::Update()
 		}
 		else
 		{
-			for (Behavior behavior : behaviors) {
-				for (const auto &keyValuePair : behavior.keyInputMap)
+			// This is ugly, but I'm a shitty programmer :(
+			for (GameObject* gameObject : gameObjects)
+			{
+				if (gameObject->behavior != NULL && gameObject->behavior->keyInputMap.size() != 0)
 				{
-					if (input->GetKeyDown(keyValuePair.first)) {
-						keyValuePair.second(behavior);
+					for (std::map<KeyCode, KeyCallback>::iterator iter = gameObject->behavior->keyInputMap.begin(); iter != gameObject->behavior->keyInputMap.end(); iter++)
+					{
+						if (input->GetKey(iter->first)) {
+							iter->second(*gameObject);
+						}
+					}
+
+					for (std::map<KeyCode, KeyDownCallback>::iterator iter = gameObject->behavior->keyDownInputMap.begin(); iter != gameObject->behavior->keyDownInputMap.end(); iter++)
+					{
+						if (input->GetKeyDown(iter->first)) {
+							iter->second(*gameObject);
+						}
 					}
 				}
 			}

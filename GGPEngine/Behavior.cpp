@@ -1,7 +1,7 @@
 #include "Behavior.h"
 #include <stdio.h>
 
-void EmptyCallBack(Behavior& behavior, double deltaTime) {}
+void EmptyCallBack(GameObject& gameObject, double deltaTime) {}
 
 Behavior::Behavior()
 {
@@ -11,7 +11,7 @@ Behavior::Behavior()
 
 Behavior::~Behavior()
 {
-	gameObject = NULL;
+
 }
 
 float Behavior::GetFloatForKey(const char* key)
@@ -34,7 +34,14 @@ void Behavior::SetIntForKey(int value, const char* key)
 	IntMap[key] = value;
 }
 
-void Behavior::SetCallbackForKeyDown(KeyDownCallback callback, KeyCode keyCode)
+void Behavior::SetCallbackForKey(KeyCallback callback, KeyCode keyCode)
 {
 	keyInputMap[keyCode] = callback;
+
 }
+
+void Behavior::SetCallbackForKeyDown(KeyDownCallback callback, KeyCode keyCode)
+{
+	keyDownInputMap[keyCode] = callback;
+}
+
