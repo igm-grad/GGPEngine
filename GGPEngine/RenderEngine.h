@@ -53,7 +53,8 @@ protected:
 	bool Initialize();
 	void OnResize();
 	void CalculateFrameStats(float totalTime);
-	void Update(float deltaTime, std::vector<GameObject*> list);
+	void UpdateScene(GameObject** gameObjects, int gameObjectsCount, double deltaTime);
+	void DrawScene(GameObject** gameObjects, int gameObjectsCount, double deltaTime);
 	
 	Mesh*				CreateMesh(const char* filename);
 	Material*			CreateMaterial(LPCWSTR vertexShaderFile, LPCWSTR pixelShaderFile);

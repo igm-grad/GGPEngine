@@ -177,7 +177,16 @@ void RenderEngine::CalculateFrameStats(float totalTime)
 	}
 }
 
-void RenderEngine::Update(float totalTime, std::vector<GameObject*> gameObjects)
+void RenderEngine::UpdateScene(GameObject** gameObjects, int gameObjectsCount, double deltaTime)
+{
+	for (int i = 0; i < gameObjectsCount; i++) {
+		if (gameObjects[i]->behavior) {
+			gameObjects[i]->behavior->renderCallback(*gameObjects[i], deltaTime);
+		}
+	}
+}
+
+void RenderEngine::DrawScene(GameObject** gameObjects, int gameObjectsCount, double deltaTime)
 {
 	// Background color (Cornflower Blue in this case) for clearing
 	const float color[4] = { 0.4f, 0.6f, 0.75f, 0.0f };
@@ -215,7 +224,7 @@ void RenderEngine::Update(float totalTime, std::vector<GameObject*> gameObjects)
 	// Update Camera
 	defaultCamera->Update();
 
-	for (GameObject* gameObject : gameObjects) {
+	for (int i = 0; i < gameObjectsCount; i++) {
 		// Set up the input assembler
 		//  - These technically don't need to be set every frame, unless you're changing the
 		//    input layout (different kinds of vertices) or the topology (different primitives)
@@ -226,28 +235,28 @@ void RenderEngine::Update(float totalTime, std::vector<GameObject*> gameObjects)
 		//  - Allows us to send the data to the GPU buffer in one step
 		//  - Do this PER OBJECT, before drawing it
 		XMFLOAT4X4 world;
-		XMStoreFloat4x4(&world, XMMatrixTranspose(gameObject->transform->getWorldTransform()));
-		gameObject->material->sVertexShader->SetMatrix4x4("world", world);
-		gameObject->material->sVertexShader->SetMatrix4x4("view", defaultCamera->view);
-		gameObject->material->sVertexShader->SetMatrix4x4("projection", defaultCamera->projection);
-		gameObject->material->sVertexShader->SetShader();
+		XMStoreFloat4x4(&world, XMMatrixTranspose(gameObjects[i]->transform->getWorldTransform()));
+		gameObjects[i]->material->sVertexShader->SetMatrix4x4("world", world);
+		gameObjects[i]->material->sVertexShader->SetMatrix4x4("view", defaultCamera->view);
+		gameObjects[i]->material->sVertexShader->SetMatrix4x4("projection", defaultCamera->projection);
+		gameObjects[i]->material->sVertexShader->SetShader();
 
 		// TO DO: This is gross. Less branching would be optimal since lights are the same for every object currently.
 		if (directionLights.size() > 0) {
-			gameObject->material->sPixelShader->SetData("directionalLights", &directionLights[0], sizeof(DirectionalLight) * directionLights.size());
+			gameObjects[i]->material->sPixelShader->SetData("directionalLights", &directionLights[0], sizeof(DirectionalLight) * directionLights.size());
 		}
 
 		if (pointLights.size() > 0) {
-			gameObject->material->sPixelShader->SetData("pointLights", &pointLights[0], sizeof(PointLight) * pointLights.size());
+			gameObjects[i]->material->sPixelShader->SetData("pointLights", &pointLights[0], sizeof(PointLight) * pointLights.size());
 		}
 
 		if (spotLights.size() > 0) {
-			gameObject->material->sPixelShader->SetData("spotLights", &spotLights[0], sizeof(SpotLight) * spotLights.size());
+			gameObjects[i]->material->sPixelShader->SetData("spotLights", &spotLights[0], sizeof(SpotLight) * spotLights.size());
 		}
 
-		gameObject->material->UpdatePixelShaderResources();
-		gameObject->material->UpdatePixelShaderSamplers();
-		gameObject->material->sPixelShader->SetShader();
+		gameObjects[i]->material->UpdatePixelShaderResources();
+		gameObjects[i]->material->UpdatePixelShaderSamplers();
+		gameObjects[i]->material->sPixelShader->SetShader();
 
 		// Set buffers in the input assembler
 		//  - This should be done PER OBJECT you intend to draw, as each object could
@@ -255,15 +264,15 @@ void RenderEngine::Update(float totalTime, std::vector<GameObject*> gameObjects)
 		//  - You must have both a vertex and index buffer set to draw
 		UINT stride = sizeof(Vertex);
 		UINT offset = 0;
-		deviceContext->IASetVertexBuffers(0, 1, gameObject->mesh->GetVertexBuffer(), &stride, &offset);
-		deviceContext->IASetIndexBuffer(gameObject->mesh->GetIndexBuffer(), DXGI_FORMAT_R32_UINT, 0);
+		deviceContext->IASetVertexBuffers(0, 1, gameObjects[i]->mesh->GetVertexBuffer(), &stride, &offset);
+		deviceContext->IASetIndexBuffer(gameObjects[i]->mesh->GetIndexBuffer(), DXGI_FORMAT_R32_UINT, 0);
 
 
 		// Finally do the actual drawing
 		//  - This should be done PER OBJECT you index to draw
 		//  - This will use all of the currently set DirectX stuff (shaders, buffers, etc)
 		deviceContext->DrawIndexed(
-			gameObject->mesh->indexCount,	// The number of indices we're using in this draw
+			gameObjects[i]->mesh->indexCount,	// The number of indices we're using in this draw
 			0,
 			0);
 	}
@@ -435,6 +444,7 @@ bool RenderEngine::InitUI(LPCWSTR url) {
 	if (!ui->Initialize()) {
 		return false;
 	}
+	return true;
 }
 
 bool RenderEngine::UIExecuteJavascript(std::string javascript) {

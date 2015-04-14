@@ -1,10 +1,16 @@
 #pragma once
-#pragma once
+#pragma warning( disable: 4251 )
 #include <DirectXMath.h>
 
 using namespace DirectX;
 
-class Transform
+#ifdef _WINDLL
+#define GPPEngineAPI   __declspec( dllexport )
+#else
+#define GPPEngineAPI   __declspec( dllimport )
+#endif
+
+class GPPEngineAPI Transform
 {
 public:
 	XMFLOAT3	rotation;
