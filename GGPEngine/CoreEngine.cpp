@@ -68,6 +68,27 @@ void CoreEngine::Update()
 		}
 		else
 		{
+			// This is ugly, but I'm a shitty programmer :(
+			for (GameObject* gameObject : gameObjects)
+			{
+				if (gameObject->behavior != NULL && gameObject->behavior->keyInputMap.size() != 0)
+				{
+					for (std::map<KeyCode, KeyCallback>::iterator iter = gameObject->behavior->keyInputMap.begin(); iter != gameObject->behavior->keyInputMap.end(); iter++)
+					{
+						if (input->GetKey(iter->first)) {
+							iter->second(*gameObject);
+						}
+					}
+
+					for (std::map<KeyCode, KeyDownCallback>::iterator iter = gameObject->behavior->keyDownInputMap.begin(); iter != gameObject->behavior->keyDownInputMap.end(); iter++)
+					{
+						if (input->GetKeyDown(iter->first)) {
+							iter->second(*gameObject);
+						}
+					}
+				}
+			}
+
 			// Standard game loop type stuff
 			physics->Update(timer.TotalTime());
 
@@ -114,47 +135,10 @@ void CoreEngine::Update()
 				OutputDebugStringA("KeyUp A\n");
 			}
 
-			if (input->GetMouseButtonDown(MOUSEBUTTON_LEFT))
-			{
-				OutputDebugStringA("mouse down left\n");
-			}
-
-			if (input->GetMouseButtonUp(MOUSEBUTTON_LEFT))
-			{
-				OutputDebugStringA("mouse up left\n");
-			}
-
-			if (input->GetMouseButtonDown(MOUSEBUTTON_RIGHT))
-			{
-				OutputDebugStringA("mouse down right\n");
-			}
-
-			if (input->GetMouseButtonUp(MOUSEBUTTON_RIGHT))
-			{
-				OutputDebugStringA("mouse up right\n");
-			}
-
-			if (input->GetMouseButtonDown(MOUSEBUTTON_MIDDLE))
-			{
-				OutputDebugStringA("mouse down middle\n");
-			}
-
-			if (input->GetMouseButtonUp(MOUSEBUTTON_MIDDLE))
-			{
-				OutputDebugStringA("mouse up middle\n");
-			}
-
-			int x = input->mousePosition.x;
-			int y = input->mousePosition.y;
-
-			char str[100];
-			sprintf_s(str, "X: %d, Y: %d\n", x, y);
-			OutputDebugStringA(str);
-
-#pragma endregion
 
 			//renderer->CalculateFrameStats(timer.TotalTime());
-			renderer->Update(timer.DeltaTime(), gameObjects);
+			renderer->UpdateScene(&gameObjects[0], gameObjects.size(), timer.TotalTime());
+			renderer->DrawScene(&gameObjects[0], gameObjects.size(), timer.TotalTime());
 
 			// Flush the InputManager at the end of every frame
 			input->Flush();
@@ -298,6 +282,12 @@ Camera* CoreEngine::CreateCamera(XMFLOAT3& position, XMFLOAT3& rotation, XMFLOAT
 	camera->transform->up = up;
 	camera->transform->movementSpeed = movementSpeed;
 	return camera;
+}
+
+Behavior* CoreEngine::CreateBehavior()
+{
+	behaviors.push_back(Behavior());
+	return &behaviors.back();
 }
 
 #pragma region Windows Message Processing
