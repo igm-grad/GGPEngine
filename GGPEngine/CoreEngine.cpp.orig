@@ -95,6 +95,7 @@ void CoreEngine::Update()
 			// There must be a logics update method
 			// TODO: transfer this code to a gamoobject 
 			// component update method
+<<<<<<< HEAD
 #pragma region Input tests
 			if (input->GetKey(KEYCODE_W)) {
 				auto go = gameObjects[0];
@@ -112,12 +113,30 @@ void CoreEngine::Update()
 				auto go = gameObjects[0];
 				go->transform->MoveRight();
 			}
+			if (input->GetKey(KEYCODE_C)) {
+				auto go = gameObjects[0];
+				go->position.y += 0.001f;
+			}
+			if (input->GetKey(KEYCODE_D)) {
+				auto go = gameObjects[0];
+				go->position.y -= 0.001f;
+			}
+			if (input->GetKey(KEYCODE_E)) {
+				auto go = gameObjects[0];
+				go->position.z += 0.001f;
+			}
+			if (input->GetKey(KEYCODE_F)) {
+				auto go = gameObjects[0];
+				go->position.z -= 0.001f;
+			}
 			if (input->GetKeyDown(KEYCODE_A)) {
 				OutputDebugStringA("KeyDown A\n");
 			}
 			if (input->GetKeyUp(KEYCODE_A)) {
 				OutputDebugStringA("KeyUp A\n");
 			}
+=======
+>>>>>>> develop
 
 
 			//renderer->CalculateFrameStats(timer.TotalTime());

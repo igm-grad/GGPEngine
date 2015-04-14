@@ -61,7 +61,8 @@ protected:
 
 	Camera*									CreateCamera();
 
-	std::vector<GameObject*>				CullGameObjectsFromCamera(Camera* camera, std::vector<GameObject*> list);
+	GameObject**							CullGameObjectsFromCamera(Camera* camera, GameObject** list, int listCount);
+	GameObject**							sortList(GameObject** RenderList, int renderlistCount, float* renderDistFromCamera);
 	float									getAngle(float ax, float ay, float bx, float by);
 
 private:
@@ -106,6 +107,9 @@ private:
 
 	Camera* defaultCamera;
 	std::vector<Camera> cameras;
+
+	// temp solution
+	int renderListCount;
 
 	bool InitMainWindow();
 	bool InitDirect3D();
