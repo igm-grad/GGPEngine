@@ -43,6 +43,7 @@
 using namespace DirectX;
 
 class UI; //Forward declaration
+typedef GPPEngineAPI void(*JSFunctionCallback)();
 
 class  RenderEngine
 {
@@ -121,6 +122,7 @@ private:
 
 	bool InitUI(LPCWSTR url);
 	bool UIExecuteJavascript(std::string javascript);
+	bool UIRegisterJavascriptFunction(std::string functionName, JSFunctionCallback functionPointer);
 
 	friend class UI;
 	friend class CoreEngine;

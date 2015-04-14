@@ -47,29 +47,13 @@ UI::~UI()
 		webCore->Shutdown();
 }
 
-Awesomium::JSValue UI::OnSkill(Awesomium::WebView * view, Awesomium::JSArray const & args) {
-	if (args.size() == 0)
-		return Awesomium::JSValue();
-
-	Awesomium::JSValue const & arg = args[0];
-	if (!arg.IsInteger())
-		return Awesomium::JSValue();
-
-	switch (arg.ToInteger())
-	{
-	case 1:
-		--m_bossHealth;
-		//UpdateBossHealth();
-		break;
-	default:
-		break;
-	}
-
-	return Awesomium::JSValue();
-}
-
 bool UI::ExecuteJavascript(std::string javascript) {
 	view->ExecuteJavascript(Awesomium::ToWebString(javascript), Awesomium::WSLit(""));
+	return true;
+}
+
+bool UI::RegisterJavascriptFunction(std::string functionName, JSFunctionCallback functionPointer) {
+	jsUserFunctions[functionName] = functionPointer;
 	return true;
 }
 
@@ -131,11 +115,13 @@ void UI::Update() {
 		view->set_js_method_handler(this);
 		m_jsApp = view->CreateGlobalJavascriptObject(Awesomium::WSLit("app"));
 
-		Awesomium::JSObject & appObject = m_jsApp.ToObject();
-		appObject.SetCustomMethod(Awesomium::WSLit("skill"), false);
-
-		JsCallerKey key(appObject.remote_id(), Awesomium::WSLit("skill"));
-		m_jsFunctions[key] = std::bind(&UI::OnSkill, this, std::placeholders::_1, std::placeholders::_2);
+		for (std::map<std::string, JSFunctionCallback>::iterator iter = jsUserFunctions.begin(); iter != jsUserFunctions.end(); iter++)
+		{
+			if (iter->second != nullptr) {
+				Awesomium::JSObject & appObject = m_jsApp.ToObject();
+				appObject.SetCustomMethod(Awesomium::ToWebString(iter->first), false);
+			}
+		}
 
 		webCore->Update();
 		surface = static_cast<D3DSurface *>(view->surface());
@@ -196,6 +182,23 @@ bool UI::IsUIPixel(unsigned x, unsigned y) {
 	return result;
 }
 
+void UI::OnMethodCall(Awesomium::WebView * caller, unsigned remoteObjectId, Awesomium::WebString const & methodName, Awesomium::JSArray const & args) {
+	JSFunctionCallback callback = jsUserFunctions[Awesomium::ToString(methodName)];
+
+	if (callback && callback != nullptr) {
+		callback();
+	}
+}
+
+Awesomium::JSValue UI::OnMethodCallWithReturnValue(Awesomium::WebView * caller, unsigned remoteObjectId, Awesomium::WebString const & methodName, Awesomium::JSArray const & args) {
+	JSFunctionCallback callback = jsUserFunctions[Awesomium::ToString(methodName)];
+
+	if (callback && callback != nullptr) {
+		callback();
+	}
+
+	return Awesomium::JSValue();
+}
 
 #pragma region Mouse Processing
 bool UI::wmMouseMoveHook(WPARAM wParam, LPARAM lParam) {

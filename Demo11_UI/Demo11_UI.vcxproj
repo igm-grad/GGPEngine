@@ -71,7 +71,7 @@ xcopy /y "$(ProjectDir)Models\*" "$(TargetDir)Models\*"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\Demo00_Architecture\main.cpp" />
+    <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\GGPEngine\GGPEngine.vcxproj">

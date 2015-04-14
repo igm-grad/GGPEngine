@@ -55,6 +55,11 @@ bool CoreEngine::InitializeUI(LPCWSTR url) {
 bool CoreEngine::UIExecuteJavascript(std::string javascript) {
 	return renderer->UIExecuteJavascript(javascript);
 }
+
+bool CoreEngine::UIRegisterJavascriptFunction(std::string functionName, JSFunctionCallback functionPointer) {
+	return renderer->UIRegisterJavascriptFunction(functionName, functionPointer);
+}
+
 void CoreEngine::Update()
 {
 	// Peek at the next message (and remove it from the queue)

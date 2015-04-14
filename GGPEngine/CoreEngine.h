@@ -67,6 +67,7 @@ public:
 
 	bool InitializeUI(LPCWSTR url);
 	bool UIExecuteJavascript(std::string javascript);
+	bool UIRegisterJavascriptFunction(std::string functionName, JSFunctionCallback functionPointer);
 
 	LRESULT MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam); // Must be public
 

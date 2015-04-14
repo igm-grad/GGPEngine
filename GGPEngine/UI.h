@@ -42,6 +42,7 @@ private:
 };
 
 class RenderEngine; //Forward declaration
+typedef GPPEngineAPI void(*JSFunctionCallback)();
 
 class UI : public Awesomium::JSMethodHandler
 {
@@ -72,36 +73,12 @@ private:
 	bool wmMouseButtonDownHook(WPARAM wParam, LPARAM lParam, MouseButton btn);
 	bool wmMouseButtonUpHook(WPARAM wParam, LPARAM lParam, MouseButton btn);
 
-
-	typedef std::pair<unsigned, Awesomium::WebString> JsCallerKey;
-	typedef std::function<Awesomium::JSValue(Awesomium::WebView *, Awesomium::JSArray const &)> JsFunction;
-	
-	std::map<JsCallerKey, JsFunction> m_jsFunctions;
-	std::map<JsCallerKey, JsFunction> m_jsFunctionsWithRetValue;
 	Awesomium::JSValue          m_jsApp;
+	std::map<std::string, JSFunctionCallback> jsUserFunctions;
 
-	void OnMethodCall(Awesomium::WebView * caller, unsigned remoteObjectId, Awesomium::WebString const & methodName, Awesomium::JSArray const & args) {
-		JsCallerKey key(remoteObjectId, methodName);
-		auto itor = m_jsFunctions.find(key);
+	void OnMethodCall(Awesomium::WebView * caller, unsigned remoteObjectId, Awesomium::WebString const & methodName, Awesomium::JSArray const & args);
 
-		if (itor != m_jsFunctions.end()) {
-			itor->second(caller, args);
-		}
-	}
-
-	Awesomium::JSValue Awesomium::JSMethodHandler::OnMethodCallWithReturnValue(Awesomium::WebView * caller, unsigned remoteObjectId, Awesomium::WebString const & methodName, Awesomium::JSArray const & args) {
-		JsCallerKey key(remoteObjectId, methodName);
-		auto itor = m_jsFunctionsWithRetValue.find(key);
-
-		if (itor != m_jsFunctionsWithRetValue.end()) {
-			return itor->second(caller, args);
-		}
-
-		return Awesomium::JSValue();
-	}
-
-	Awesomium::JSValue OnSkill(Awesomium::WebView * view, Awesomium::JSArray const & args);
-	
+	Awesomium::JSValue OnMethodCallWithReturnValue(Awesomium::WebView * caller, unsigned remoteObjectId, Awesomium::WebString const & methodName, Awesomium::JSArray const & args);
 
 public:
 	UI(RenderEngine* e);
@@ -113,6 +90,7 @@ public:
 	void SetURL(LPCWSTR url);
 	bool IsUIPixel(unsigned x, unsigned y);
 	bool ExecuteJavascript(std::string javascript);
+	bool RegisterJavascriptFunction(std::string functionName, JSFunctionCallback functionPointer);
 
 	friend class RenderEngine;
 	friend class D3DSurface;

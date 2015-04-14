@@ -452,6 +452,11 @@ bool RenderEngine::UIExecuteJavascript(std::string javascript) {
 	return ui->ExecuteJavascript(javascript);
 }
 
+bool RenderEngine::UIRegisterJavascriptFunction(std::string functionName, JSFunctionCallback functionPointer) {
+	if (!ui) return false;
+	return ui->RegisterJavascriptFunction(functionName, functionPointer);
+}
+
 #pragma region Window Resizing Private
 
 void RenderEngine::wmSizeHook(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam, bool *gamePaused) {
