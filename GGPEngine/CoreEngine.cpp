@@ -48,6 +48,18 @@ bool CoreEngine::Initialize()
 	return false;
 }
 
+bool CoreEngine::InitializeUI(LPCWSTR url) {
+	return renderer->InitUI(url);
+}
+
+bool CoreEngine::UIExecuteJavascript(std::string javascript) {
+	return renderer->UIExecuteJavascript(javascript);
+}
+
+bool CoreEngine::UIRegisterJavascriptFunction(std::string functionName, JSFunctionCallback functionPointer) {
+	return renderer->UIRegisterJavascriptFunction(functionName, functionPointer);
+}
+
 void CoreEngine::Update()
 {
 	// Peek at the next message (and remove it from the queue)
@@ -92,11 +104,6 @@ void CoreEngine::Update()
 			// Standard game loop type stuff
 			physics->Update(timer.TotalTime());
 
-			// There must be a logics update method
-			// TODO: transfer this code to a gamoobject 
-			// component update method
-
-
 			//renderer->CalculateFrameStats(timer.TotalTime());
 			renderer->UpdateScene(&gameObjects[0], gameObjects.size(), timer.TotalTime());
 			renderer->DrawScene(&gameObjects[0], gameObjects.size(), timer.TotalTime());
@@ -107,7 +114,7 @@ void CoreEngine::Update()
 	}
 }
 
-bool CoreEngine::exitRequested() 
+bool CoreEngine::exitRequested()
 {
 	return msg.message == WM_QUIT;
 }
@@ -312,30 +319,37 @@ LRESULT CoreEngine::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		return 0;
 
 	case WM_LBUTTONDOWN:
-		input->OnMouseDown(MOUSEBUTTON_LEFT, wParam, lParam);
+		if (!renderer->wmMouseButtonDownHook(wParam, lParam, MouseButton::MOUSEBUTTON_LEFT))
+			input->OnMouseDown(MOUSEBUTTON_LEFT, wParam, lParam);
 		return 0;
 	case WM_MBUTTONDOWN:
-		input->OnMouseDown(MOUSEBUTTON_MIDDLE, wParam, lParam);
+		if (!renderer->wmMouseButtonDownHook(wParam, lParam, MouseButton::MOUSEBUTTON_MIDDLE))
+			input->OnMouseDown(MOUSEBUTTON_MIDDLE, wParam, lParam);
 		return 0;
 	case WM_RBUTTONDOWN:
-		input->OnMouseDown(MOUSEBUTTON_RIGHT, wParam, lParam);
+		if (!renderer->wmMouseButtonDownHook(wParam, lParam, MouseButton::MOUSEBUTTON_RIGHT))
+			input->OnMouseDown(MOUSEBUTTON_RIGHT, wParam, lParam);
 		return 0;
 	case WM_XBUTTONDOWN:
 		input->OnMouseDown(MOUSEBUTTON_X, wParam, lParam);
 		return 0;
 	case WM_LBUTTONUP:
-		input->OnMouseUp(MOUSEBUTTON_LEFT, wParam, lParam);
+		if (!renderer->wmMouseButtonUpHook(wParam, lParam, MouseButton::MOUSEBUTTON_LEFT))
+			input->OnMouseUp(MOUSEBUTTON_LEFT, wParam, lParam);
 		return 0;
 	case WM_MBUTTONUP:
-		input->OnMouseUp(MOUSEBUTTON_MIDDLE, wParam, lParam);
+		if (!renderer->wmMouseButtonUpHook(wParam, lParam, MouseButton::MOUSEBUTTON_MIDDLE))
+			input->OnMouseUp(MOUSEBUTTON_MIDDLE, wParam, lParam);
 		return 0;
 	case WM_RBUTTONUP:
-		input->OnMouseUp(MOUSEBUTTON_RIGHT, wParam, lParam);
+		if (!renderer->wmMouseButtonUpHook(wParam, lParam, MouseButton::MOUSEBUTTON_RIGHT))
+			input->OnMouseUp(MOUSEBUTTON_RIGHT, wParam, lParam);
 		return 0;
 	case WM_XBUTTONUP:
 		input->OnMouseUp(MOUSEBUTTON_X, wParam, lParam);
 		return 0;
 	case WM_MOUSEMOVE:
+		renderer->wmMouseMoveHook(wParam, lParam);
 		input->OnMouseMove(wParam, lParam);
 		return 0;
 	case WM_KEYDOWN:

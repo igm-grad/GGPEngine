@@ -1,4 +1,5 @@
 #pragma once
+#pragma warning( disable: 4251 )
 #include <d3d11.h>
 #include "dxerr.h"
 #include <string>
@@ -9,6 +10,7 @@
 #include "GameObject.h"
 #include "Camera.h"
 #include "Lighting.h"
+#include "InputManager.h"
 
 #ifdef _WINDLL
 #define GPPEngineAPI   __declspec( dllexport )
@@ -40,6 +42,9 @@
 
 using namespace DirectX;
 
+class UI; //Forward declaration
+typedef GPPEngineAPI void(*JSFunctionCallback)();
+
 class  RenderEngine
 {
 protected:
@@ -51,7 +56,7 @@ protected:
 	void CalculateFrameStats(float totalTime);
 	void UpdateScene(GameObject** gameObjects, int gameObjectsCount, double deltaTime);
 	void DrawScene(GameObject** gameObjects, int gameObjectsCount, double deltaTime);
-
+	
 	Mesh*				CreateMesh(const char* filename);
 	Material*			CreateMaterial(LPCWSTR vertexShaderFile, LPCWSTR pixelShaderFile);
 
@@ -60,6 +65,8 @@ protected:
 	SpotLight*			CreateSpotLight();
 
 	Camera*				CreateCamera();
+
+	UI* ui;
 
 private:
 	// Window handles and such
@@ -70,6 +77,9 @@ private:
 	void wmSizeHook(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam, bool *gamePaused);
 	void wmEnterSizeMoveHook(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 	void wmExitSizeMoveHook(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
+	bool wmMouseMoveHook(WPARAM wParam, LPARAM lParam);
+	bool wmMouseButtonDownHook(WPARAM wParam, LPARAM lParam, MouseButton btn);
+	bool wmMouseButtonUpHook(WPARAM wParam, LPARAM lParam, MouseButton btn);
 
 	// Game and window state tracking
 	bool      minimized;
@@ -91,6 +101,9 @@ private:
 	D3D_DRIVER_TYPE driverType;
 	D3D_FEATURE_LEVEL featureLevel;
 
+	//Blend for UI
+	ID3D11BlendState* blendState;
+
 	// Derived class can set these in derived constructor to customize starting values.
 	std::wstring windowCaption;
 	int windowWidth;
@@ -107,6 +120,11 @@ private:
 	bool InitMainWindow();
 	bool InitDirect3D();
 
+	bool InitUI(LPCWSTR url);
+	bool UIExecuteJavascript(std::string javascript);
+	bool UIRegisterJavascriptFunction(std::string functionName, JSFunctionCallback functionPointer);
+
+	friend class UI;
 	friend class CoreEngine;
 };
 

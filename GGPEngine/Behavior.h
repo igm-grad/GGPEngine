@@ -1,4 +1,5 @@
 #pragma once
+#pragma warning( disable: 4251 )
 #include <unordered_map>
 #include <map>
 #include "InputManager.h"

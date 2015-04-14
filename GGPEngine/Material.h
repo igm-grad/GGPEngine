@@ -1,4 +1,5 @@
 #pragma once
+#pragma warning( disable: 4251 )
 #include <d3d11.h>
 #include <map>
 #include "SimpleShader.h"
@@ -13,6 +14,7 @@ class GPPEngineAPI Material
 {
 public:
 	void SetResource(const wchar_t* filename, const char* name);
+	void SetResource(ID3D11Resource* resource, const char* name);
 	void SetSampler(const char* name);								// TO DO: We only setting a basic sampler for a key... need to think this through
 
 protected:
@@ -34,6 +36,7 @@ protected:
 	void UpdatePixelShaderResources();
 	void UpdatePixelShaderSamplers();
 
+	friend class UI;
 	friend class RenderEngine;
 	friend class GameObject;
 };
