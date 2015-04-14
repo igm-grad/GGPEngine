@@ -1,4 +1,6 @@
 #pragma once
+#pragma warning( disable: 4251 )
+
 #include <DirectXMath.h>
 #include "Transform.h"
 

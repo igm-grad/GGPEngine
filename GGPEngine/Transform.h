@@ -1,5 +1,5 @@
 #pragma once
-#pragma once
+#pragma warning( disable: 4251 )
 #include <DirectXMath.h>
 
 using namespace DirectX;

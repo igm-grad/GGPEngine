@@ -1,4 +1,5 @@
 #pragma once
+#pragma warning( disable: 4251 )
 
 #ifdef _WINDLL
 #define GPPEngineAPI   __declspec( dllexport )
@@ -63,6 +64,10 @@ public:
 	Camera*				CreateCamera(XMFLOAT3& position, XMFLOAT3& rotation, XMFLOAT3& forward, XMFLOAT3& up, float movementSpeed);
 
 	Behavior*			CreateBehavior();
+
+	bool InitializeUI(LPCWSTR url);
+	bool UIExecuteJavascript(std::string javascript);
+	bool UIRegisterJavascriptFunction(std::string functionName, JSFunctionCallback functionPointer);
 
 	LRESULT MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam); // Must be public
 

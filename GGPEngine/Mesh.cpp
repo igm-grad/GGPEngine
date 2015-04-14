@@ -146,7 +146,7 @@ Mesh::Mesh(const char* filename, ID3D11Device* device)
 		}
 	}
 
-	for (int i = 0; i < verts.size(); i++)
+	for (int i = 0; i < (int)verts.size(); i++)
 	{
 		std::vector<XMFLOAT3>& faceTangents = sharedTangentMap.at(i);
 		std::vector<XMFLOAT3>& faceBitangents = sharedBitangentMap.at(i);
@@ -154,20 +154,20 @@ Mesh::Mesh(const char* filename, ID3D11Device* device)
 		XMVECTOR vertexBitangent = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
 		XMVECTOR vertexNormal = XMLoadFloat3(&verts[i].Normal);
 
-		for (int j = 0; j < faceTangents.size(); j++) {
+		for (int j = 0; j < (int)faceTangents.size(); j++) {
 			XMVECTOR faceTangent = XMLoadFloat3(&faceTangents[j]);
 			vertexTangent += faceTangent;
 
 			XMVECTOR faceBitangent = XMLoadFloat3(&faceBitangents[j]);
 			vertexBitangent += faceBitangent;
 		}
-		vertexBitangent /= faceBitangents.size();
-		vertexTangent = XMVector3Normalize(vertexTangent / faceTangents.size());
+		vertexBitangent /= (float)faceBitangents.size();
+		vertexTangent = XMVector3Normalize(vertexTangent / (float)faceTangents.size());
 		vertexTangent = XMVector3Normalize((vertexTangent - vertexNormal * XMVector3Dot(vertexNormal, vertexTangent)));
 		XMStoreFloat4(&verts[i].Tangent, vertexTangent);
 
 		XMStoreFloat(&verts[i].Tangent.w, XMVector3Dot((XMVector3Cross(vertexNormal, vertexTangent)), vertexBitangent));
-		verts[i].Tangent.w = (verts[i].Tangent.w < 0.0f) ? -1.0 : 1.0f;
+		verts[i].Tangent.w = (verts[i].Tangent.w < 0.0f) ? -1.0f : 1.0f;
 	}
 
 	// Close

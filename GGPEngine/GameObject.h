@@ -1,4 +1,5 @@
 #pragma once
+#pragma warning( disable: 4251 )
 #include <DirectXMath.h>
 #include "Mesh.h"
 #include "Material.h"

@@ -1,4 +1,5 @@
 #include "RenderEngine.h"
+#include "UI.h"
 #include <WindowsX.h>
 #include <sstream>
 #include <cmath>
@@ -130,6 +131,9 @@ void RenderEngine::OnResize()
 	viewport.MinDepth = 0.0f;
 	viewport.MaxDepth = 1.0f;
 	deviceContext->RSSetViewports(1, &viewport);
+
+	if (ui)
+		ui->forceReload = true;
 }
 #pragma endregion
 
@@ -199,6 +203,26 @@ void RenderEngine::DrawScene(GameObject** gameObjects, int gameObjectsCount, dou
 		1.0f,
 		0);
 
+	// Alpha Blending (UI needs this)
+	D3D11_BLEND_DESC blendDesc;
+
+	blendDesc.AlphaToCoverageEnable = false;
+	blendDesc.IndependentBlendEnable = false;
+	blendDesc.RenderTarget[0] = {
+		true,
+		D3D11_BLEND_SRC_ALPHA,
+		D3D11_BLEND_INV_SRC_ALPHA,
+		D3D11_BLEND_OP_ADD,
+		D3D11_BLEND_ONE,
+		D3D11_BLEND_ZERO,
+		D3D11_BLEND_OP_ADD,
+		D3D11_COLOR_WRITE_ENABLE_ALL
+	};
+
+	device->CreateBlendState(&blendDesc, &blendState);
+
+	deviceContext->OMSetBlendState(blendState, nullptr, ~0);
+
 	// Update Camera
 	defaultCamera->Update();
 
@@ -261,6 +285,11 @@ void RenderEngine::DrawScene(GameObject** gameObjects, int gameObjectsCount, dou
 			renderList[i]->mesh->indexCount,	// The number of indices we're using in this draw
 			0,
 			0);
+	}
+
+	if (ui) {
+		ui->Update(); // Maybe now as frequently?
+		ui->Draw();
 	}
 
 	// Present the buffer
@@ -540,6 +569,27 @@ bool RenderEngine::InitDirect3D() {
 	return true;
 }
 
+bool RenderEngine::InitUI(LPCWSTR url) {
+	ui = new UI(this);
+
+	ui->SetURL(url);
+
+	if (!ui->Initialize()) {
+		return false;
+	}
+	return true;
+}
+
+bool RenderEngine::UIExecuteJavascript(std::string javascript) {
+	if (!ui) return false;
+	return ui->ExecuteJavascript(javascript);
+}
+
+bool RenderEngine::UIRegisterJavascriptFunction(std::string functionName, JSFunctionCallback functionPointer) {
+	if (!ui) return false;
+	return ui->RegisterJavascriptFunction(functionName, functionPointer);
+}
+
 #pragma region Window Resizing Private
 
 void RenderEngine::wmSizeHook(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam, bool *gamePaused) {
@@ -614,7 +664,23 @@ float RenderEngine::AspectRatio() const
 
 #pragma endregion
 
-
+#pragma region Input Processing
+bool RenderEngine::wmMouseMoveHook(WPARAM wParam, LPARAM lParam) {
+	if (ui)
+		return ui->wmMouseMoveHook(wParam, lParam);
+	return false;
+}
+bool RenderEngine::wmMouseButtonDownHook(WPARAM wParam, LPARAM lParam, MouseButton btn) {
+	if (ui)
+		return ui->wmMouseButtonDownHook(wParam, lParam, btn);
+	return false;
+}
+bool RenderEngine::wmMouseButtonUpHook(WPARAM wParam, LPARAM lParam, MouseButton btn) {
+	if (ui)
+		return ui->wmMouseButtonUpHook(wParam, lParam, btn);
+	return false;
+}
+#pragma endregion
 
 
 
