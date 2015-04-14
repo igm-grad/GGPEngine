@@ -65,6 +65,8 @@ public:
 
 	Behavior*			CreateBehavior();
 
+	void EnableDebugLines();
+
 	bool InitializeUI(LPCWSTR url);
 	bool UIExecuteJavascript(std::string javascript);
 	bool UIRegisterJavascriptFunction(std::string functionName, JSFunctionCallback functionPointer);

@@ -71,19 +71,22 @@ protected:
 	float									getAngle(float ax, float ay, float bx, float by);
 
 	UI* ui;
+	bool isDebugging;
 
 private:
 	// Window handles and such
 	HINSTANCE hAppInst;
 	HWND      hMainWnd;
 	WNDPROC	  wcCallback;
-
+	
 	void wmSizeHook(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam, bool *gamePaused);
 	void wmEnterSizeMoveHook(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 	void wmExitSizeMoveHook(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 	bool wmMouseMoveHook(WPARAM wParam, LPARAM lParam);
 	bool wmMouseButtonDownHook(WPARAM wParam, LPARAM lParam, MouseButton btn);
 	bool wmMouseButtonUpHook(WPARAM wParam, LPARAM lParam, MouseButton btn);
+
+	void RendererDebug(std::string str, int debugLine);
 
 	// Game and window state tracking
 	bool      minimized;

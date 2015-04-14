@@ -114,6 +114,10 @@ void CoreEngine::Update()
 	}
 }
 
+void CoreEngine::EnableDebugLines() {
+	renderer->isDebugging = true;
+}
+
 bool CoreEngine::exitRequested()
 {
 	return msg.message == WM_QUIT;

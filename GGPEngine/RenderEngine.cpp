@@ -351,6 +351,9 @@ float RenderEngine::getAngle(float ax, float ay, float bx, float by)
 
 GameObject** RenderEngine::CullGameObjectsFromCamera(Camera* camera, GameObject** list, int listCount)
 {
+	// UI
+	RendererDebug("TotalListCount: " + std::to_string(listCount), 0);
+
 	// List of distance of all gameobjects from camera
 	float* distFromCamera = new float[listCount];
 
@@ -390,7 +393,7 @@ GameObject** RenderEngine::CullGameObjectsFromCamera(Camera* camera, GameObject*
 	// Iterate through all Game Obejcts in culled list
 	// Find Position Vector of Game Objects from camera. Positionvector = (GameObjectPosition - CameraPosition)
 	// If Coz Inverse of (PositionVector dot Forward / |Position| * |Forward|) < FOV / 2, Game Object is in view. 
-	for (int i = 0; i < culledListcount; ++i)
+	for (int i = 0, j = 0; i < culledListcount; ++i)
 	{
 		// get Position Vector
 		XMVECTOR GameObjectPosition = XMLoadFloat3(&culledList[i]->transform->position);
@@ -412,9 +415,10 @@ GameObject** RenderEngine::CullGameObjectsFromCamera(Camera* camera, GameObject*
 
 		if (horizontalAngle < HorizontalFOV && verticalAngle < VerticalFOV)
 		{
-			renderDistFromCamera[i] = distFromCamera[i];
-			RenderList[i] = culledList[i];
+			renderDistFromCamera[j] = distFromCamera[i];
+			RenderList[j] = culledList[i];
 			++renderlistCount;
+			++j;
 		}
 	}
 
@@ -423,13 +427,16 @@ GameObject** RenderEngine::CullGameObjectsFromCamera(Camera* camera, GameObject*
 
 	// return the list which needs to be drawn
 	renderListCount = renderlistCount;
+
+	// UI
+	RendererDebug("renderListCount: " + std::to_string(renderListCount), 1);
+	RendererDebug("First in list: " + std::to_string((int)RenderList[0]), 2);
 	return RenderList;
 }
 
 GameObject** RenderEngine::sortList(GameObject** RenderList, int renderlistCount, float* renderDistFromCamera)
 {
 	// for now using quick sort (integer only). Will implement radix sort with floating point later.
-
 	GameObject** sortedList = new GameObject*[renderlistCount];
 
 	// max possible dist value 100^2 = 10000
@@ -654,6 +661,13 @@ void RenderEngine::wmEnterSizeMoveHook(HWND hwnd, UINT msg, WPARAM wParam, LPARA
 void RenderEngine::wmExitSizeMoveHook(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 	resizing = false;
 	OnResize();
+}
+
+void RenderEngine::RendererDebug(std::string str, int debugLine) {
+	if (ui && isDebugging) {
+		std::string javascriptStr = std::string("$('#inner-debug" + std::to_string(debugLine) + "').html('" + str + "'); ");
+		ui->ExecuteJavascript(javascriptStr);
+	}
 }
 
 // Calculates the current aspect ratio
