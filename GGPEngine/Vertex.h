@@ -13,6 +13,7 @@ using namespace DirectX;
 // Vertex struct for triangles
 struct Vertex
 {
+	XMFLOAT4 Tangent;
 	XMFLOAT3 Position;
 	XMFLOAT3 Normal;
 	XMFLOAT2 UV;

@@ -57,8 +57,20 @@ void Material::SetResource(const wchar_t* filename, const char* name)
 	}
 
 	ID3D11ShaderResourceView* shaderResourceView;
-	
+
 	CreateWICTextureFromFile(device, deviceContext, filename, 0, &shaderResourceView);
+	resourceMap[name] = shaderResourceView;
+}
+
+void Material::SetResource(ID3D11Resource* resource, const char* name)
+{
+	if (resourceMap.find(name) != resourceMap.end()) {
+		resourceMap[name]->Release();
+	}
+
+	ID3D11ShaderResourceView* shaderResourceView;
+
+	device->CreateShaderResourceView(resource, nullptr, &shaderResourceView);
 	resourceMap[name] = shaderResourceView;
 }
 

@@ -20,7 +20,7 @@ Mesh::Mesh(const char* filename, ID3D11Device* device)
 	{
 		return;							// If for some reason the mesh does not load, Bail out.
 	}
-
+	
 	// - At this point, "verts" is a vector of Vertex structs, and can be used
 	//    directly to create a vertex buffer:  &verts[0] is the first vert
 	// - The vector "indices" is similar. It's a vector of unsigned ints and
