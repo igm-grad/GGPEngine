@@ -67,6 +67,7 @@ protected:
 	Camera*				CreateCamera();
 
 	UI* ui;
+	bool isDebugging;
 
 private:
 	// Window handles and such
@@ -120,9 +121,10 @@ private:
 	bool InitMainWindow();
 	bool InitDirect3D();
 
-	bool InitUI(LPCWSTR url);
+	bool InitUI(const char* url);
 	bool UIExecuteJavascript(std::string javascript);
 	bool UIRegisterJavascriptFunction(std::string functionName, JSFunctionCallback functionPointer);
+	void RendererDebug(std::string str, int debugLine);
 
 	friend class UI;
 	friend class CoreEngine;
