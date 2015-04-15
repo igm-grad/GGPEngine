@@ -49,7 +49,7 @@ class UI : public Awesomium::JSMethodHandler
 private:
 	Awesomium::WebCore* webCore;
 	std::unique_ptr<Awesomium::WebView, void(*)(Awesomium::WebView *)> view;
-	LPCWSTR url;
+	const char* url;
 
 	std::unique_ptr<D3DSurfaceFactory> surfaceFactory;
 	D3DSurface * surface;
@@ -87,7 +87,7 @@ public:
 	void Draw();
 	void Update();
 
-	void SetURL(LPCWSTR url);
+	void SetURL(const char* url);
 	bool IsUIPixel(unsigned x, unsigned y);
 	bool ExecuteJavascript(std::string javascript);
 	bool RegisterJavascriptFunction(std::string functionName, JSFunctionCallback functionPointer);

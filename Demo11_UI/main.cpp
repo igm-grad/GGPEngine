@@ -37,7 +37,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 	time_t startPoint = time(NULL);
 
 	//Set a .html file ad overlayer UI
-	engine->InitializeUI(L"file:///./UI/test.html");
+	engine->InitializeUI("file:///./UI/test.html");
 	//Set the JS function app.skill to invoke a the C++ function Attack
 	engine->UIRegisterJavascriptFunction("skill", Attack);
 		

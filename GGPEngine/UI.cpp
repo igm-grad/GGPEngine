@@ -3,9 +3,6 @@
 #include <Windowsx.h>
 #include <memory>
 
-#define URL     "file:///./UI/test.html"
-
-
 #pragma region D3Surface
 D3DSurface::D3DSurface(UI * ui, Awesomium::WebView * view, int width, int height) : ui(ui) {
 	ui->CreateTexture2DResource(width, height, "uiTexture");
@@ -76,10 +73,10 @@ void UI::SetView() {
 	view.reset(webCore->CreateWebView(e->windowWidth, e->windowHeight, nullptr, Awesomium::kWebViewType_Offscreen));
 
 	view->SetTransparent(true);
-	view->LoadURL(Awesomium::WebURL(Awesomium::WSLit(URL)));
+	view->LoadURL(Awesomium::WebURL(Awesomium::WSLit(url)));
 }
 
-void UI::SetURL(LPCWSTR url) {
+void UI::SetURL(const char* url) {
 	this->url = url;
 }
 

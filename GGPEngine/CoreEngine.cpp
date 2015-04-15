@@ -48,7 +48,7 @@ bool CoreEngine::Initialize()
 	return false;
 }
 
-bool CoreEngine::InitializeUI(LPCWSTR url) {
+bool CoreEngine::InitializeUI(const char* url) {
 	return renderer->InitUI(url);
 }
 
@@ -58,6 +58,10 @@ bool CoreEngine::UIExecuteJavascript(std::string javascript) {
 
 bool CoreEngine::UIRegisterJavascriptFunction(std::string functionName, JSFunctionCallback functionPointer) {
 	return renderer->UIRegisterJavascriptFunction(functionName, functionPointer);
+}
+
+void CoreEngine::EnableDebugLines() {
+	renderer->isDebugging = true;
 }
 
 void CoreEngine::Update()
