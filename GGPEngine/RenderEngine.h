@@ -1,4 +1,5 @@
 #pragma once
+#pragma warning( disable: 4251 )
 #include <d3d11.h>
 #include "dxerr.h"
 #include <string>
@@ -9,6 +10,7 @@
 #include "GameObject.h"
 #include "Camera.h"
 #include "Lighting.h"
+#include "InputManager.h"
 
 #ifdef _WINDLL
 #define GPPEngineAPI   __declspec( dllexport )
@@ -40,6 +42,9 @@
 
 using namespace DirectX;
 
+class UI; //Forward declaration
+typedef GPPEngineAPI void(*JSFunctionCallback)();
+
 class  RenderEngine
 {
 protected:
@@ -49,26 +54,37 @@ protected:
 	bool Initialize();
 	void OnResize();
 	void CalculateFrameStats(float totalTime);
-	void Update(float deltaTime, std::vector<GameObject*> list);
+	void UpdateScene(GameObject** gameObjects, int gameObjectsCount, double deltaTime);
+	void DrawScene(GameObject** gameObjects, int gameObjectsCount, double deltaTime);
+	
+	Mesh*									CreateMesh(const char* filename);
+	Material*								CreateMaterial(LPCWSTR vertexShaderFile, LPCWSTR pixelShaderFile);
 
-	Mesh*				CreateMesh(const char* filename);
-	Material*			CreateMaterial(LPCWSTR vertexShaderFile, LPCWSTR pixelShaderFile);
+	DirectionalLight*						CreateDirectionalLight();
+	PointLight*								CreatePointLight();
+	SpotLight*								CreateSpotLight();
 
-	DirectionalLight*	CreateDirectionalLight();
-	PointLight*			CreatePointLight();
-	SpotLight*			CreateSpotLight();
+	Camera*									CreateCamera();
 
-	Camera*				CreateCamera();
+	GameObject**							CullGameObjectsFromCamera(Camera* camera, GameObject** list, int listCount);
+	GameObject**							sortList(GameObject** RenderList, int renderlistCount, float* renderDistFromCamera);
+	float									getAngle(float ax, float ay, float bx, float by);
+
+	UI* ui;
+	bool isDebugging;
 
 private:
 	// Window handles and such
 	HINSTANCE hAppInst;
 	HWND      hMainWnd;
 	WNDPROC	  wcCallback;
-
+	
 	void wmSizeHook(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam, bool *gamePaused);
 	void wmEnterSizeMoveHook(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 	void wmExitSizeMoveHook(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
+	bool wmMouseMoveHook(WPARAM wParam, LPARAM lParam);
+	bool wmMouseButtonDownHook(WPARAM wParam, LPARAM lParam, MouseButton btn);
+	bool wmMouseButtonUpHook(WPARAM wParam, LPARAM lParam, MouseButton btn);
 
 	// Game and window state tracking
 	bool      minimized;
@@ -90,6 +106,9 @@ private:
 	D3D_DRIVER_TYPE driverType;
 	D3D_FEATURE_LEVEL featureLevel;
 
+	//Blend for UI
+	ID3D11BlendState* blendState;
+
 	// Derived class can set these in derived constructor to customize starting values.
 	std::wstring windowCaption;
 	int windowWidth;
@@ -103,9 +122,18 @@ private:
 	Camera* defaultCamera;
 	std::vector<Camera> cameras;
 
+	// temp solution
+	int renderListCount;
+
 	bool InitMainWindow();
 	bool InitDirect3D();
 
+	bool InitUI(const char* url);
+	bool UIExecuteJavascript(std::string javascript);
+	bool UIRegisterJavascriptFunction(std::string functionName, JSFunctionCallback functionPointer);
+	void RendererDebug(std::string str, int debugLine);
+
+	friend class UI;
 	friend class CoreEngine;
 };
 

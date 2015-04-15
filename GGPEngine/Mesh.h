@@ -1,6 +1,8 @@
 #pragma once
+#pragma warning( disable: 4251 )
 #include <d3d11.h>
 #include "Vertex.h"
+#include "MeshLoader.h"
 
 #ifdef _WINDLL
 #define GPPEngineAPI   __declspec( dllexport )

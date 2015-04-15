@@ -7,6 +7,9 @@ Camera::~Camera()
 
 void Camera::UpdateProjection(float fov, float aspectRatio, float zNear, float zFar)
 {
+	this->fov = fov;
+	this->farPlane = zFar;
+
 	// Create the Projection matrix
 	// This should match the window's aspect ratio, and also update anytime
 	// the window resizes (which is already happening in OnResize() below)
