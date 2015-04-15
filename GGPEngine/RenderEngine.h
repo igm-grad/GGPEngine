@@ -86,8 +86,6 @@ private:
 	bool wmMouseButtonDownHook(WPARAM wParam, LPARAM lParam, MouseButton btn);
 	bool wmMouseButtonUpHook(WPARAM wParam, LPARAM lParam, MouseButton btn);
 
-	void RendererDebug(std::string str, int debugLine);
-
 	// Game and window state tracking
 	bool      minimized;
 	bool      maximized;
@@ -130,9 +128,10 @@ private:
 	bool InitMainWindow();
 	bool InitDirect3D();
 
-	bool InitUI(LPCWSTR url);
+	bool InitUI(const char* url);
 	bool UIExecuteJavascript(std::string javascript);
 	bool UIRegisterJavascriptFunction(std::string functionName, JSFunctionCallback functionPointer);
+	void RendererDebug(std::string str, int debugLine);
 
 	friend class UI;
 	friend class CoreEngine;

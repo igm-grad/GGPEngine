@@ -65,11 +65,10 @@ public:
 
 	Behavior*			CreateBehavior();
 
-	void EnableDebugLines();
-
-	bool InitializeUI(LPCWSTR url);
+	bool InitializeUI(const char* url);
 	bool UIExecuteJavascript(std::string javascript);
 	bool UIRegisterJavascriptFunction(std::string functionName, JSFunctionCallback functionPointer);
+	void EnableDebugLines();
 
 	LRESULT MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam); // Must be public
 

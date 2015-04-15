@@ -576,7 +576,7 @@ bool RenderEngine::InitDirect3D() {
 	return true;
 }
 
-bool RenderEngine::InitUI(LPCWSTR url) {
+bool RenderEngine::InitUI(const char* url) {
 	ui = new UI(this);
 
 	ui->SetURL(url);
@@ -595,6 +595,13 @@ bool RenderEngine::UIExecuteJavascript(std::string javascript) {
 bool RenderEngine::UIRegisterJavascriptFunction(std::string functionName, JSFunctionCallback functionPointer) {
 	if (!ui) return false;
 	return ui->RegisterJavascriptFunction(functionName, functionPointer);
+}
+
+void RenderEngine::RendererDebug(std::string str, int debugLine) {
+	if (ui && isDebugging) {
+		std::string javascriptStr = std::string("$('#inner-debug" + std::to_string(debugLine) + "').html('" + str + "'); ");
+		ui->ExecuteJavascript(javascriptStr);
+	}
 }
 
 #pragma region Window Resizing Private
@@ -661,13 +668,6 @@ void RenderEngine::wmEnterSizeMoveHook(HWND hwnd, UINT msg, WPARAM wParam, LPARA
 void RenderEngine::wmExitSizeMoveHook(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 	resizing = false;
 	OnResize();
-}
-
-void RenderEngine::RendererDebug(std::string str, int debugLine) {
-	if (ui && isDebugging) {
-		std::string javascriptStr = std::string("$('#inner-debug" + std::to_string(debugLine) + "').html('" + str + "'); ");
-		ui->ExecuteJavascript(javascriptStr);
-	}
 }
 
 // Calculates the current aspect ratio
