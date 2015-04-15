@@ -14,6 +14,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 
 	GameObject* gameObject = engine->Sphere();
 	gameObject->material = engine->BasicMaterial();
+
 	// Loop until we get a quit message from the engine
 	while (!engine->exitRequested())
 	{
