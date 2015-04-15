@@ -57,14 +57,18 @@ protected:
 	void UpdateScene(GameObject** gameObjects, int gameObjectsCount, double deltaTime);
 	void DrawScene(GameObject** gameObjects, int gameObjectsCount, double deltaTime);
 	
-	Mesh*				CreateMesh(const char* filename);
-	Material*			CreateMaterial(LPCWSTR vertexShaderFile, LPCWSTR pixelShaderFile);
+	Mesh*									CreateMesh(const char* filename);
+	Material*								CreateMaterial(LPCWSTR vertexShaderFile, LPCWSTR pixelShaderFile);
 
-	DirectionalLight*	CreateDirectionalLight();
-	PointLight*			CreatePointLight();
-	SpotLight*			CreateSpotLight();
+	DirectionalLight*						CreateDirectionalLight();
+	PointLight*								CreatePointLight();
+	SpotLight*								CreateSpotLight();
 
-	Camera*				CreateCamera();
+	Camera*									CreateCamera();
+
+	GameObject**							CullGameObjectsFromCamera(Camera* camera, GameObject** list, int listCount);
+	GameObject**							sortList(GameObject** RenderList, int renderlistCount, float* renderDistFromCamera);
+	float									getAngle(float ax, float ay, float bx, float by);
 
 	UI* ui;
 	bool isDebugging;
@@ -74,7 +78,7 @@ private:
 	HINSTANCE hAppInst;
 	HWND      hMainWnd;
 	WNDPROC	  wcCallback;
-
+	
 	void wmSizeHook(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam, bool *gamePaused);
 	void wmEnterSizeMoveHook(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 	void wmExitSizeMoveHook(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
@@ -117,6 +121,9 @@ private:
 
 	Camera* defaultCamera;
 	std::vector<Camera> cameras;
+
+	// temp solution
+	int renderListCount;
 
 	bool InitMainWindow();
 	bool InitDirect3D();

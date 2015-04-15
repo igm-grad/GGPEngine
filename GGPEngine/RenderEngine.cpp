@@ -2,6 +2,8 @@
 #include "UI.h"
 #include <WindowsX.h>
 #include <sstream>
+#include <cmath>
+#include <algorithm>
 
 RenderEngine::RenderEngine(HINSTANCE hInstance, WNDPROC MainWndProc) :
 	hAppInst(hInstance),
@@ -224,7 +226,15 @@ void RenderEngine::DrawScene(GameObject** gameObjects, int gameObjectsCount, dou
 	// Update Camera
 	defaultCamera->Update();
 
-	for (int i = 0; i < gameObjectsCount; i++) {
+	// List that will hold objects to be drawn
+	//std::vector<GameObject*> renderList;
+	GameObject** renderList;
+
+	// For now use default Camera
+	renderList = CullGameObjectsFromCamera(defaultCamera, gameObjects, gameObjectsCount);
+
+
+	for (int i = 0; i < renderListCount; ++i) {
 		// Set up the input assembler
 		//  - These technically don't need to be set every frame, unless you're changing the
 		//    input layout (different kinds of vertices) or the topology (different primitives)
@@ -235,28 +245,28 @@ void RenderEngine::DrawScene(GameObject** gameObjects, int gameObjectsCount, dou
 		//  - Allows us to send the data to the GPU buffer in one step
 		//  - Do this PER OBJECT, before drawing it
 		XMFLOAT4X4 world;
-		XMStoreFloat4x4(&world, XMMatrixTranspose(gameObjects[i]->transform->getWorldTransform()));
-		gameObjects[i]->material->sVertexShader->SetMatrix4x4("world", world);
-		gameObjects[i]->material->sVertexShader->SetMatrix4x4("view", defaultCamera->view);
-		gameObjects[i]->material->sVertexShader->SetMatrix4x4("projection", defaultCamera->projection);
-		gameObjects[i]->material->sVertexShader->SetShader();
+		XMStoreFloat4x4(&world, XMMatrixTranspose(renderList[i]->transform->getWorldTransform()));
+		renderList[i]->material->sVertexShader->SetMatrix4x4("world", world);
+		renderList[i]->material->sVertexShader->SetMatrix4x4("view", defaultCamera->view);
+		renderList[i]->material->sVertexShader->SetMatrix4x4("projection", defaultCamera->projection);
+		renderList[i]->material->sVertexShader->SetShader();
 
 		// TO DO: This is gross. Less branching would be optimal since lights are the same for every object currently.
 		if (directionLights.size() > 0) {
-			gameObjects[i]->material->sPixelShader->SetData("directionalLights", &directionLights[0], sizeof(DirectionalLight) * directionLights.size());
+			renderList[i]->material->sPixelShader->SetData("directionalLights", &directionLights[0], sizeof(DirectionalLight) * directionLights.size());
 		}
 
 		if (pointLights.size() > 0) {
-			gameObjects[i]->material->sPixelShader->SetData("pointLights", &pointLights[0], sizeof(PointLight) * pointLights.size());
+			renderList[i]->material->sPixelShader->SetData("pointLights", &pointLights[0], sizeof(PointLight) * pointLights.size());
 		}
 
 		if (spotLights.size() > 0) {
-			gameObjects[i]->material->sPixelShader->SetData("spotLights", &spotLights[0], sizeof(SpotLight) * spotLights.size());
+			renderList[i]->material->sPixelShader->SetData("spotLights", &spotLights[0], sizeof(SpotLight) * spotLights.size());
 		}
 
-		gameObjects[i]->material->UpdatePixelShaderResources();
-		gameObjects[i]->material->UpdatePixelShaderSamplers();
-		gameObjects[i]->material->sPixelShader->SetShader();
+		renderList[i]->material->UpdatePixelShaderResources();
+		renderList[i]->material->UpdatePixelShaderSamplers();
+		renderList[i]->material->sPixelShader->SetShader();
 
 		// Set buffers in the input assembler
 		//  - This should be done PER OBJECT you intend to draw, as each object could
@@ -264,15 +274,15 @@ void RenderEngine::DrawScene(GameObject** gameObjects, int gameObjectsCount, dou
 		//  - You must have both a vertex and index buffer set to draw
 		UINT stride = sizeof(Vertex);
 		UINT offset = 0;
-		deviceContext->IASetVertexBuffers(0, 1, gameObjects[i]->mesh->GetVertexBuffer(), &stride, &offset);
-		deviceContext->IASetIndexBuffer(gameObjects[i]->mesh->GetIndexBuffer(), DXGI_FORMAT_R32_UINT, 0);
+		deviceContext->IASetVertexBuffers(0, 1, renderList[i]->mesh->GetVertexBuffer(), &stride, &offset);
+		deviceContext->IASetIndexBuffer(renderList[i]->mesh->GetIndexBuffer(), DXGI_FORMAT_R32_UINT, 0);
 
 
 		// Finally do the actual drawing
 		//  - This should be done PER OBJECT you index to draw
 		//  - This will use all of the currently set DirectX stuff (shaders, buffers, etc)
 		deviceContext->DrawIndexed(
-			gameObjects[i]->mesh->indexCount,	// The number of indices we're using in this draw
+			renderList[i]->mesh->indexCount,	// The number of indices we're using in this draw
 			0,
 			0);
 	}
@@ -321,6 +331,136 @@ Camera* RenderEngine::CreateCamera()
 {
 	cameras.push_back(Camera());
 	return &cameras.back();
+}
+
+float RenderEngine::getAngle(float ax, float ay, float bx, float by)
+{
+	// manual dot product between position vector and forward direction
+	float numerator = (ax * bx) + (ay * by);
+
+	// manual magnitude of position vector and forward direction
+	float positionMagnitude = sqrt(ax * ax + ay * ay);
+	float forwardDirectionMagnitude = sqrt(bx * bx + by * by);
+
+	float denominator = positionMagnitude * forwardDirectionMagnitude;
+
+	// calculate angle
+	float theta = acos(numerator / denominator);
+	return theta;
+}
+
+GameObject** RenderEngine::CullGameObjectsFromCamera(Camera* camera, GameObject** list, int listCount)
+{
+	// UI
+	RendererDebug("TotalListCount: " + std::to_string(listCount), 0);
+
+	// List of distance of all gameobjects from camera
+	float* distFromCamera = new float[listCount];
+
+	// Game Objects which will be within far plane
+	GameObject** culledList = nullptr;
+	culledList = new GameObject*[listCount];
+	int culledListcount = 0;
+
+	float sqdistance = 0.f;
+	float sqfarplane = camera->farPlane * camera->farPlane;
+	// First eliminate objects outside of far plane
+	for (int i = 0; i < listCount; ++i)
+	{
+		// use distance formula to find out if objects lie outside far plane
+		sqdistance = pow(list[i]->transform->position.x - camera->transform->position.x, 2) + pow(list[i]->transform->position.y - camera->transform->position.y, 2) + pow(list[i]->transform->position.z - camera->transform->position.z, 2);
+		if (sqdistance < sqfarplane)
+		{
+			distFromCamera[i] = sqdistance;
+			culledList[i] = list[i];
+			++culledListcount;
+		}
+	}
+
+	// Game Objects which will be whithin horizontal and vertical FOV
+	GameObject** RenderList = nullptr;
+	RenderList = new GameObject*[culledListcount];
+	int renderlistCount = 0;
+
+	float* renderDistFromCamera = new float[culledListcount];
+
+	// Horizontal FOV in radians
+	float HorizontalFOV = atan(AspectRatio()) / 2;
+
+	// Vertical FOV in radians
+	float VerticalFOV = camera->fov / 2;
+
+	// Iterate through all Game Obejcts in culled list
+	// Find Position Vector of Game Objects from camera. Positionvector = (GameObjectPosition - CameraPosition)
+	// If Coz Inverse of (PositionVector dot Forward / |Position| * |Forward|) < FOV / 2, Game Object is in view. 
+	for (int i = 0, j = 0; i < culledListcount; ++i)
+	{
+		// get Position Vector
+		XMVECTOR GameObjectPosition = XMLoadFloat3(&culledList[i]->transform->position);
+		XMVECTOR CameraPosition = XMLoadFloat3(&camera->transform->position);
+
+		XMVECTOR PositionVector = GameObjectPosition - CameraPosition;
+
+		// normalize PositionVector
+		PositionVector = XMVector3Normalize(PositionVector);
+
+		XMFLOAT3 positionVector;
+		XMStoreFloat3(&positionVector, PositionVector);
+
+		// get object angle in horizontal plane (x-z)
+		float horizontalAngle = getAngle(positionVector.x, positionVector.z, camera->transform->forward.x, camera->transform->forward.z);
+
+		// get object angle in vertical plane (y-z)
+		float verticalAngle = getAngle(positionVector.y, positionVector.z, camera->transform->forward.y, camera->transform->forward.z);
+
+		if (horizontalAngle < HorizontalFOV && verticalAngle < VerticalFOV)
+		{
+			renderDistFromCamera[j] = distFromCamera[i];
+			RenderList[j] = culledList[i];
+			++renderlistCount;
+			++j;
+		}
+	}
+
+	// sort Render list. For now std::sort to get quick results.
+	RenderList = sortList(RenderList, renderlistCount, renderDistFromCamera);
+
+	// return the list which needs to be drawn
+	renderListCount = renderlistCount;
+
+	// UI
+	RendererDebug("renderListCount: " + std::to_string(renderListCount), 1);
+	RendererDebug("First in list: " + std::to_string((int)RenderList[0]), 2);
+	return RenderList;
+}
+
+GameObject** RenderEngine::sortList(GameObject** RenderList, int renderlistCount, float* renderDistFromCamera)
+{
+	// for now using quick sort (integer only). Will implement radix sort with floating point later.
+	GameObject** sortedList = new GameObject*[renderlistCount];
+
+	// max possible dist value 100^2 = 10000
+	//unsigned int* count = new unsigned int[10001];
+	unsigned int count[10001] = { 0 };
+
+	// count for occurences of distance values in integer
+	for (int i = 0; i < renderlistCount; ++i)
+	{
+		++count[(int)renderDistFromCamera[i]];
+	}
+
+	for (int i = 1; i < 10001; ++i)
+	{
+		count[i] += count[i - 1];
+	}
+
+	for (int i = 0; i < renderlistCount; ++i)
+	{
+		sortedList[count[(int)renderDistFromCamera[i]] - 1] = RenderList[i];
+		--count[(int)renderDistFromCamera[i]];
+	}
+
+	return sortedList;
 }
 
 bool RenderEngine::InitMainWindow() {
@@ -461,7 +601,6 @@ void RenderEngine::RendererDebug(std::string str, int debugLine) {
 	if (ui && isDebugging) {
 		std::string javascriptStr = std::string("$('#inner-debug" + std::to_string(debugLine) + "').html('" + str + "'); ");
 		ui->ExecuteJavascript(javascriptStr);
-		
 	}
 }
 

@@ -14,6 +14,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DirectXTK_Desktop_2013", "D
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Demo04_Materials", "Demo04_Materials\Demo04_Materials.vcxproj", "{73D568C0-B767-468E-B01E-3D754B216839}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Demo05_FrustumCulling", "Demo05_FrustumCulling\Demo05_FrustumCulling.vcxproj", "{D768EE39-8D86-4531-A1F0-334BF6B1726F}"
+EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Demo11_UI", "Demo11_UI\Demo11_UI.vcxproj", "{B4FEB8BF-6DFB-40D9-B083-7E10A7C8F3FB}"
 EndProject
 Global
@@ -78,6 +80,16 @@ Global
 		{73D568C0-B767-468E-B01E-3D754B216839}.Release|Win32.ActiveCfg = Release|Win32
 		{73D568C0-B767-468E-B01E-3D754B216839}.Release|Win32.Build.0 = Release|Win32
 		{73D568C0-B767-468E-B01E-3D754B216839}.Release|x64.ActiveCfg = Release|Win32
+		{D768EE39-8D86-4531-A1F0-334BF6B1726F}.Debug|Any CPU.ActiveCfg = Debug|Win32
+		{D768EE39-8D86-4531-A1F0-334BF6B1726F}.Debug|Mixed Platforms.ActiveCfg = Debug|Win32
+		{D768EE39-8D86-4531-A1F0-334BF6B1726F}.Debug|Win32.ActiveCfg = Debug|Win32
+		{D768EE39-8D86-4531-A1F0-334BF6B1726F}.Debug|Win32.Build.0 = Debug|Win32
+		{D768EE39-8D86-4531-A1F0-334BF6B1726F}.Debug|x64.ActiveCfg = Debug|Win32
+		{D768EE39-8D86-4531-A1F0-334BF6B1726F}.Release|Any CPU.ActiveCfg = Release|Win32
+		{D768EE39-8D86-4531-A1F0-334BF6B1726F}.Release|Mixed Platforms.ActiveCfg = Release|Win32
+		{D768EE39-8D86-4531-A1F0-334BF6B1726F}.Release|Win32.ActiveCfg = Release|Win32
+		{D768EE39-8D86-4531-A1F0-334BF6B1726F}.Release|Win32.Build.0 = Release|Win32
+		{D768EE39-8D86-4531-A1F0-334BF6B1726F}.Release|x64.ActiveCfg = Release|Win32
 		{B4FEB8BF-6DFB-40D9-B083-7E10A7C8F3FB}.Debug|Any CPU.ActiveCfg = Debug|Win32
 		{B4FEB8BF-6DFB-40D9-B083-7E10A7C8F3FB}.Debug|Mixed Platforms.ActiveCfg = Debug|Win32
 		{B4FEB8BF-6DFB-40D9-B083-7E10A7C8F3FB}.Debug|Mixed Platforms.Build.0 = Debug|Win32

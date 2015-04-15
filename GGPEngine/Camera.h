@@ -20,6 +20,8 @@ public:
 	
 	XMFLOAT4X4	view;
 	XMFLOAT4X4	projection;
+	float		fov;
+	float		farPlane;
 
 
 	Camera() {};
