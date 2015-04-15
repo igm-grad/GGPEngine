@@ -48,6 +48,22 @@ bool CoreEngine::Initialize()
 	return false;
 }
 
+bool CoreEngine::InitializeUI(const char* url) {
+	return renderer->InitUI(url);
+}
+
+bool CoreEngine::UIExecuteJavascript(std::string javascript) {
+	return renderer->UIExecuteJavascript(javascript);
+}
+
+bool CoreEngine::UIRegisterJavascriptFunction(std::string functionName, JSFunctionCallback functionPointer) {
+	return renderer->UIRegisterJavascriptFunction(functionName, functionPointer);
+}
+
+void CoreEngine::EnableDebugLines() {
+	renderer->isDebugging = true;
+}
+
 void CoreEngine::Update()
 {
 	// Peek at the next message (and remove it from the queue)
@@ -68,77 +84,33 @@ void CoreEngine::Update()
 		}
 		else
 		{
+			// This is ugly, but I'm a shitty programmer :(
+			for (GameObject* gameObject : gameObjects)
+			{
+				if (gameObject->behavior != NULL && gameObject->behavior->keyInputMap.size() != 0)
+				{
+					for (std::map<KeyCode, KeyCallback>::iterator iter = gameObject->behavior->keyInputMap.begin(); iter != gameObject->behavior->keyInputMap.end(); iter++)
+					{
+						if (input->GetKey(iter->first)) {
+							iter->second(*gameObject);
+						}
+					}
+
+					for (std::map<KeyCode, KeyDownCallback>::iterator iter = gameObject->behavior->keyDownInputMap.begin(); iter != gameObject->behavior->keyDownInputMap.end(); iter++)
+					{
+						if (input->GetKeyDown(iter->first)) {
+							iter->second(*gameObject);
+						}
+					}
+				}
+			}
+
 			// Standard game loop type stuff
 			physics->Update(timer.TotalTime());
 
-			// There must be a logics update method
-			// TODO: transfer this code to a gamoobject 
-			// component update method
-#pragma region Input tests
-			if (input->GetKey(KEYCODE_W)) {
-				auto go = gameObjects[0];
-				go->transform->MoveForward();
-			}
-			if (input->GetKey(KEYCODE_S)) {
-				auto go = gameObjects[0];
-				go->transform->MoveBackward();
-			}
-			if (input->GetKey(KEYCODE_A)) {
-				auto go = gameObjects[0];
-				go->transform->MoveLeft();
-			}
-			if (input->GetKey(KEYCODE_D)) {
-				auto go = gameObjects[0];
-				go->transform->MoveRight();
-			}
-			if (input->GetKeyDown(KEYCODE_A)) {
-				OutputDebugStringA("KeyDown A\n");
-			}
-			if (input->GetKeyUp(KEYCODE_A)) {
-				OutputDebugStringA("KeyUp A\n");
-			}
-
-			if (input->GetMouseButtonDown(MOUSEBUTTON_LEFT))
-			{
-				OutputDebugStringA("mouse down left\n");
-			}
-
-			if (input->GetMouseButtonUp(MOUSEBUTTON_LEFT))
-			{
-				OutputDebugStringA("mouse up left\n");
-			}
-
-			if (input->GetMouseButtonDown(MOUSEBUTTON_RIGHT))
-			{
-				OutputDebugStringA("mouse down right\n");
-			}
-
-			if (input->GetMouseButtonUp(MOUSEBUTTON_RIGHT))
-			{
-				OutputDebugStringA("mouse up right\n");
-			}
-
-			if (input->GetMouseButtonDown(MOUSEBUTTON_MIDDLE))
-			{
-				OutputDebugStringA("mouse down middle\n");
-			}
-
-			if (input->GetMouseButtonUp(MOUSEBUTTON_MIDDLE))
-			{
-				OutputDebugStringA("mouse up middle\n");
-			}
-
-			int x = input->mousePosition.x;
-			int y = input->mousePosition.y;
-
-			char str[100];
-			sprintf_s(str, "X: %d, Y: %d\n", x, y);
-			OutputDebugStringA(str);
-
-#pragma endregion
-
 			//renderer->CalculateFrameStats(timer.TotalTime());
-			renderer->Update(timer.DeltaTime(), gameObjects);
+			renderer->UpdateScene(&gameObjects[0], gameObjects.size(), timer.TotalTime());
+			renderer->DrawScene(&gameObjects[0], gameObjects.size(), timer.TotalTime());
 
 			// Flush the InputManager at the end of every frame
 			input->Flush();
@@ -146,7 +118,7 @@ void CoreEngine::Update()
 	}
 }
 
-bool CoreEngine::exitRequested() 
+bool CoreEngine::exitRequested()
 {
 	return msg.message == WM_QUIT;
 }
@@ -219,7 +191,7 @@ Mesh* CoreEngine::CreateMesh(const char* filename)
 
 Material* CoreEngine::BasicMaterial()
 {
-	return CreateMaterial(L"VertexShader.cso", L"PixelShader.cso");
+	return CreateMaterial(L"DebugVertexShader.cso", L"DebugPixelShader.cso");
 }
 
 Material* CoreEngine::DiffuseMaterial()
@@ -315,6 +287,12 @@ Camera* CoreEngine::CreateCamera(XMFLOAT3& position, XMFLOAT3& rotation, XMFLOAT
 	return camera;
 }
 
+Behavior* CoreEngine::CreateBehavior()
+{
+	behaviors.push_back(Behavior());
+	return &behaviors.back();
+}
+
 #pragma region Windows Message Processing
 
 LRESULT CoreEngine::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
@@ -376,30 +354,37 @@ LRESULT CoreEngine::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		return 0;
 
 	case WM_LBUTTONDOWN:
-		input->OnMouseDown(MOUSEBUTTON_LEFT, wParam, lParam);
+		if (!renderer->wmMouseButtonDownHook(wParam, lParam, MouseButton::MOUSEBUTTON_LEFT))
+			input->OnMouseDown(MOUSEBUTTON_LEFT, wParam, lParam);
 		return 0;
 	case WM_MBUTTONDOWN:
-		input->OnMouseDown(MOUSEBUTTON_MIDDLE, wParam, lParam);
+		if (!renderer->wmMouseButtonDownHook(wParam, lParam, MouseButton::MOUSEBUTTON_MIDDLE))
+			input->OnMouseDown(MOUSEBUTTON_MIDDLE, wParam, lParam);
 		return 0;
 	case WM_RBUTTONDOWN:
-		input->OnMouseDown(MOUSEBUTTON_RIGHT, wParam, lParam);
+		if (!renderer->wmMouseButtonDownHook(wParam, lParam, MouseButton::MOUSEBUTTON_RIGHT))
+			input->OnMouseDown(MOUSEBUTTON_RIGHT, wParam, lParam);
 		return 0;
 	case WM_XBUTTONDOWN:
 		input->OnMouseDown(MOUSEBUTTON_X, wParam, lParam);
 		return 0;
 	case WM_LBUTTONUP:
-		input->OnMouseUp(MOUSEBUTTON_LEFT, wParam, lParam);
+		if (!renderer->wmMouseButtonUpHook(wParam, lParam, MouseButton::MOUSEBUTTON_LEFT))
+			input->OnMouseUp(MOUSEBUTTON_LEFT, wParam, lParam);
 		return 0;
 	case WM_MBUTTONUP:
-		input->OnMouseUp(MOUSEBUTTON_MIDDLE, wParam, lParam);
+		if (!renderer->wmMouseButtonUpHook(wParam, lParam, MouseButton::MOUSEBUTTON_MIDDLE))
+			input->OnMouseUp(MOUSEBUTTON_MIDDLE, wParam, lParam);
 		return 0;
 	case WM_RBUTTONUP:
-		input->OnMouseUp(MOUSEBUTTON_RIGHT, wParam, lParam);
+		if (!renderer->wmMouseButtonUpHook(wParam, lParam, MouseButton::MOUSEBUTTON_RIGHT))
+			input->OnMouseUp(MOUSEBUTTON_RIGHT, wParam, lParam);
 		return 0;
 	case WM_XBUTTONUP:
 		input->OnMouseUp(MOUSEBUTTON_X, wParam, lParam);
 		return 0;
 	case WM_MOUSEMOVE:
+		renderer->wmMouseMoveHook(wParam, lParam);
 		input->OnMouseMove(wParam, lParam);
 		return 0;
 	case WM_KEYDOWN:

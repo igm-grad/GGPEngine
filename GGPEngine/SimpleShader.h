@@ -1,4 +1,5 @@
 #pragma once
+#pragma warning( disable: 4251 )
 #pragma comment(lib, "dxguid.lib")
 
 #include <d3d11.h>

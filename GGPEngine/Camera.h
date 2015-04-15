@@ -1,4 +1,6 @@
 #pragma once
+#pragma warning( disable: 4251 )
+
 #include <DirectXMath.h>
 #include "Transform.h"
 
@@ -18,6 +20,8 @@ public:
 	
 	XMFLOAT4X4	view;
 	XMFLOAT4X4	projection;
+	float		fov;
+	float		farPlane;
 
 
 	Camera() {};

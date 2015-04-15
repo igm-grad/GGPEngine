@@ -1,10 +1,12 @@
 #pragma once
+#pragma warning( disable: 4251 )
 #include <DirectXMath.h>
 #include "Mesh.h"
 #include "Material.h"
 #include "Effects.h"
 #include "ParticleSystem.h"
 #include "Transform.h"
+#include "Behavior.h"
 
 #ifdef _WINDLL
 #define GPPEngineAPI   __declspec( dllexport )
@@ -18,15 +20,15 @@ class  GameObject
 {
 public:
 
-	Transform*			transform;
-	Mesh*				mesh;
-	Material*			material;
+	UINT32		id;
+	Transform*	transform;
+	Mesh*		mesh;
+	Material*	material;
+	Behavior*	behavior;
 	ParticleSystem*		particleSystem;
-	Effects*			effects;
 
 	GameObject(Mesh* mesh) : mesh(mesh) {};
 	GameObject() : GameObject(NULL) {};
-	~GameObject() { delete(mesh); delete(material); delete(transform);  };
-
+	~GameObject() { delete(mesh); delete(material); delete(transform);  delete(behavior); };
 };
 
