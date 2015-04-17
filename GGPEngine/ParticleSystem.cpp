@@ -1,7 +1,10 @@
 #include "ParticleSystem.h"
+#include "RenderEngine.h"
+#include "GameObject.h"
 
-ParticleSystem::ParticleSystem() : mInitVB(0), mDrawVB(0), mStreamOutVB(0), mTexArraySRV(0), mRandomTexSRV(0)
+ParticleSystem::ParticleSystem(RenderEngine* renderer) : mInitVB(0), mDrawVB(0), mStreamOutVB(0), mTexArraySRV(0), mRandomTexSRV(0)
 {
+	e = renderer;
 	mFirstRun = true;
 	mGameTime = 0.0f;
 	mTimeStep = 0.0f;
@@ -11,6 +14,18 @@ ParticleSystem::ParticleSystem() : mInitVB(0), mDrawVB(0), mStreamOutVB(0), mTex
 	mEmitPosW = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	mEmitDirW = XMFLOAT3(0.0f, 1.0f, 0.0f);
 }
+
+/*ParticleSystem::ParticleSystem() : mInitVB(0), mDrawVB(0), mStreamOutVB(0), mTexArraySRV(0), mRandomTexSRV(0)
+{
+	mFirstRun = true;
+	mGameTime = 0.0f;
+	mTimeStep = 0.0f;
+	mAge = 0.0f;
+
+	mEyePosW = XMFLOAT3(0.0f, 0.0f, 0.0f);
+	mEmitPosW = XMFLOAT3(0.0f, 0.0f, 0.0f);
+	mEmitDirW = XMFLOAT3(0.0f, 1.0f, 0.0f);
+}*/
 
 ParticleSystem::~ParticleSystem()
 {

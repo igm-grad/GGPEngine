@@ -16,6 +16,8 @@
 
 using namespace DirectX;
 
+class ParticleSystem; //Forward declaration
+
 class  GameObject
 {
 public:
@@ -25,7 +27,7 @@ public:
 	Mesh*		mesh;
 	Material*	material;
 	Behavior*	behavior;
-	ParticleSystem*		particleSystem;
+	ParticleSystem* particleSystem;
 
 	GameObject(Mesh* mesh) : mesh(mesh) {};
 	GameObject() : GameObject(NULL) {};

@@ -43,6 +43,7 @@
 using namespace DirectX;
 
 class UI; //Forward declaration
+class ParticleSystem; //Forward declaration
 typedef GPPEngineAPI void(*JSFunctionCallback)();
 
 class  RenderEngine
@@ -72,6 +73,7 @@ protected:
 	float									getAngle(float ax, float ay, float bx, float by);
 
 	UI* ui;
+	ParticleSystem* partSys;
 	bool isDebugging;
 
 private:
@@ -129,12 +131,14 @@ private:
 	bool InitMainWindow();
 	bool InitDirect3D();
 
+	bool InitPartSys();
 	bool InitUI(const char* url);
 	bool UIExecuteJavascript(std::string javascript);
 	bool UIRegisterJavascriptFunction(std::string functionName, JSFunctionCallback functionPointer);
 	void RendererDebug(std::string str, int debugLine);
 
 	friend class UI;
+	friend class ParticleSystem;
 	friend class CoreEngine;
 };
 

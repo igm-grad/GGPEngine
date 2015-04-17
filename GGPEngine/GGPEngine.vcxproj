@@ -88,7 +88,6 @@ xcopy /y "$(SolutionDir)libs\awesomium\1.7.5.0\build\bin\awesomium_process.exe" 
     <ClInclude Include="Camera.h" />
     <ClInclude Include="CoreEngine.h" />
     <ClInclude Include="dxerr.h" />
-    <ClInclude Include="Effects.h" />
     <ClInclude Include="EulerIntegrator.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="GameTimer.h" />
@@ -111,7 +110,6 @@ xcopy /y "$(SolutionDir)libs\awesomium\1.7.5.0\build\bin\awesomium_process.exe" 
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="CoreEngine.cpp" />
     <ClCompile Include="dxerr.cpp" />
-    <ClCompile Include="Effects.cpp" />
     <ClCompile Include="EulerIntegrator.cpp" />
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="GameTimer.cpp" />

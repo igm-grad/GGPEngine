@@ -70,6 +70,7 @@ public:
 	Behavior*			CreateBehavior();
 
 	bool InitializeUI(const char* url);
+	bool InitializeParticleSystem();
 	bool UIExecuteJavascript(std::string javascript);
 	bool UIRegisterJavascriptFunction(std::string functionName, JSFunctionCallback functionPointer);
 	void EnableDebugLines();

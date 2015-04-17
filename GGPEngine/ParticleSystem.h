@@ -2,13 +2,19 @@
 #include <DirectXMath.h>
 #include <d3d11.h>
 #include "Camera.h"
+#include "RenderEngine.h"
 
 using namespace DirectX;
+
+class RenderEngine; //Forward declaration
+class GameObject; //Forward declaration
+//typedef GPPEngineAPI void(*JSFunctionCallback)();
 
 class ParticleSystem
 {
 public:
-	ParticleSystem();
+	ParticleSystem(RenderEngine* renderer);
+	//ParticleSystem();
 	~ParticleSystem();
 
 	float GetAge()const;
@@ -33,6 +39,8 @@ private:
 	ParticleSystem& operator=(const ParticleSystem& rhs);
 
 private:
+	RenderEngine* e;
+
 	UINT mMaxParticles;
 	bool mFirstRun;
 

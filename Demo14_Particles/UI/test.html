@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>jQuery UI Progressbar - Default functionality</title>
+    <link rel="stylesheet" href="http://code.jquery.com/ui/1.11.2/themes/smoothness/jquery-ui.css">
+    <script src="http://code.jquery.com/jquery-1.10.2.js"></script>
+    <script src="http://code.jquery.com/ui/1.11.2/jquery-ui.js"></script>
+    <link rel="stylesheet" href="jquery-ui.css">
+    <style>
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+        }
+
+        #wrapper {
+            min-height: 100%;
+            position: relative;
+        }
+
+        #content {
+            padding: 10px;
+            padding-bottom: 80px; /* Height of the footer element */
+        }
+
+        #footer {
+            width: 100%;
+            height: 80px;
+            position: absolute;
+            bottom: 0;
+            left: 0;
+        }
+
+        .center {
+            width: 100%;
+            text-align: center;
+
+        }
+    </style>
+    <script language="javascript">
+        $(function () {
+            $('#progressbar').progressbar({ value: 100 });
+            $("#button").button();
+            $("#quest-button").button();
+            $('#quest-tracker').menu();
+            $('#quest-show-hide').menu();
+        })
+        
+    </script>
+</head>
+<body style="background-color: transparent; min-height: 100%; margin: 0; padding: 0;">
+    <div id="wrapper" style="position:relative; min-height: 100%;">
+        <div class="center" style="padding-top: 10px;">
+            <div id="progressbar" style="max-width: 512px; width: 100%; margin: 0 auto;"/>
+        </div>
+        <div id="content" style="text-align: right">
+            <div style="float: right; color: white">
+                <ul id="quest-show-hide" style="width: 200px;">
+                    <li><a href="#" onclick="javascript:$('#quest-tracker').toggle(300)">Show/Hide Quests</a></li>
+                </ul>
+                <ul id="quest-tracker" style="width: 200px;">
+                    <li>A quest goal!</li>
+                    <li>Another quest goal!</li>
+                    
+                </ul>
+            </div>
+        </div>
+        <div id="footer">
+            <div class="center">
+                <button id="button" onclick="javascript:app.skill(1)">
+                    A Skill Button
+                </button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

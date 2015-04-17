@@ -1,5 +1,6 @@
 #include "RenderEngine.h"
 #include "UI.h"
+#include "ParticleSystem.h"
 #include <WindowsX.h>
 #include <sstream>
 #include <cmath>
@@ -287,6 +288,11 @@ void RenderEngine::DrawScene(GameObject** gameObjects, int gameObjectsCount, dou
 			0);
 	}
 
+	if (partSys) {
+		partSys->Update(deltaTime, 0);
+		//partSys->Draw(deviceContext, cameras[0]);
+	}
+
 	if (ui) {
 		ui->Update(); // Maybe now as frequently?
 		ui->Draw();
@@ -329,7 +335,7 @@ SpotLight*	RenderEngine::CreateSpotLight()
 
 ParticleSystem*	RenderEngine::CreateParticleSystem(const char* attributes, UINT maxParticles)
 {
-	ParticleSystem* partSys = new ParticleSystem();
+	ParticleSystem* partSys = new ParticleSystem(this);
 	partSys->Init(device, NULL, NULL, maxParticles);
 
 
@@ -582,6 +588,15 @@ bool RenderEngine::InitDirect3D() {
 	// is resized, so just run the OnResize method
 	OnResize();
 	
+	return true;
+}
+
+bool RenderEngine::InitPartSys() {
+	partSys = new ParticleSystem(this);
+
+	/*if (!partSys->Initialize()) {
+		return false;
+	}*/
 	return true;
 }
 

@@ -52,6 +52,10 @@ bool CoreEngine::InitializeUI(const char* url) {
 	return renderer->InitUI(url);
 }
 
+bool CoreEngine::InitializeParticleSystem() {
+	return renderer->InitPartSys();
+}
+
 bool CoreEngine::UIExecuteJavascript(std::string javascript) {
 	return renderer->UIExecuteJavascript(javascript);
 }
