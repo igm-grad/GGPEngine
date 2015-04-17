@@ -49,8 +49,12 @@ public:
 	GameObject*		Cylinder();
 	GameObject*		Helix();
 	GameObject*		Torus();
+	//#MyChages
+	GameObject*		Terrain(int width, int vertexPerWidth, int depth, int vertexPerDepth);
 
 	Mesh*			CreateMesh(const char* filename);
+	//#MyChages
+	Mesh*			CreatePlaneMesh(int width, int vertexPerWidth, int depth, int vertexPerDepth);
 	
 	Material*       BasicMaterial();
 	Material*		DiffuseMaterial();

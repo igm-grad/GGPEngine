@@ -171,6 +171,17 @@ GameObject*	CoreEngine::Torus()
 	return CreateGameObject("Models\\Torus.obj");
 }
 
+//#MyChages
+GameObject* CoreEngine::Terrain(int width, int vertexPerWidth, int depth, int vertexPerDepth)
+{
+	Mesh* planeMesh = CreatePlaneMesh(width, vertexPerWidth, depth, vertexPerDepth);
+
+	// Creates object with the plane mesh
+	GameObject* returnObject = new GameObject(planeMesh);
+	
+	return returnObject;
+}
+
 Mesh* CoreEngine::CreateMesh(const char* filename)
 {
 	std::unordered_map<std::string, Mesh*>::iterator it = meshIndex.find(filename);
@@ -187,6 +198,32 @@ Mesh* CoreEngine::CreateMesh(const char* filename)
 		meshObj = it->second;
 	}
 	return meshObj;
+}
+
+// Createsa plane mesh in the X and Z axis given a width, height and vertex distribution along those axis.
+Mesh* CoreEngine::CreatePlaneMesh(int width, int vertexPerWidth, int depth, int vertexPerDepth)
+{
+	// Plane Mesh that will be returned!
+	Mesh* PlaneMesh;
+
+	std::vector<Vertex> verts;           // Verts we're assembling
+	std::vector<UINT> indices;           // Indices of these verts
+	
+	// Loop though the columns
+	for (int k = 0; k < depth - 1; k++)
+	{
+		// Loop though the lines (x-axis)
+		for (int j = 0; j < width; j++)
+		{// Creates a quad. Draw triangle in i, i+1 and i+vertexPerWidth and another in i+1, i+vertexPerWidth+1 and i+vertexPerWidth.
+			verts[k, j].Position.x = j - vertexPerWidth / 2;
+			verts[k, j].Position.y = 0;
+			verts[k, j].Position.z = k - vertexPerDepth / 2;
+		}
+	}
+
+	//PlaneMesh = new Mesh(verts)
+	
+	return PlaneMesh;
 }
 
 Material* CoreEngine::BasicMaterial()
