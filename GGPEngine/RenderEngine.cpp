@@ -290,7 +290,7 @@ void RenderEngine::DrawScene(GameObject** gameObjects, int gameObjectsCount, dou
 
 	if (partSys) {
 		partSys->Update(deltaTime, 0);
-		//partSys->Draw(deviceContext, cameras[0]);
+		partSys->Draw(deviceContext, defaultCamera);
 	}
 
 	if (ui) {

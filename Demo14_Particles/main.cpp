@@ -40,15 +40,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 	ParticleSystem* Rain = engine->CreateParticleSystemThenAdd(rainGameObject, "Rain");
 	*/
 
-
 	engine->InitializeParticleSystem();
 
 	time_t startPoint = time(NULL);
 
 	//Set a .html file ad overlayer UI
-	engine->InitializeUI("file:///./UI/test.html");
+	//engine->InitializeUI("file:///./UI/test.html");
 	//Set the JS function app.skill to invoke a the C++ function Attack
-	engine->UIRegisterJavascriptFunction("skill", Attack);
+	//engine->UIRegisterJavascriptFunction("skill", Attack);
 		
 	// Loop until we get a quit message from the engine
 	while (!engine->exitRequested())

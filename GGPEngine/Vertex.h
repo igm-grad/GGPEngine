@@ -18,3 +18,14 @@ struct Vertex
 	XMFLOAT3 Normal;
 	XMFLOAT2 UV;
 };
+
+// Vertex struct for triangles
+struct ParticleVertex
+{
+	XMFLOAT3 Position;
+	XMFLOAT3 Size;
+	XMFLOAT4 Color;
+	//Age XMFLOAT
+	//Velocity ;
+	XMFLOAT3 Velocity;
+};

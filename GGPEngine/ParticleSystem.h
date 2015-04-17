@@ -3,12 +3,24 @@
 #include <d3d11.h>
 #include "Camera.h"
 #include "RenderEngine.h"
+#include "Vertex.h"
 
 using namespace DirectX;
 
 class RenderEngine; //Forward declaration
 class GameObject; //Forward declaration
 //typedef GPPEngineAPI void(*JSFunctionCallback)();
+
+
+//Array of particles on CPU side
+//Pass them in
+//Define data if you're drawing them. ParticleVertex
+//Dynamic buffer to copy
+
+//Draw all the squares
+
+//----------
+//GPU particles geometry shaders Pass the geometry forward
 
 class ParticleSystem
 {
@@ -30,7 +42,7 @@ public:
 
 	void Reset();
 	void Update(float dt, float gameTime);
-	void Draw(ID3D11DeviceContext* dc, const Camera& cam);
+	void Draw(ID3D11DeviceContext* dc, const Camera* cam);
 
 private:
 	void BuildVB(ID3D11Device* device);
@@ -57,6 +69,9 @@ private:
 	ID3D11Buffer* mInitVB;
 	ID3D11Buffer* mDrawVB;
 	ID3D11Buffer* mStreamOutVB;
+
+	SimpleVertexShader simpleVS;
+	SimplePixelShader simplePS;
 
 	ID3D11ShaderResourceView* mTexArraySRV;
 	ID3D11ShaderResourceView* mRandomTexSRV;

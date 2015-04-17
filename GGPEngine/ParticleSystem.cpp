@@ -84,8 +84,11 @@ void ParticleSystem::Update(float dt, float gameTime)
 	mAge += dt;
 }
 
-void ParticleSystem::Draw(ID3D11DeviceContext* dc, const Camera& cam)
+void ParticleSystem::Draw(ID3D11DeviceContext* dc, const Camera* cam)
 {
+	XMMATRIX VP = XMLoadFloat4x4(&cam->view);
+
+
 	/*XMFLOAT4X4 view = cam.view();
 	XMMATRIX VP = XMLoadFloat4x4(&view);
 	
