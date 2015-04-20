@@ -15,10 +15,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 	GameObject* gameObject1 = engine->Terrain(4,4,4,4);
 	gameObject1->material = engine->BasicMaterial();
 	gameObject1->transform->position = XMFLOAT3(0.0f, 0.0f, 0.0f);
-	gameObject1->transform->rotation.y = -3.14 / 2;
-	gameObject1->transform->scale.x = 10.0f;
-	gameObject1->transform->scale.y = 10.0f;
-	gameObject1->transform->scale.z = 10.0f;
+	gameObject1->transform->rotation.x = -3.1415f/ 4.0f;
+	gameObject1->transform->scale.x = 1.0f;
+	gameObject1->transform->scale.y = 1.0f;
+	gameObject1->transform->scale.z = 1.0f;
 
 	
 	// Loop until we get a quit message from the engine

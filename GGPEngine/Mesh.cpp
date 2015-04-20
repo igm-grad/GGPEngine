@@ -30,65 +30,6 @@ Mesh::Mesh(const char* filename, ID3D11Device* device)
 	SetIndexBuffer(&indices[0], indices.size(), device);
 }
 
-//#MyChanges
-// Creates a plane mesh in the X and Z axis given a width, height and vertex distribution along those axis.
-Mesh::Mesh(int width, int vertexPerWidth, int depth, int vertexPerDepth, ID3D11Device* device)
-{
-	std::vector<Vertex> verts;           // Verts we're assembling
-	std::vector<UINT> indices;           // Indices of these verts
-	
-	Vertex CurVertex;
-	UINT IndicesIndex = 0;
-	/*
-	// Loop though the columns
-	for (int k = 0; k < vertexPerDepth - 1; k++)
-	{
-		// Loop though the lines (x-axis)
-		for (int j = 0; j < vertexPerWidth-1; j++) // May need to change to vertexperwidth.
-		{// Creates a quad. Draw triangle in [k,j], [k+1,j] and [k,j+vertexPerWidth] and another in [k+1,j], [k+1,jj+vertexPerWidth+1] and [k,j+vertexPerWidth].
-			
-			int index = k*vertexPerWidth + j;
-			//First Triangle
-			// Vertices
-			// #1
-			verts[index].Position.x = j - width / 2;
-			verts[index].Position.y = 0;
-			verts[index].Position.z = k - depth / 2;
-			indices.push_back(IndicesIndex++);
-			// #2
-			verts[index + 1].Position.x = j - width / 2;
-			verts[index+1].Position.y = 0;
-			verts[index + 1].Position.z = k - depth / 2;
-			indices.push_back(IndicesIndex++);
-			// #3
-			verts[index + vertexPerWidth].Position.x = j - width / 2;
-			verts[index + vertexPerWidth].Position.y = 0;
-			verts[index + vertexPerWidth].Position.z = k - depth / 2;
-			indices.push_back(IndicesIndex++);
-		}
-	}
-
-	*/
-
-	verts.clear();
-	CurVertex.Position	=	XMFLOAT3(	-1.0f,	0.0f,	1.0f );
-	CurVertex.Normal	=	XMFLOAT3(	0.0f,	1.0f,	0.0f );
-	verts.push_back(CurVertex);
-	indices.push_back(IndicesIndex++);
-	
-	CurVertex.Position = XMFLOAT3(1.0f, 0.0f, 1.0f);
-	CurVertex.Normal = XMFLOAT3(0.0f, 1.0f, 0.0f);
-	verts.push_back(CurVertex);
-	indices.push_back(IndicesIndex++);
-
-	CurVertex.Position = XMFLOAT3(-1.0f, 0.0f, -1.0f);
-	CurVertex.Normal = XMFLOAT3(0.0f, 1.0f, 0.0f);
-	verts.push_back(CurVertex);
-	indices.push_back(IndicesIndex++);
-
-	Mesh(&verts[0], verts.size(), &indices[0], indices.size(), device);
-}
-
 Mesh::Mesh() : indexCount(0)
 {
 
