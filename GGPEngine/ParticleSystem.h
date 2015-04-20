@@ -45,7 +45,6 @@ public:
 	void SetPixelShader(ID3D11Device* device, ID3D11DeviceContext* deviceContext, LPCWSTR pixelShaderFile);
 	void SetPixelShader(SimplePixelShader* simplePixelShader);
 
-
 	void Init(ID3D11Device* device, 
 		ID3D11ShaderResourceView* texArraySRV, 
 		ID3D11ShaderResourceView* randomTexSRV, 
@@ -54,6 +53,9 @@ public:
 	void Reset();
 	void Update(float dt, float gameTime);
 	void Draw(ID3D11DeviceContext* dc, const Camera* cam);
+
+	void EmitParticles(float gameTime);
+	void KillParticles();
 
 private:
 	void BuildVB(ID3D11Device* device);
@@ -73,6 +75,10 @@ private:
 	float mGameTime;
 	float mTimeStep;
 	float mAge;
+
+	float m_particleDeviationX, m_particleDeviationY, m_particleDeviationZ;
+	float m_particleVelocity, m_particleVelocityVariation;
+	float m_particleSize, m_particlesPerSecond;
 
 	XMFLOAT3 mEyePosW;
 	XMFLOAT3 mEmitPosW;
