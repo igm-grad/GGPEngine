@@ -22,6 +22,10 @@ protected:
 	Mesh();
 	~Mesh();
 
+//#MyChanges
+	Mesh(int width, int vertexPerWidth, int depth, int vertexPerDepth, ID3D11Device* device);
+
+
 	void SetVertexBuffer(Vertex* vertices, int vertexCount, ID3D11Device* device);
 	void SetIndexBuffer(UINT* indices, int indexCount, ID3D11Device* device);
 

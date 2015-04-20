@@ -304,6 +304,13 @@ Mesh* RenderEngine::CreateMesh(const char* filename)
 	return new Mesh(filename, device);
 }
 
+//#MyChanges
+Mesh* RenderEngine::CreatePlaneMesh(int width, int vertexPerWidth, int depth, int vertexPerDepth)
+{
+
+	return new Mesh(width, vertexPerDepth, depth, vertexPerDepth, device);
+}
+
 Material* RenderEngine::CreateMaterial(LPCWSTR vertexShaderFile, LPCWSTR pixelShaderFile)
 {
 	return new Material(device, deviceContext, vertexShaderFile, pixelShaderFile);
