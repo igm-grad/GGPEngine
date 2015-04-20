@@ -14,8 +14,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 
 	GameObject* gameObject1 = engine->Terrain(4,4,4,4);
 	//gameObject1->material = engine->BasicMaterial();
-	//gameObject1->transform->position = XMFLOAT3(0.0f, 0.0f, 0.0f);
+	gameObject1->transform->position = XMFLOAT3(0.0f, 0.0f, 0.0f);
 
+	/*
 	// Loop until we get a quit message from the engine
 	while (!engine->exitRequested())
 	{
@@ -23,4 +24,5 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 		gameObject1->transform->MoveBackward();
 		engine->Update();
 	}
+	*/
 }

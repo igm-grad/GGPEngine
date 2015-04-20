@@ -39,29 +39,29 @@ Mesh::Mesh(int width, int vertexPerWidth, int depth, int vertexPerDepth, ID3D11D
 
 	int IndicesIndex = 0;
 	// Loop though the columns
-	for (int k = 0; k < depth - 1; k++)
+	for (int k = 0; k < vertexPerDepth - 1; k++)
 	{
 		// Loop though the lines (x-axis)
-		for (int j = 0; j < width; j++) // May need to change to vertexperwidth.
+		for (int j = 0; j < vertexPerWidth-1; j++) // May need to change to vertexperwidth.
 		{// Creates a quad. Draw triangle in [k,j], [k+1,j] and [k,j+vertexPerWidth] and another in [k+1,j], [k+1,jj+vertexPerWidth+1] and [k,j+vertexPerWidth].
 			
-			int index = k*width + j;
+			int index = k*vertexPerWidth + j;
 			//First Triangle
 			// Vertices
 			// #1
-			verts[index].Position.x = j - vertexPerWidth / 2;
+			verts[index].Position.x = j - width / 2;
 			verts[index].Position.y = 0;
-			verts[index].Position.z = k - vertexPerDepth / 2;
+			verts[index].Position.z = k - depth / 2;
 			indices.push_back(IndicesIndex++);
 			// #2
-			verts[index+1].Position.x = j - vertexPerWidth / 2;
+			verts[index + 1].Position.x = j - width / 2;
 			verts[index+1].Position.y = 0;
-			verts[index+1].Position.z = k - vertexPerDepth / 2;
+			verts[index + 1].Position.z = k - depth / 2;
 			indices.push_back(IndicesIndex++);
 			// #3
-			verts[index + vertexPerWidth].Position.x = j - vertexPerWidth / 2;
+			verts[index + vertexPerWidth].Position.x = j - width / 2;
 			verts[index + vertexPerWidth].Position.y = 0;
-			verts[index + vertexPerWidth].Position.z = k - vertexPerDepth / 2;
+			verts[index + vertexPerWidth].Position.z = k - depth / 2;
 			indices.push_back(IndicesIndex++);
 		}
 	}
