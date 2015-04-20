@@ -21,18 +21,6 @@ ParticleSystem::ParticleSystem(RenderEngine* renderer) : mInitVB(0), mDrawVB(0),
 	mEmitDirW = XMFLOAT3(0.0f, 1.0f, 0.0f);
 }
 
-/*ParticleSystem::ParticleSystem() : mInitVB(0), mDrawVB(0), mStreamOutVB(0), mTexArraySRV(0), mRandomTexSRV(0)
-{
-	mFirstRun = true;
-	mGameTime = 0.0f;
-	mTimeStep = 0.0f;
-	mAge = 0.0f;
-
-	mEyePosW = XMFLOAT3(0.0f, 0.0f, 0.0f);
-	mEmitPosW = XMFLOAT3(0.0f, 0.0f, 0.0f);
-	mEmitDirW = XMFLOAT3(0.0f, 1.0f, 0.0f);
-}*/
-
 ParticleSystem::~ParticleSystem()
 {
 	if (mInitVB){ mInitVB->Release(); mInitVB = 0; }
@@ -97,16 +85,7 @@ void ParticleSystem::SetPixelShader(SimplePixelShader* simplePixelShader)
 void ParticleSystem::Init(ID3D11Device* device, /*ParticleEffect* fx,*/ ID3D11ShaderResourceView* texArraySRV,
 	ID3D11ShaderResourceView* randomTexSRV, UINT maxParticles)
 {
-	ParticleVertex first;
-	particles.push_back(first);
-
-	particles[0].position = { 0, 0, 0 };
-	particles[0].size = { 1.0f, 1.0f, 1.0f };
-	particles[0].color = { 1.0f, 0, 0, 1.0f };
-	particles[0].age = 0;
-	particles[0].velocity = { 0, 3.0f, 0 };
-
-	mMaxParticles = maxParticles;
+	InitializeParticleSystem();
 
 	//mFX = fx;
 
@@ -129,11 +108,16 @@ void ParticleSystem::Update(float dt, float gameTime)
 
 	mAge += dt;
 
-	int i;
+	KillParticles();
 
 	EmitParticles(gameTime);
 
+	UpdateParticles(dt);
+
+	UpdateBuffers(e->deviceContext);
+
 	// Each frame we update all the particles by making them move downwards using their position, velocity, and the frame time.
+	int i;
 	for (i = 0; i < particles.size(); i++)
 	{
 		particles[i].age += dt;
@@ -221,104 +205,6 @@ void ParticleSystem::Draw(ID3D11DeviceContext* dc, const Camera* cam)
 	}*/
 }
 
-void ParticleSystem::EmitParticles(float gameTime)
-{
-	bool emitParticle, found;
-	float positionX, positionY, positionZ, velocity, red, green, blue;
-	int index, i, j;
-
-	// Increment the frame time.
-	//m_accumulatedTime += frameTime;
-
-	// Set emit particle to false for now.
-	emitParticle = false;
-
-	// Check if it is time to emit a new particle or not.
-	//if (m_accumulatedTime > (1000.0f / m_particlesPerSecond))
-	//{
-		//m_accumulatedTime = 0.0f;
-		emitParticle = true;
-	//}
-
-	// If there are particles to emit then emit one per frame.
-		if ((emitParticle == true) && (particles.size() < (mMaxParticles
-		-1)))
-	{
-		//m_currentParticleCount++;
-
-		// Now generate the randomized particle properties.
-		positionX = (((float)rand() - (float)rand()) / RAND_MAX) * m_particleDeviationX;
-		positionY = (((float)rand() - (float)rand()) / RAND_MAX) * m_particleDeviationY;
-		positionZ = (((float)rand() - (float)rand()) / RAND_MAX) * m_particleDeviationZ;
-
-		velocity = m_particleVelocity + (((float)rand() - (float)rand()) / RAND_MAX) * m_particleVelocityVariation;
-
-		red = (((float)rand() - (float)rand()) / RAND_MAX) + 0.5f;
-		green = (((float)rand() - (float)rand()) / RAND_MAX) + 0.5f;
-		blue = (((float)rand() - (float)rand()) / RAND_MAX) + 0.5f;
-
-		// Now since the particles need to be rendered from back to front for blending we have to sort the particle array.
-		// We will sort using Z depth so we need to find where in the list the particle should be inserted.
-		/*index = 0;
-		found = false;
-		while (!found)
-		{
-			if ((particles[index].active == false) || (particles[index].position.z < position.z))
-			{
-				found = true;
-			}
-			else
-			{
-				index++;
-			}
-		}*/
-
-		// Now that we know the location to insert into we need to copy the array over by one position from the index to make room for the new particle.
-		//i = m_currentParticleCount;
-		//j = i - 1;
-
-		ParticleVertex first;
-		particles.push_back(first);
-
-		int newEnd = particles.size() - 1;
-
-		particles[newEnd].position = { positionX, positionY, positionZ };
-		particles[newEnd].size = { 1.0f, 1.0f, 1.0f };
-		particles[newEnd].color = { red, green, blue, 1.0f };
-		particles[newEnd].age = 0;
-		particles[newEnd].velocity = { 0, velocity, 0 };
-		particles[newEnd].active = true;
-	}
-}
-
-void ParticleSystem::KillParticles()
-{
-	int i, j;
-
-	// Kill all the particles that have gone below a certain height range.
-	for (i = 0; i < mMaxParticles; i++)
-	{
-		if ((particles[i].active == true) && (particles[i].position.y < -3.0f))
-		{
-			particles[i].active = false;
-			//m_currentParticleCount--;
-
-			// Now shift all the live particles back up the array to erase the destroyed particle and keep the array sorted correctly.
-			for (j = i; j<mMaxParticles - 1; j++)
-			{
-				particles[j].position.x = particles[j + 1].position.x;
-				particles[j].position.y = particles[j + 1].position.y;
-				particles[j].position.z = particles[j + 1].position.z;
-				particles[j].color.x = particles[j + 1].color.x;
-				particles[j].color.y = particles[j + 1].color.y;
-				particles[j].color.z = particles[j + 1].color.z;
-				particles[j].velocity = particles[j + 1].velocity;
-				particles[j].active = particles[j + 1].active;
-			}
-		}
-	}
-}
-
 void ParticleSystem::BuildVB(ID3D11Device* device)
 {
 	/*
@@ -389,4 +275,175 @@ void ParticleSystem::ReleaseTexture()
 	}*/
 
 	return;
+}
+
+void ParticleSystem::EmitParticles(float dt)
+{
+	bool emitParticle, found;
+	float positionX, positionY, positionZ, velocity, red, green, blue;
+	int index, i, j;
+
+	// Increment the frame time.
+	//m_accumulatedTime += frameTime;
+
+	// Set emit particle to false for now.
+	emitParticle = false;
+
+	// Check if it is time to emit a new particle or not.
+	//if (m_accumulatedTime > (1000.0f / m_particlesPerSecond))
+	//{
+	//m_accumulatedTime = 0.0f;
+	emitParticle = true;
+	//}
+
+	// If there are particles to emit then emit one per frame.
+	if ((emitParticle == true) && (particles.size() < (mMaxParticles
+		- 1)))
+	{
+		//m_currentParticleCount++;
+
+		// Now generate the randomized particle properties.
+		positionX = (((float)rand() - (float)rand()) / RAND_MAX) * m_particleDeviationX;
+		positionY = (((float)rand() - (float)rand()) / RAND_MAX) * m_particleDeviationY;
+		positionZ = (((float)rand() - (float)rand()) / RAND_MAX) * m_particleDeviationZ;
+
+		velocity = m_particleVelocity + (((float)rand() - (float)rand()) / RAND_MAX) * m_particleVelocityVariation;
+
+		red = (((float)rand() - (float)rand()) / RAND_MAX) + 0.5f;
+		green = (((float)rand() - (float)rand()) / RAND_MAX) + 0.5f;
+		blue = (((float)rand() - (float)rand()) / RAND_MAX) + 0.5f;
+
+		// Now since the particles need to be rendered from back to front for blending we have to sort the particle array.
+		// We will sort using Z depth so we need to find where in the list the particle should be inserted.
+		/*index = 0;
+		found = false;
+		while (!found)
+		{
+		if ((particles[index].active == false) || (particles[index].position.z < position.z))
+		{
+		found = true;
+		}
+		else
+		{
+		index++;
+		}
+		}*/
+
+		// Now that we know the location to insert into we need to copy the array over by one position from the index to make room for the new particle.
+		//i = m_currentParticleCount;
+		//j = i - 1;
+	
+		ParticleVertex first;
+		particles.push_back(first);
+
+		int newEnd = particles.size() - 1;
+
+		particles[newEnd].position = { positionX, positionY, positionZ };
+		particles[newEnd].size = { 1.0f, 1.0f, 1.0f };
+		particles[newEnd].color = { red, green, blue, 1.0f };
+		particles[newEnd].age = 0;
+		particles[newEnd].velocity = { 0, velocity, 0 };
+		particles[newEnd].active = true;
+	}
+}
+
+void ParticleSystem::UpdateParticles(float dt)
+{
+
+}
+
+void ParticleSystem::KillParticles()
+{
+	int i, j;
+
+	// Kill all the particles that have gone below a certain height range.
+	for (i = 0; i < particles.size(); i++)
+	{
+		if ((particles[i].active == true) && (particles[i].position.y < -3.0f))
+		{
+			particles[i].active = false;
+			//m_currentParticleCount--;
+
+			// Now shift all the live particles back up the array to erase the destroyed particle and keep the array sorted correctly.
+			for (j = i; j < particles.size(); j++)
+			{
+				particles[j].position.x = particles[j + 1].position.x;
+				particles[j].position.y = particles[j + 1].position.y;
+				particles[j].position.z = particles[j + 1].position.z;
+				particles[j].color.x = particles[j + 1].color.x;
+				particles[j].color.y = particles[j + 1].color.y;
+				particles[j].color.z = particles[j + 1].color.z;
+				particles[j].velocity = particles[j + 1].velocity;
+				particles[j].active = particles[j + 1].active;
+			}
+		}
+	}
+}
+
+void ParticleSystem::InitializeParticleSystem()
+{
+	// Set the random deviation of where the particles can be located when emitted.
+	m_particleDeviationX = 0.5f;
+	m_particleDeviationY = 0.1f;
+	m_particleDeviationZ = 2.0f;
+
+	// Set the speed and speed variation of particles.
+	m_particleVelocity = 1.0f;
+	m_particleVelocityVariation = 0.2f;
+
+	// Set the physical size of the particles.
+	m_particleSize = 0.2f;
+
+	// Set the number of particles to emit per second.
+	m_particlesPerSecond = 250.0f;
+
+	// Set the maximum number of particles allowed in the particle system.
+	mMaxParticles = 5000;
+	// Create the particle list.
+
+	ParticleVertex first;
+	particles.push_back(first);
+
+	particles[0].position = { 0, 0, 0 };
+	particles[0].size = { 1.0f, 1.0f, 1.0f };
+	particles[0].color = { 1.0f, 0, 0, 1.0f };
+	particles[0].age = 0;
+	particles[0].velocity = { 0, 3.0f, 0 };
+
+	//m_particleList = new ParticleType[m_maxParticles];
+	//if (!m_particleList)
+	//{
+	//	return false;
+	//}
+
+	// Initialize the particle list.
+	/*for (i = 0; i<m_maxParticles; i++)
+	{
+		m_particleList[i].active = false;
+	}*/
+
+	// Clear the initial accumulated time for the particle per second emission rate.
+	mAccumulatedTime = 0.0f;
+}
+
+void ParticleSystem::ShutdownParticleSystem()
+{
+	// Release the particle list.
+	//if (particles != null)
+	//{
+	//	delete[] particles;
+	//	particles = 0;
+	//}
+
+	return;
+}
+
+void ParticleSystem::UpdateBuffers(ID3D11DeviceContext* context)
+{
+
+}
+
+void ParticleSystem::RenderBuffers(ID3D11DeviceContext* context)
+{
+
 }

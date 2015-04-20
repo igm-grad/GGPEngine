@@ -54,8 +54,18 @@ public:
 	void Update(float dt, float gameTime);
 	void Draw(ID3D11DeviceContext* dc, const Camera* cam);
 
-	void EmitParticles(float gameTime);
+	void EmitParticles(float dt);
+	void UpdateParticles(float dt);
 	void KillParticles();
+
+	void InitializeParticleSystem();
+	void ShutdownParticleSystem();
+
+	bool InitializeBuffers(ID3D11Device* device);
+	void ShutdownBuffers();
+
+	void UpdateBuffers(ID3D11DeviceContext* context);
+	void RenderBuffers(ID3D11DeviceContext* context);
 
 private:
 	void BuildVB(ID3D11Device* device);
@@ -63,8 +73,9 @@ private:
 	ParticleSystem(const ParticleSystem& rhs);
 	ParticleSystem& operator=(const ParticleSystem& rhs);
 
-	bool LoadTexture(ID3D11Device*, WCHAR*);
+	bool LoadTexture(ID3D11Device* device, WCHAR* filename);
 	void ReleaseTexture();
+
 
 private:
 	RenderEngine* e;
@@ -72,6 +83,7 @@ private:
 	UINT mMaxParticles;
 	bool mFirstRun;
 
+	float mAccumulatedTime;
 	float mGameTime;
 	float mTimeStep;
 	float mAge;
@@ -85,7 +97,7 @@ private:
 	XMFLOAT3 mEmitDirW;
 
 	//ParticleEffect* mFX;
-
+	
 	ID3D11Buffer* mInitVB;
 	ID3D11Buffer* mDrawVB;
 	ID3D11Buffer* mStreamOutVB;
