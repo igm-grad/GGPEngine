@@ -43,13 +43,22 @@ cbuffer			lights			: register (b0)
 	DirectionalLight	directionalLights[DIRECTIONAL_LIGHT_COUNT];
 	PointLight			pointLights[POINT_LIGHT_COUNT];
 	SpotLight			spotLights[SPOT_LIGHT_COUNT];
+	float3				eyePosition;
 }
 
-float4 lightContribution(float4 diffuseColor, float4 ambientColor, float3 pixelNormal, float3 directionToLight)
+float4 diffuseColor(float4 diffuseColor, float4 ambientColor, float3 pixelNormal, float3 directionToLight)
 {
 	directionToLight = normalize(directionToLight);
 	float	contribution = saturate(dot(pixelNormal, directionToLight));
 	return ((contribution * diffuseColor) + ambientColor);
+}
+
+float4 specularColor(float3 eyePosition, float3 pixelPositionT, float3 pixelNormal, float3 directionToLight)
+{
+	float3 pixelToEye = normalize(eyePosition - pixelPositionT);
+	float3 pixelReflection = normalize(reflect(directionToLight, pixelNormal));
+	float specularContribution = saturate(dot(pixelToEye, pixelReflection));
+	return float4(1.f, 1.f, 1.f, 1.0f) * pow(specularContribution, 32);
 }
 
 float4 main(Pixel pixel) : SV_TARGET
@@ -58,20 +67,24 @@ float4 main(Pixel pixel) : SV_TARGET
 	float4 colorAccumulator = float4(0.0f, 0.0f, 0.0f, 1.0f);
 
 	for (int i = 0; i < DIRECTIONAL_LIGHT_COUNT; i++) {
-		colorAccumulator += lightContribution(directionalLights[i].diffuseColor, directionalLights[i].ambientColor, pixel.normal, -directionalLights[i].direction);
+		float4 dColor = diffuseColor(directionalLights[i].diffuseColor, directionalLights[i].ambientColor, pixel.normal, -directionalLights[i].direction);
+		float4 sColor = specularColor(eyePosition, pixel.positionT, pixel.normal, directionalLights[i].direction);
+		colorAccumulator += (dColor + directionalLights[i].ambientColor + sColor);
 	}
 
 	for (int j = 0; j < POINT_LIGHT_COUNT; j++) {
 		float3  pixelToLight = pointLights[j].position - pixel.positionT;
-		float4	contribution = lightContribution(pointLights[j].diffuseColor, pointLights[j].ambientColor, pixel.normal, pixelToLight);
+		float4	dColor = diffuseColor(pointLights[j].diffuseColor, pointLights[j].ambientColor, pixel.normal, pixelToLight);
+		float4  sColor = specularColor(eyePosition, pixel.positionT, pixel.normal, -pixelToLight);
 		float   attenuation = 1 - (length(pixelToLight) * (1 / pointLights[j].radius));
-		colorAccumulator += contribution * saturate(attenuation);
+		colorAccumulator += (dColor + pointLights[j].ambientColor + sColor) * saturate(attenuation);
 	}
 
 	for (int k = 0; k < SPOT_LIGHT_COUNT; k++)
 	{
 		float3  pixelToLight = spotLights[k].position - pixel.positionT;
-		float4	contribution = lightContribution(spotLights[k].diffuseColor, spotLights[k].ambientColor, pixel.normal, pixelToLight);
+		float4	dColor = diffuseColor(spotLights[k].diffuseColor, spotLights[k].ambientColor, pixel.normal, pixelToLight);
+		float4  sColor = specularColor(eyePosition, pixel.positionT, pixel.normal, -pixelToLight);
 
 		float3	directionToLight = normalize(pixelToLight);
 		float   linearAttenuation = lerp(1.0f, 0.0f, length(pixelToLight) / spotLights[k].range);
@@ -89,7 +102,7 @@ float4 main(Pixel pixel) : SV_TARGET
 		}
 
 		totalAttenuation *= linearAttenuation;
-		colorAccumulator += ((contribution * spotLights[k].diffuseColor) + spotLights[k].ambientColor) * saturate(totalAttenuation);
+		colorAccumulator += (dColor + spotLights[k].ambientColor + sColor) * saturate(totalAttenuation);
 	}
 
 	float4 textureColor = diffuseTexture.Sample(diffuseSampler, pixel.uv);

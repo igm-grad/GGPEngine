@@ -263,7 +263,7 @@ void RenderEngine::DrawScene(GameObject** gameObjects, int gameObjectsCount, dou
 		if (spotLights.size() > 0) {
 			renderList[i]->material->sPixelShader->SetData("spotLights", &spotLights[0], sizeof(SpotLight) * spotLights.size());
 		}
-
+		renderList[i]->material->sPixelShader->SetFloat3("eyePosition", defaultCamera->transform->position);
 		renderList[i]->material->UpdatePixelShaderResources();
 		renderList[i]->material->UpdatePixelShaderSamplers();
 		renderList[i]->material->sPixelShader->SetShader();

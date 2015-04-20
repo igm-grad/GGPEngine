@@ -74,7 +74,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 	mats[1] = diffuseMaterial;
 	mats[2] = diffuseNormalMaterial;
 
-	GameObject* gameObject = engine->Cube();
+	GameObject* gameObject = engine->Sphere();
 	gameObject->material = mats[MATERIAL_INDEX];
 
 	gameObject->behavior = engine->CreateBehavior();
@@ -88,9 +88,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 	gameObject->behavior->SetCallbackForKey(keyYCallback, KEYCODE_Y);
 	gameObject->behavior->SetCallbackForKey(keyZCallback, KEYCODE_Z);
 
-	//DirectionalLight* directionalLight = engine->CreateDirectionalLight(DirectX::XMFLOAT4(0.1f, 0.1f, 0.1f, 1.0f), DirectX::XMFLOAT4(0.2f, 0.2f, 0.2f, 1.0f), DirectX::XMFLOAT3(1.f, -1.f, 1.f));
-	PointLight *pointLight = engine->CreatePointLight(DirectX::XMFLOAT4(0.1f, 0.1f, 0.1f, 1.0f), DirectX::XMFLOAT4(0.2f, 0.2f, 0.2f, 1.0f), DirectX::XMFLOAT3(0.f, 5.f, -5.f), 60.0f);
-	SpotLight* spotLight = engine->CreateSpotLight(DirectX::XMFLOAT4(0.1f, 0.1f, 0.1f, 1.0f), DirectX::XMFLOAT4(0.2f, 0.2f, 0.2f, 1.0f), DirectX::XMFLOAT3(0.0, 1.0f, 1.0), DirectX::XMFLOAT3(0.0f, -5.0f, -5.0f), 60.0f, 10.f);
+	DirectionalLight* directionalLight = engine->CreateDirectionalLight(DirectX::XMFLOAT4(0.1f, 0.1f, 0.1f, 1.0f), DirectX::XMFLOAT4(0.2f, 0.2f, 0.2f, 1.0f), DirectX::XMFLOAT3(1.f, -1.f, 1.f));
+	PointLight *pointLight = engine->CreatePointLight(DirectX::XMFLOAT4(0.1f, 0.1f, 0.1f, 1.0f), DirectX::XMFLOAT4(0.2f, 0.2f, 0.2f, 1.0f), DirectX::XMFLOAT3(0.f, 5.f, -5.f), 15.0f);
+	SpotLight* spotLight = engine->CreateSpotLight(DirectX::XMFLOAT4(0.1f, 0.1f, 0.1f, 1.0f), DirectX::XMFLOAT4(0.2f, 0.2f, 0.2f, 1.0f), DirectX::XMFLOAT3(0.0, 1.0f, 1.0), DirectX::XMFLOAT3(0.0f, -5.0f, -5.0f), 30.0f, 10.f);
 	
 	// Loop until we get a quit message from the engine
 	while (!engine->exitRequested())
