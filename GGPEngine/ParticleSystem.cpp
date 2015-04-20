@@ -5,6 +5,10 @@
 ParticleSystem::ParticleSystem(RenderEngine* renderer) : mInitVB(0), mDrawVB(0), mStreamOutVB(0), mTexArraySRV(0), mRandomTexSRV(0)
 {
 	e = renderer;
+
+	SetVertexShader(e->device, e->deviceContext, L"VertexShader");
+	SetPixelShader(e->device, e->deviceContext, L"PixeLShader");
+
 	mFirstRun = true;
 	mGameTime = 0.0f;
 	mTimeStep = 0.0f;
@@ -35,6 +39,15 @@ ParticleSystem::~ParticleSystem()
 	//ReleaseCOM(mInitVB);
 	//ReleaseCOM(mDrawVB);
 	//ReleaseCOM(mStreamOutVB);
+
+	// Release the buffers.
+	//ShutdownBuffers();
+
+	// Release the particle system.
+	//ShutdownParticleSystem();
+
+	// Release the texture used for the particles.
+	ReleaseTexture();
 }
 
 float ParticleSystem::GetAge()const
@@ -57,9 +70,40 @@ void ParticleSystem::SetEmitDir(const XMFLOAT3& emitDirW)
 	mEmitDirW = emitDirW;
 }
 
+void ParticleSystem::SetVertexShader(ID3D11Device* device, ID3D11DeviceContext* deviceContext, LPCWSTR vertexShaderFile)
+{
+	simpleVS = new SimpleVertexShader(device, deviceContext);
+	simpleVS->LoadShaderFile(vertexShaderFile);
+}
+
+void ParticleSystem::SetVertexShader(SimpleVertexShader* simpleVertexShader)
+{
+	simpleVS = simpleVertexShader;
+}
+
+void ParticleSystem::SetPixelShader(ID3D11Device* device, ID3D11DeviceContext* deviceContext, LPCWSTR pixelShaderFile)
+{
+	simplePS = new SimplePixelShader(device, deviceContext);
+	simplePS->LoadShaderFile(pixelShaderFile);
+}
+
+void ParticleSystem::SetPixelShader(SimplePixelShader* simplePixelShader)
+{
+	simplePS = simplePixelShader;
+}
+
 void ParticleSystem::Init(ID3D11Device* device, /*ParticleEffect* fx,*/ ID3D11ShaderResourceView* texArraySRV,
 	ID3D11ShaderResourceView* randomTexSRV, UINT maxParticles)
 {
+	ParticleVertex first;
+	particles.push_back(first);
+
+	particles[0].Position = { 0, 0, 0 };
+	particles[0].Size = { 1.0f, 1.0f, 1.0f };
+	particles[0].Color = { 1.0f, 0, 0, 1.0f };
+	particles[0].Age = 0;
+	particles[0].Velocity = { 0, 3.0f, 0 };
+
 	mMaxParticles = maxParticles;
 
 	//mFX = fx;
@@ -200,4 +244,38 @@ void ParticleSystem::BuildVB(ID3D11Device* device)
 	HR(device->CreateBuffer(&vbd, 0, &mDrawVB));
 	HR(device->CreateBuffer(&vbd, 0, &mStreamOutVB));
 	*/
+}
+
+bool ParticleSystem::LoadTexture(ID3D11Device* device, WCHAR* filename)
+{
+	/*bool result;
+
+	// Create the texture object.
+	mTexArraySRV = new TextureClass;
+	if (!m_Texture)
+	{
+		return false;
+	}
+
+	// Initialize the texture object.
+	result = m_Texture->Initialize(device, filename);
+	if (!result)
+	{
+		return false;
+	}*/
+
+	return true;
+}
+
+void ParticleSystem::ReleaseTexture()
+{
+	/*// Release the texture object.
+	if (mTexArraySRV)
+	{
+		m_Texture->Shutdown();
+		delete m_Texture;
+		m_Texture = 0;
+	}*/
+
+	return;
 }

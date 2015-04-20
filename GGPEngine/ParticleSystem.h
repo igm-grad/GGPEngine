@@ -4,6 +4,7 @@
 #include "Camera.h"
 #include "RenderEngine.h"
 #include "Vertex.h"
+#include <vector>
 
 using namespace DirectX;
 
@@ -34,6 +35,12 @@ public:
 	void SetEyePos(const XMFLOAT3& eyePosW);
 	void SetEmitPos(const XMFLOAT3& emitPosW);
 	void SetEmitDir(const XMFLOAT3& emitDirW);
+
+	void SetVertexShader(ID3D11Device* device, ID3D11DeviceContext* deviceContext, LPCWSTR vertexShaderFile);
+	void SetVertexShader(SimpleVertexShader* simpleVertexShader);
+	void SetPixelShader(ID3D11Device* device, ID3D11DeviceContext* deviceContext, LPCWSTR pixelShaderFile);
+	void SetPixelShader(SimplePixelShader* simplePixelShader);
+
 
 	void Init(ID3D11Device* device, 
 		ID3D11ShaderResourceView* texArraySRV, 
@@ -70,10 +77,12 @@ private:
 	ID3D11Buffer* mDrawVB;
 	ID3D11Buffer* mStreamOutVB;
 
-	SimpleVertexShader simpleVS;
-	SimplePixelShader simplePS;
+	SimpleVertexShader* simpleVS;
+	SimplePixelShader* simplePS;
 
 	ID3D11ShaderResourceView* mTexArraySRV;
 	ID3D11ShaderResourceView* mRandomTexSRV;
+
+	std::vector<ParticleVertex> particles;
 };
 

@@ -22,10 +22,9 @@ struct Vertex
 // Vertex struct for triangles
 struct ParticleVertex
 {
-	XMFLOAT3 Position;
-	XMFLOAT3 Size;
-	XMFLOAT4 Color;
-	//Age XMFLOAT
-	//Velocity ;
-	XMFLOAT3 Velocity;
+	XMFLOAT3	Position;
+	XMFLOAT3	Size;
+	XMFLOAT4	Color;
+	FLOAT		Age;
+	XMFLOAT3	Velocity;
 };
