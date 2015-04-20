@@ -176,8 +176,9 @@ GameObject* CoreEngine::Terrain(int width, int vertexPerWidth, int depth, int ve
 {
 	Mesh* planeMesh = renderer->CreatePlaneMesh(width,vertexPerDepth,depth,vertexPerDepth);
 	// Creates object with the plane mesh
-	GameObject* returnObject = new GameObject(planeMesh);
+	GameObject* returnObject = CreateGameObject();
 	
+	returnObject->mesh = planeMesh;
 	return returnObject;
 }
 

@@ -36,8 +36,10 @@ Mesh::Mesh(int width, int vertexPerWidth, int depth, int vertexPerDepth, ID3D11D
 {
 	std::vector<Vertex> verts;           // Verts we're assembling
 	std::vector<UINT> indices;           // Indices of these verts
-
-	int IndicesIndex = 0;
+	
+	Vertex CurVertex;
+	UINT IndicesIndex = 0;
+	/*
 	// Loop though the columns
 	for (int k = 0; k < vertexPerDepth - 1; k++)
 	{
@@ -65,6 +67,24 @@ Mesh::Mesh(int width, int vertexPerWidth, int depth, int vertexPerDepth, ID3D11D
 			indices.push_back(IndicesIndex++);
 		}
 	}
+
+	*/
+
+	verts.clear();
+	CurVertex.Position	=	XMFLOAT3(	-1.0f,	0.0f,	1.0f );
+	CurVertex.Normal	=	XMFLOAT3(	0.0f,	1.0f,	0.0f );
+	verts.push_back(CurVertex);
+	indices.push_back(IndicesIndex++);
+	
+	CurVertex.Position = XMFLOAT3(1.0f, 0.0f, 1.0f);
+	CurVertex.Normal = XMFLOAT3(0.0f, 1.0f, 0.0f);
+	verts.push_back(CurVertex);
+	indices.push_back(IndicesIndex++);
+
+	CurVertex.Position = XMFLOAT3(-1.0f, 0.0f, -1.0f);
+	CurVertex.Normal = XMFLOAT3(0.0f, 1.0f, 0.0f);
+	verts.push_back(CurVertex);
+	indices.push_back(IndicesIndex++);
 
 	Mesh(&verts[0], verts.size(), &indices[0], indices.size(), device);
 }
