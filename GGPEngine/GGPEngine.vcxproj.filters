@@ -9,6 +9,8 @@
     <FxCompile Include="DiffuseVertexShader.hlsl" />
     <FxCompile Include="Shaders\UIPixelShader.hlsl" />
     <FxCompile Include="Shaders\UIVertexShader.hlsl" />
+    <FxCompile Include="ParticlePS.hlsl" />
+    <FxCompile Include="ParticleVS.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Behavior.cpp" />

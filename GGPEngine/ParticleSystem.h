@@ -23,6 +23,10 @@ class GameObject; //Forward declaration
 //----------
 //GPU particles geometry shaders Pass the geometry forward
 
+//Reference:
+//http://www.rastertek.com/dx11tut39.html
+
+
 class ParticleSystem
 {
 public:
@@ -56,6 +60,9 @@ private:
 
 	ParticleSystem(const ParticleSystem& rhs);
 	ParticleSystem& operator=(const ParticleSystem& rhs);
+
+	bool LoadTexture(ID3D11Device*, WCHAR*);
+	void ReleaseTexture();
 
 private:
 	RenderEngine* e;
