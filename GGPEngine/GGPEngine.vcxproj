@@ -87,6 +87,7 @@ xcopy /y "$(SolutionDir)libs\awesomium\1.7.5.0\build\bin\awesomium_process.exe" 
   <ItemGroup>
     <ClInclude Include="Behavior.h" />
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="Collider.h" />
     <ClInclude Include="CoreEngine.h" />
     <ClInclude Include="dxerr.h" />
     <ClInclude Include="EulerIntegrator.h" />
@@ -102,6 +103,7 @@ xcopy /y "$(SolutionDir)libs\awesomium\1.7.5.0\build\bin\awesomium_process.exe" 
     <ClInclude Include="RenderEngine.h" />
     <ClInclude Include="RigidBody.h" />
     <ClInclude Include="SimpleShader.h" />
+    <ClInclude Include="SphereCollider.h" />
     <ClInclude Include="Transform.h" />
     <ClInclude Include="UI.h" />
     <ClInclude Include="Vertex.h" />
@@ -109,6 +111,7 @@ xcopy /y "$(SolutionDir)libs\awesomium\1.7.5.0\build\bin\awesomium_process.exe" 
   <ItemGroup>
     <ClCompile Include="Behavior.cpp" />
     <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="Collider.cpp" />
     <ClCompile Include="CoreEngine.cpp" />
     <ClCompile Include="dxerr.cpp" />
     <ClCompile Include="EulerIntegrator.cpp" />
@@ -123,6 +126,7 @@ xcopy /y "$(SolutionDir)libs\awesomium\1.7.5.0\build\bin\awesomium_process.exe" 
     <ClCompile Include="RenderEngine.cpp" />
     <ClCompile Include="RigidBody.cpp" />
     <ClCompile Include="SimpleShader.cpp" />
+    <ClCompile Include="SphereCollider.cpp" />
     <ClCompile Include="Transform.cpp" />
     <ClCompile Include="UI.cpp" />
   </ItemGroup>
