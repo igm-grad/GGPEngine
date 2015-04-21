@@ -6,6 +6,7 @@
 #include "Transform.h"
 #include <vector>
 #include "Vertex.h"
+#include "SimpleShader.h"
 
 #ifdef _WINDLL
 #define GPPEngineAPI   __declspec( dllexport )
@@ -17,25 +18,32 @@ using namespace DirectX;
 
 struct CubeMap
 {
-	ID3D11Buffer* cubeIndexBuffer;
-	ID3D11Buffer* cubeVertBuffer;
+	ID3D11DeviceContext*								deviceContext;
+	ID3D11Device*										device;
 
-	ID3D11VertexShader* SKYMAP_VS;
-	ID3D11PixelShader* SKYMAP_PS;
-	ID3D10Blob* SKYMAP_VS_Buffer;
+	ID3D11Buffer*										cubeIndexBuffer;
+	ID3D11Buffer*										cubeVertBuffer;
+
+	//ID3D11VertexShader* SKYMAP_VS;
+	//ID3D11PixelShader* SKYMAP_PS;
+	SimpleVertexShader*									SKYMAP_VS;
+	SimplePixelShader*									SKYMAP_PS;
+
+	/*ID3D10Blob* SKYMAP_VS_Buffer;
 	ID3D10Blob* SKYMAP_PS_Buffer;
+	*/
+	
+	ID3D11ShaderResourceView*							smrv;
 
-	ID3D11ShaderResourceView* smrv;
+	ID3D11DepthStencilState*							DSLessEqual;
+	ID3D11RasterizerState*								RSCullNone;
 
-	ID3D11DepthStencilState* DSLessEqual;
-	ID3D11RasterizerState* RSCullNone;
+	int													NumCubeVertices;
+	int													NumCubeFaces;
 
-	int NumCubeVertices;
-	int NumCubeFaces;
+	XMMATRIX											CubeWorld;
 
-	XMMATRIX CubeWorld;
-
-	void CreateCube(ID3D11Device* device)
+	void CreateCube()
 	{
 		NumCubeVertices = 8;
 		NumCubeFaces = 6;
@@ -160,15 +168,32 @@ struct CubeMap
 		cubeIndexBuffer->Release();
 		cubeVertBuffer->Release();
 
-		SKYMAP_PS->Release();
+		/*SKYMAP_PS->Release();
 		SKYMAP_VS->Release();
 		SKYMAP_PS_Buffer->Release();
-		SKYMAP_VS_Buffer->Release();
+		SKYMAP_VS_Buffer->Release();*/
 
 		smrv->Release();
 
 		DSLessEqual->Release();
 		RSCullNone->Release();
+	}
+
+	void init(ID3D11Device* Device, ID3D11DeviceContext* DeviceContext)
+	{
+		device = Device;
+		deviceContext = DeviceContext;
+
+		CreateCube();
+
+		SKYMAP_VS = new SimpleVertexShader(device, deviceContext);
+		SKYMAP_VS->LoadShaderFile(L"SkyBoxVertexShader.hlsl");
+
+		SKYMAP_PS = new SimplePixelShader(device, deviceContext);
+		SKYMAP_PS->LoadShaderFile(L"SkyBoxPixelShader.hlsl");
+
+		ID3D11Texture2D* SMtexture = 0;
+		
 	}
 };
 
