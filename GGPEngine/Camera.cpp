@@ -19,6 +19,8 @@ void Camera::UpdateProjection(float fov, float aspectRatio, float zNear, float z
 		zNear,						// Near clip plane distance
 		zFar);						// Far clip plane distance
 	XMStoreFloat4x4(&projection, XMMatrixTranspose(P));
+
+	cubemap = nullptr;
 }
 
 void Camera::Update()
@@ -29,5 +31,18 @@ void Camera::Update()
 	XMVECTOR EyeDirection = XMLoadFloat3(&transform->forward);
 
 	XMStoreFloat4x4(&view, XMMatrixTranspose(XMMatrixLookToLH(EyePosition, EyeDirection, UpDirection)));
+
+	if (cubemap != nullptr)
+	{
+		cubemap->update(*transform);
+
+		cubemap->draw(view, projection);
+	}
 }
 
+void Camera::createCubeMap(ID3D11Device* device, ID3D11DeviceContext* DeviceContext)
+{
+	cubemap = new SkyBox();
+
+	cubemap->init(device, DeviceContext);
+}

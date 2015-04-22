@@ -61,6 +61,7 @@ bool RenderEngine::Initialize()
 		return false;
 	}
 
+	//defaultCamera->createCubeMap(device, deviceContext);
 	return true;
 }
 
