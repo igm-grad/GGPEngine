@@ -438,9 +438,161 @@ void ParticleSystem::ShutdownParticleSystem()
 	return;
 }
 
+bool ParticleSystem::InitializeBuffers(ID3D11Device* device)
+{
+	/*unsigned long* indices;
+	int i;
+	D3D11_BUFFER_DESC vertexBufferDesc, indexBufferDesc;
+	D3D11_SUBRESOURCE_DATA vertexData, indexData;
+	HRESULT result;
+
+
+	// Set the maximum number of vertices in the vertex array.
+	m_vertexCount = mMaxParticles * 6;
+
+	// Set the maximum number of indices in the index array.
+	m_indexCount = m_vertexCount;
+
+	// Create the vertex array for the particles that will be rendered.
+	m_vertices = new Vertex[m_vertexCount];
+	if (!m_vertices)
+	{
+		return false;
+	}
+
+	// Create the index array.
+	indices = new unsigned long[m_indexCount];
+	if (!indices)
+	{
+		return false;
+	}
+
+	// Initialize vertex array to zeros at first.
+	memset(m_vertices, 0, (sizeof(Vertex) * m_vertexCount));
+
+	// Initialize the index array.
+	for (i = 0; i<m_indexCount; i++)
+	{
+		indices[i] = i;
+	}
+
+	// Set up the description of the dynamic vertex buffer.
+	vertexBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+	vertexBufferDesc.ByteWidth = sizeof(Vertex) * m_vertexCount;
+	vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	vertexBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	vertexBufferDesc.MiscFlags = 0;
+	vertexBufferDesc.StructureByteStride = 0;
+
+	// Give the subresource structure a pointer to the vertex data.
+	vertexData.pSysMem = m_vertices;
+	vertexData.SysMemPitch = 0;
+	vertexData.SysMemSlicePitch = 0;
+
+	// Now finally create the vertex buffer.
+	result = device->CreateBuffer(&vertexBufferDesc, &vertexData, &m_vertexBuffer);
+	if (FAILED(result))
+	{
+		return false;
+	}
+
+	// Set up the description of the static index buffer.
+	indexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
+	indexBufferDesc.ByteWidth = sizeof(unsigned long) * m_indexCount;
+	indexBufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
+	indexBufferDesc.CPUAccessFlags = 0;
+	indexBufferDesc.MiscFlags = 0;
+	indexBufferDesc.StructureByteStride = 0;
+
+	// Give the subresource structure a pointer to the index data.
+	indexData.pSysMem = indices;
+	indexData.SysMemPitch = 0;
+	indexData.SysMemSlicePitch = 0;
+
+	// Create the index buffer.
+	result = device->CreateBuffer(&indexBufferDesc, &indexData, &m_indexBuffer);
+	if (FAILED(result))
+	{
+		return false;
+	}
+
+	// Release the index array since it is no longer needed.
+	delete[] indices;
+	indices = 0;
+	*/
+	return true;
+}
+
 void ParticleSystem::UpdateBuffers(ID3D11DeviceContext* context)
 {
+	/*int index, i;
+	HRESULT result;
+	D3D11_MAPPED_SUBRESOURCE mappedResource;
+	Vertex* verticesPtr;
 
+
+	// Initialize vertex array to zeros at first.
+	memset(m_vertices, 0, (sizeof(Vertex) * m_vertexCount));
+
+	// Now build the vertex array from the particle list array.  Each particle is a quad made out of two triangles.
+	index = 0;
+
+	for (i = 0; i < particles.size(); i++)
+	{
+		// Bottom left.
+		m_vertices[index].position = D3DXVECTOR3(m_particleList[i].positionX - m_particleSize, m_particleList[i].positionY - m_particleSize, m_particleList[i].positionZ);
+		m_vertices[index].texture = D3DXVECTOR2(0.0f, 1.0f);
+		m_vertices[index].color = D3DXVECTOR4(m_particleList[i].red, m_particleList[i].green, m_particleList[i].blue, 1.0f);
+		index++;
+
+		// Top left.
+		m_vertices[index].position = D3DXVECTOR3(m_particleList[i].positionX - m_particleSize, m_particleList[i].positionY + m_particleSize, m_particleList[i].positionZ);
+		m_vertices[index].texture = D3DXVECTOR2(0.0f, 0.0f);
+		m_vertices[index].color = D3DXVECTOR4(m_particleList[i].red, m_particleList[i].green, m_particleList[i].blue, 1.0f);
+		index++;
+
+		// Bottom right.
+		m_vertices[index].position = D3DXVECTOR3(m_particleList[i].positionX + m_particleSize, m_particleList[i].positionY - m_particleSize, m_particleList[i].positionZ);
+		m_vertices[index].texture = D3DXVECTOR2(1.0f, 1.0f);
+		m_vertices[index].color = D3DXVECTOR4(m_particleList[i].red, m_particleList[i].green, m_particleList[i].blue, 1.0f);
+		index++;
+
+		// Bottom right.
+		m_vertices[index].position = D3DXVECTOR3(m_particleList[i].positionX + m_particleSize, m_particleList[i].positionY - m_particleSize, m_particleList[i].positionZ);
+		m_vertices[index].texture = D3DXVECTOR2(1.0f, 1.0f);
+		m_vertices[index].color = D3DXVECTOR4(m_particleList[i].red, m_particleList[i].green, m_particleList[i].blue, 1.0f);
+		index++;
+
+		// Top left.
+		m_vertices[index].position = D3DXVECTOR3(m_particleList[i].positionX - m_particleSize, m_particleList[i].positionY + m_particleSize, m_particleList[i].positionZ);
+		m_vertices[index].texture = D3DXVECTOR2(0.0f, 0.0f);
+		m_vertices[index].color = D3DXVECTOR4(m_particleList[i].red, m_particleList[i].green, m_particleList[i].blue, 1.0f);
+		index++;
+
+		// Top right.
+		m_vertices[index].position = D3DXVECTOR3(m_particleList[i].positionX + m_particleSize, m_particleList[i].positionY + m_particleSize, m_particleList[i].positionZ);
+		m_vertices[index].texture = D3DXVECTOR2(1.0f, 0.0f);
+		m_vertices[index].color = D3DXVECTOR4(m_particleList[i].red, m_particleList[i].green, m_particleList[i].blue, 1.0f);
+		index++;
+	}
+
+	// Lock the vertex buffer.
+	result = deviceContext->Map(m_vertexBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	if (FAILED(result))
+	{
+		return false;
+	}
+
+	// Get a pointer to the data in the vertex buffer.
+	verticesPtr = (VertexType*)mappedResource.pData;
+
+	// Copy the data into the vertex buffer.
+	memcpy(verticesPtr, (void*)m_vertices, (sizeof(VertexType) * m_vertexCount));
+
+	// Unlock the vertex buffer.
+	deviceContext->Unmap(m_vertexBuffer, 0);
+
+	return true;*/
 }
 
 void ParticleSystem::RenderBuffers(ID3D11DeviceContext* context)

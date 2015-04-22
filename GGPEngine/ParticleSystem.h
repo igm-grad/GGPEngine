@@ -109,5 +109,8 @@ private:
 	ID3D11ShaderResourceView* mRandomTexSRV;
 
 	std::vector<ParticleVertex> particles;
+
+	int m_vertexCount, m_indexCount;
+	Vertex* m_vertices;
 };
 
