@@ -59,7 +59,7 @@ protected:
 	
 	Mesh*									CreateMesh(const char* filename);
 	//#MyChanges
-	Mesh*									CreatePlaneMesh(int width, int vertexPerWidth, int depth, int vertexPerDepth);
+	Mesh*									CreatePlaneMesh(float width, int vertexPerWidth, float depth, int vertexPerDepth);
 	Material*								CreateMaterial(LPCWSTR vertexShaderFile, LPCWSTR pixelShaderFile);
 
 	DirectionalLight*						CreateDirectionalLight();

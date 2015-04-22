@@ -172,9 +172,9 @@ GameObject*	CoreEngine::Torus()
 }
 
 //#MyChages
-GameObject* CoreEngine::Terrain(int width, int vertexPerWidth, int depth, int vertexPerDepth)
+GameObject* CoreEngine::Terrain(float width, int vertexPerWidth, float depth, int vertexPerDepth)
 {
-	Mesh* planeMesh = renderer->CreatePlaneMesh(width,vertexPerDepth,depth,vertexPerDepth);
+	Mesh* planeMesh = renderer->CreatePlaneMesh(width, vertexPerWidth, depth, vertexPerDepth);
 	// Creates object with the plane mesh
 	GameObject* returnObject = CreateGameObject();
 	

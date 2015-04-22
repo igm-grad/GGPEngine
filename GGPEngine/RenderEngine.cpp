@@ -305,60 +305,89 @@ Mesh* RenderEngine::CreateMesh(const char* filename)
 }
 
 //#MyChanges
-Mesh* RenderEngine::CreatePlaneMesh(int width, int vertexPerWidth, int depth, int vertexPerDepth)
+// Creates a plane mesh given a width and a depth. Vertex desity must be set by setting how many vertexes per width and depth must be used.
+// Minimum number of vertex per axis is 2, otherwise no triangles can be drawn.
+Mesh* RenderEngine::CreatePlaneMesh(float width, int vertexPerWidth, float depth, int vertexPerDepth)
 {
+
+	// Test fot minimum number of vertex
+	if (vertexPerWidth < 2) vertexPerWidth = 2;
+	if (vertexPerDepth < 2) vertexPerDepth = 2;
+
 		std::vector<Vertex> verts;           // Verts we're assembling
 		std::vector<UINT> indices;           // Indices of these verts
 
+		// The distance between vertexes in a given axis:
+		float widthStep = width / vertexPerWidth;
+		float depthStep = depth / vertexPerDepth;
+
+		float planeWidthDesloc = width / 2;
+		float planeDepthDesloc = depth / 2;
+
+		// Clear both vectors. Not necesasry, but a good practice.
+		verts.clear();
+		indices.clear();
+
 		Vertex CurVertex;
 		UINT IndicesIndex = 0;
-		/*
-		// Loop though the columns
-		for (int k = 0; k < vertexPerDepth - 1; k++)
+		
+		// Loop though the columns (z-axis)
+		for (float k = 0; k < vertexPerDepth -1; k++)
 		{
 			// Loop though the lines (x-axis)
-			for (int j = 0; j < vertexPerWidth - 1; j++) // May need to change to vertexperwidth.
-			{// Creates a quad. Draw triangle in [k,j], [k+1,j] and [k,j+vertexPerWidth] and another in [k+1,j], [k+1,jj+vertexPerWidth+1] and [k,j+vertexPerWidth].
-
-				int index = k*vertexPerWidth + j;
-				//First Triangle
+			for (float i = 0; i < vertexPerWidth -1; i++) // May need to change to vertexperwidth.
+			{	// Creates a quad. using two triangles
+				// Vertices Position = (vertex position) - (plane dislocation)
+				
+				//Top Triangle
 				// Vertices
+				// Top of the Quad
 				// #1
-				verts[index].Position.x = j - width / 2;
-				verts[index].Position.y = 0;
-				verts[index].Position.z = k - depth / 2;
+				CurVertex.Position			= XMFLOAT3(i*widthStep - planeWidthDesloc,			0,	k*depthStep - planeDepthDesloc);
+				CurVertex.Normal			= XMFLOAT3(0, 1, 0);
+				verts.push_back(CurVertex);
 				indices.push_back(IndicesIndex++);
+				
 				// #2
-				verts[index + 1].Position.x = j - width / 2;
-				verts[index + 1].Position.y = 0;
-				verts[index + 1].Position.z = k - depth / 2;
+				CurVertex.Position			= XMFLOAT3((i + 1)*widthStep - planeWidthDesloc,	0, k*depthStep - planeDepthDesloc);
+				CurVertex.Normal			= XMFLOAT3(0, 1, 0);
+				verts.push_back(CurVertex);
 				indices.push_back(IndicesIndex++);
+				
 				// #3
-				verts[index + vertexPerWidth].Position.x = j - width / 2;
-				verts[index + vertexPerWidth].Position.y = 0;
-				verts[index + vertexPerWidth].Position.z = k - depth / 2;
+				CurVertex.Position			= XMFLOAT3(i*widthStep - planeWidthDesloc,			0,	(k + 1)*depthStep-planeDepthDesloc);
+				CurVertex.Normal			= XMFLOAT3(0, 1, 0);
+				verts.push_back(CurVertex);
 				indices.push_back(IndicesIndex++);
+
+				
+				//Bottom Triangle
+				// Vertices
+				// Top of the Quad
+				// #1
+				CurVertex.Position = XMFLOAT3((i+1)*widthStep - planeWidthDesloc, 0, k*depthStep - planeDepthDesloc);
+				CurVertex.Normal = XMFLOAT3(0, 1, 0);
+				verts.push_back(CurVertex);
+				indices.push_back(IndicesIndex++);
+
+				// #2
+				CurVertex.Position = XMFLOAT3((i + 1)*widthStep - planeWidthDesloc, 0, (k+1)*depthStep - (planeDepthDesloc));
+				CurVertex.Normal = XMFLOAT3(0, 1, 0);
+				verts.push_back(CurVertex);
+				indices.push_back(IndicesIndex++);
+
+				// #3
+				CurVertex.Position = XMFLOAT3(i*widthStep - planeWidthDesloc, 0, (k + 1)*depthStep - planeDepthDesloc);
+				CurVertex.Normal = XMFLOAT3(0, 1, 0);
+				verts.push_back(CurVertex);
+				indices.push_back(IndicesIndex++);
+
+				
 			}
 		}
-		*/
 
-		verts.clear();
-		CurVertex.Position = XMFLOAT3(-0.5f, 0.0f, 0.5f);
-		CurVertex.Normal = XMFLOAT3(0.0f, 1.0f, 0.0f);
-		verts.push_back(CurVertex);
-		indices.push_back(IndicesIndex++);
+
 		
-		CurVertex.Position = XMFLOAT3(0.5f, 0.0f, 0.5f);
-		CurVertex.Normal = XMFLOAT3(0.0f, 1.0f, 0.0f);
-		verts.push_back(CurVertex);
-		indices.push_back(IndicesIndex++);
-
-		CurVertex.Position = XMFLOAT3(-0.5f, 0.0f, -0.5f);
-		CurVertex.Normal = XMFLOAT3(0.0f, 1.0f, 0.0f);
-		verts.push_back(CurVertex);
-		indices.push_back(IndicesIndex++);
-
-
 		Mesh* returnMesh = new Mesh(&verts[0], verts.size(), &indices[0], indices.size(), device);
 		return returnMesh;
 }

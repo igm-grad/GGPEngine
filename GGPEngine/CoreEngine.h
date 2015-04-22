@@ -50,7 +50,7 @@ public:
 	GameObject*		Helix();
 	GameObject*		Torus();
 	//#MyChages
-	GameObject*		Terrain(int width, int vertexPerWidth, int depth, int vertexPerDepth);
+	GameObject*		Terrain(float width, int vertexPerWidth, float depth, int vertexPerDepth);
 
 	Mesh*			CreateMesh(const char* filename);
 	
