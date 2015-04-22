@@ -12,16 +12,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 	CoreEngine * engine = new CoreEngine(hInstance, prevInstance, cmdLine, showCmd);
 	engine->Initialize();
 
-	GameObject* gameObject1 = engine->Terrain(50.0f,100,75.0f,100);
+	GameObject* gameObject = engine->Terrain(7.0f,10,10.0f,5);
 
-	gameObject1->material = engine->BasicMaterial();
-	gameObject1->transform->position = XMFLOAT3(0.0f, 0.0f, 50.0f);
-	gameObject1->transform->rotation.x = 3.1415f/ 4.0f;
-	gameObject1->transform->scale.x = 1.0f;
-	gameObject1->transform->scale.y = 1.0f;
-	gameObject1->transform->scale.z = 1.0f;
+	gameObject->material = engine->BasicMaterial();
 
-	
+
+	gameObject->transform->position = XMFLOAT3(0.0f, 0.0f, 0.0f);
+	gameObject->transform->rotation.x = -3.1415f/ 16.0f;
+
 	// Loop until we get a quit message from the engine
 	while (!engine->exitRequested())
 	{

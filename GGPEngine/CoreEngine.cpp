@@ -172,13 +172,18 @@ GameObject*	CoreEngine::Torus()
 }
 
 //#MyChages
+// Returns a Terrain Game Object. Heightmap must be loaded afterwards.
 GameObject* CoreEngine::Terrain(float width, int vertexPerWidth, float depth, int vertexPerDepth)
 {
-	Mesh* planeMesh = renderer->CreatePlaneMesh(width, vertexPerWidth, depth, vertexPerDepth);
-	// Creates object with the plane mesh
+	// Creates Game Object.
 	GameObject* returnObject = CreateGameObject();
 	
+	// Creates the Terrain Plane Mesh
+	Mesh* planeMesh = renderer->CreatePlaneMesh(width, vertexPerWidth, depth, vertexPerDepth);
+
+	// Add mesh to the GameObject
 	returnObject->mesh = planeMesh;
+
 	return returnObject;
 }
 
@@ -222,6 +227,17 @@ Material* CoreEngine::DiffuseNormalMaterial()
 Material* CoreEngine::CreateMaterial(LPCWSTR vertexShaderFile, LPCWSTR pixelShaderFile)
 {
 	return renderer->CreateMaterial(vertexShaderFile, pixelShaderFile);
+}
+
+//#MyChanges
+Material* CoreEngine::loadHeightMap(const char* filename)
+{
+	//Implement loading the HeightMap File here.
+	Material* HeightMap = nullptr;
+	
+	//HeightMap = renderer->CreateMaterial(L"terrainVertexShader.cso", L"terrainPixelShader.cso");
+
+	return HeightMap;
 }
 
 DirectionalLight* CoreEngine::CreateDirectionalLight(XMFLOAT4& ambientColor, XMFLOAT4& diffuseColor, XMFLOAT3& direction)

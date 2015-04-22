@@ -309,87 +309,77 @@ Mesh* RenderEngine::CreateMesh(const char* filename)
 // Minimum number of vertex per axis is 2, otherwise no triangles can be drawn.
 Mesh* RenderEngine::CreatePlaneMesh(float width, int vertexPerWidth, float depth, int vertexPerDepth)
 {
-
-	// Test fot minimum number of vertex
+	// Test for minimum number of vertex
 	if (vertexPerWidth < 2) vertexPerWidth = 2;
 	if (vertexPerDepth < 2) vertexPerDepth = 2;
+	
+	std::vector<Vertex> verts;           // Verts we're assembling
+	std::vector<UINT> indices;           // Indices of these verts
 
-		std::vector<Vertex> verts;           // Verts we're assembling
-		std::vector<UINT> indices;           // Indices of these verts
+	// The distance between vertexes in a given axis:
+	float widthStep = width / vertexPerWidth;
+	float depthStep = depth / vertexPerDepth;
 
-		// The distance between vertexes in a given axis:
-		float widthStep = width / vertexPerWidth;
-		float depthStep = depth / vertexPerDepth;
-
-		float planeWidthDesloc = width / 2;
-		float planeDepthDesloc = depth / 2;
+	float planeWidthDesloc = width / 2;
+	float planeDepthDesloc = depth / 2;
 
 		// Clear both vectors. Not necesasry, but a good practice.
-		verts.clear();
-		indices.clear();
+	verts.clear();
+	indices.clear();
 
-		Vertex CurVertex;
-		UINT IndicesIndex = 0;
+	Vertex CurVertex;
+	UINT IndicesIndex = 0;
 		
-		// Loop though the columns (z-axis)
-		for (float k = 0; k < vertexPerDepth -1; k++)
-		{
-			// Loop though the lines (x-axis)
-			for (float i = 0; i < vertexPerWidth -1; i++) // May need to change to vertexperwidth.
-			{	// Creates a quad. using two triangles
-				// Vertices Position = (vertex position) - (plane dislocation)
+	// Loop though the columns (z-axis)
+	for (float k = 0; k < vertexPerDepth -1; k++)
+	{
+		// Loop though the lines (x-axis)
+		for (float i = 0; i < vertexPerWidth -1; i++) // May need to change to vertexperwidth.
+		{	// Creates a quad. Using two triangles
+			// Vertices Position = (vertex position) - (plane dislocation)
+			
+			//Top Triangle
+			// #1
+			CurVertex.Position			= XMFLOAT3(i*widthStep - planeWidthDesloc,			0,	k*depthStep - planeDepthDesloc);
+			CurVertex.Normal			= XMFLOAT3(0, 1, 0);
+			verts.push_back(CurVertex);
+			indices.push_back(IndicesIndex++);
 				
-				//Top Triangle
-				// Vertices
-				// Top of the Quad
-				// #1
-				CurVertex.Position			= XMFLOAT3(i*widthStep - planeWidthDesloc,			0,	k*depthStep - planeDepthDesloc);
-				CurVertex.Normal			= XMFLOAT3(0, 1, 0);
-				verts.push_back(CurVertex);
-				indices.push_back(IndicesIndex++);
-				
-				// #2
-				CurVertex.Position			= XMFLOAT3((i + 1)*widthStep - planeWidthDesloc,	0, k*depthStep - planeDepthDesloc);
-				CurVertex.Normal			= XMFLOAT3(0, 1, 0);
-				verts.push_back(CurVertex);
-				indices.push_back(IndicesIndex++);
-				
-				// #3
-				CurVertex.Position			= XMFLOAT3(i*widthStep - planeWidthDesloc,			0,	(k + 1)*depthStep-planeDepthDesloc);
-				CurVertex.Normal			= XMFLOAT3(0, 1, 0);
-				verts.push_back(CurVertex);
-				indices.push_back(IndicesIndex++);
+			// #2
+			CurVertex.Position			= XMFLOAT3(i*widthStep - planeWidthDesloc,			0,	(k + 1)*depthStep - planeDepthDesloc);
+			CurVertex.Normal			= XMFLOAT3(0, 1, 0);
+			verts.push_back(CurVertex);
+			indices.push_back(IndicesIndex++);
 
-				
-				//Bottom Triangle
-				// Vertices
-				// Top of the Quad
-				// #1
-				CurVertex.Position = XMFLOAT3((i+1)*widthStep - planeWidthDesloc, 0, k*depthStep - planeDepthDesloc);
-				CurVertex.Normal = XMFLOAT3(0, 1, 0);
-				verts.push_back(CurVertex);
-				indices.push_back(IndicesIndex++);
+			// #3
+			CurVertex.Position			= XMFLOAT3((i + 1)*widthStep - planeWidthDesloc,	0,	k*depthStep - planeDepthDesloc);
+			CurVertex.Normal			= XMFLOAT3(0, 1, 0);
+			verts.push_back(CurVertex);
+			indices.push_back(IndicesIndex++);
 
-				// #2
-				CurVertex.Position = XMFLOAT3((i + 1)*widthStep - planeWidthDesloc, 0, (k+1)*depthStep - (planeDepthDesloc));
-				CurVertex.Normal = XMFLOAT3(0, 1, 0);
-				verts.push_back(CurVertex);
-				indices.push_back(IndicesIndex++);
+			//Bottom Triangle
+			// #1
+			CurVertex.Position			= XMFLOAT3((i+1)*widthStep - planeWidthDesloc,		0,	k*depthStep - planeDepthDesloc);
+			CurVertex.Normal			= XMFLOAT3(0, 1, 0);
+			verts.push_back(CurVertex);
+			indices.push_back(IndicesIndex++);
 
-				// #3
-				CurVertex.Position = XMFLOAT3(i*widthStep - planeWidthDesloc, 0, (k + 1)*depthStep - planeDepthDesloc);
-				CurVertex.Normal = XMFLOAT3(0, 1, 0);
-				verts.push_back(CurVertex);
-				indices.push_back(IndicesIndex++);
+			// #2
+			CurVertex.Position			= XMFLOAT3(i*widthStep - planeWidthDesloc,			0,	(k + 1)*depthStep - planeDepthDesloc);
+			CurVertex.Normal			= XMFLOAT3(0, 1, 0);
+			verts.push_back(CurVertex);
+			indices.push_back(IndicesIndex++);
 
-				
-			}
+			// #3
+			CurVertex.Position			= XMFLOAT3((i + 1)*widthStep - planeWidthDesloc,	0,	(k + 1)*depthStep - (planeDepthDesloc));
+			CurVertex.Normal			= XMFLOAT3(0, 1, 0);
+			verts.push_back(CurVertex);
+			indices.push_back(IndicesIndex++);				
 		}
+	}
 
-
-		
-		Mesh* returnMesh = new Mesh(&verts[0], verts.size(), &indices[0], indices.size(), device);
-		return returnMesh;
+	Mesh* returnMesh = new Mesh(&verts[0], verts.size(), &indices[0], indices.size(), device);
+	return returnMesh;
 }
 
 Material* RenderEngine::CreateMaterial(LPCWSTR vertexShaderFile, LPCWSTR pixelShaderFile)
