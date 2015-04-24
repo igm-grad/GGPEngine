@@ -12,6 +12,10 @@ SkyBox::~SkyBox()
 {
 }
 
+struct tempVertex
+{
+	XMFLOAT3 Position;
+};
 
 void SkyBox::CreateCube()
 {
@@ -19,7 +23,7 @@ void SkyBox::CreateCube()
 	NumCubeFaces = 6;
 	NumIndices = NumCubeFaces * 3 * 2;
 
-	std::vector<Vertex> vertices(NumCubeVertices);
+	std::vector<tempVertex> vertices(NumCubeVertices);
 
 	vertices[0].Position.x = 1.0f;
 	vertices[0].Position.y = 1.0f;
@@ -55,15 +59,21 @@ void SkyBox::CreateCube()
 
 
 	D3D11_BUFFER_DESC vertexBufferDesc;
-	vertexBufferDesc.Usage = D3D11_USAGE_IMMUTABLE;
-	vertexBufferDesc.ByteWidth = sizeof(Vertex) * NumCubeVertices;
+	vertexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
+	vertexBufferDesc.ByteWidth = sizeof(tempVertex) * NumCubeVertices;
 	vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 	vertexBufferDesc.CPUAccessFlags = 0;
 	vertexBufferDesc.MiscFlags = 0;
 	vertexBufferDesc.StructureByteStride = 0;
 
 	D3D11_SUBRESOURCE_DATA vertexBufferData;
-	vertexBufferData.pSysMem = &vertices;
+	vertexBufferData.pSysMem = &vertices[0];
+
+	//meith
+	vertexBufferData.SysMemPitch = 0;
+	vertexBufferData.SysMemSlicePitch = 0;
+	//meith
+
 	device->CreateBuffer(&vertexBufferDesc, &vertexBufferData, &cubeVertBuffer);
 
 	std::vector<DWORD> indices(NumCubeFaces * 3 * 2);
@@ -182,20 +192,16 @@ void SkyBox::update(Transform transform)	// camera's transform
 {
 	camTransform = transform;
 
-	CubeWorld = XMMatrixIdentity();
-
 	XMMATRIX scale = XMMatrixScaling(transform.scale.x, transform.scale.y, transform.scale.z);
 	XMMATRIX translation = XMMatrixTranslation(transform.position.x, transform.position.y, transform.position.z);
 
-	CubeWorld = scale * translation;
+	XMStoreFloat4x4(&CubeWorld,(scale * translation));
 }
 
 void SkyBox::draw(XMFLOAT4X4 view, XMFLOAT4X4 projection)
 {
-	UINT stride = sizeof(Vertex);
+	UINT stride = sizeof(tempVertex);
 	XMFLOAT4X4 worldMatrix;
-
-	XMStoreFloat4x4(&worldMatrix, CubeWorld);
 
 	deviceContext->OMSetDepthStencilState(DSLessEqual, 0);
 
@@ -207,8 +213,8 @@ void SkyBox::draw(XMFLOAT4X4 view, XMFLOAT4X4 projection)
 	SKYMAP_PS->SetShader();
 	SKYMAP_VS->SetShader(true);
 
-	deviceContext->IASetIndexBuffer(cubeIndexBuffer, DXGI_FORMAT_R32_UINT, 0);
 	deviceContext->IASetVertexBuffers(0, 1, &cubeVertBuffer, &stride, 0);
+	deviceContext->IASetIndexBuffer(cubeIndexBuffer, DXGI_FORMAT_R32_UINT, 0);
 
 	deviceContext->DrawIndexed(NumIndices, 0, 0);
 }

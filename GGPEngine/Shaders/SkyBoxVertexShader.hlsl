@@ -5,15 +5,18 @@
 cbuffer perModel : register( b0 )
 {
 	matrix world;
+	matrix view;
+	matrix projection;
 };
 
 // Defines what kind of data to expect as input
 // - This should match our input layout!
 struct VertexShaderInput
 { 
-	float3 position		: POSITION;
-	float3 normal		: NORMAL;
-	float2 uv			: TEXCOORD;
+	float4 tangent	: TANGENT;
+	float3 position : POSITION;
+	float3 normal	: NORMAL;
+	float2 uv		: TEXCOORD;
 };
 
 // Defines the output data of our vertex shader

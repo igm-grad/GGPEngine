@@ -61,7 +61,7 @@ bool RenderEngine::Initialize()
 		return false;
 	}
 
-	//defaultCamera->createCubeMap(device, deviceContext);
+	setCameraCubeMap(defaultCamera, L"Textures\\skyBoxSample.dds");
 	return true;
 }
 
@@ -235,7 +235,12 @@ void RenderEngine::DrawScene(GameObject** gameObjects, int gameObjectsCount, dou
 	renderList = CullGameObjectsFromCamera(defaultCamera, gameObjects, gameObjectsCount);
 
 
-	for (int i = 0; i < renderListCount; ++i) {
+	if (defaultCamera->CubeMap != nullptr)
+	{
+		renderListCount++;							// We also have to draw one extra cube, the skyBox
+	}
+	//renderlist[count] = skybox; count++
+	for (int i = 0; i < renderListCount ; ++i) {
 		// Set up the input assembler
 		//  - These technically don't need to be set every frame, unless you're changing the
 		//    input layout (different kinds of vertices) or the topology (different primitives)
@@ -334,6 +339,20 @@ Camera* RenderEngine::CreateCamera()
 	return &cameras.back();
 }
 
+void RenderEngine::setCameraCubeMap(Camera* camera, const wchar_t* filename)
+{
+	Mesh* mesh = CreateMesh("Models\\cube.obj");
+	GameObject* cube = new GameObject(mesh);
+
+	Material* cubeMapTex = CreateMaterial(L"Shaders\\SkyBoxVertexShader.hlsl", L"Shaders\\SkyBoxPixelShader.hlsl");
+	cubeMapTex->SetTextureCubeResource(filename, "skyBoxTexture");
+	cubeMapTex->SetClampSampler("skyBoxSampler");
+
+	cube->material = cubeMapTex;
+
+	camera->createCubeMap(cube);
+}
+
 float RenderEngine::getAngle(float ax, float ay, float bx, float by)
 {
 	// manual dot product between position vector and forward direction
@@ -380,10 +399,10 @@ GameObject** RenderEngine::CullGameObjectsFromCamera(Camera* camera, GameObject*
 
 	// Game Objects which will be whithin horizontal and vertical FOV
 	GameObject** RenderList = nullptr;
-	RenderList = new GameObject*[culledListcount];
+	RenderList = new GameObject*[culledListcount+1];							// The additional +1 is to draw the skyBox
 	int renderlistCount = 0;
 
-	float* renderDistFromCamera = new float[culledListcount];
+	float* renderDistFromCamera = new float[culledListcount];			
 
 	// Horizontal FOV in radians
 	float HorizontalFOV = atan(AspectRatio()) / 2;
@@ -394,7 +413,8 @@ GameObject** RenderEngine::CullGameObjectsFromCamera(Camera* camera, GameObject*
 	// Iterate through all Game Obejcts in culled list
 	// Find Position Vector of Game Objects from camera. Positionvector = (GameObjectPosition - CameraPosition)
 	// If Coz Inverse of (PositionVector dot Forward / |Position| * |Forward|) < FOV / 2, Game Object is in view. 
-	for (int i = 0, j = 0; i < culledListcount; ++i)
+	int i, j;
+	for (i = 0, j = 0; i < culledListcount; ++i)
 	{
 		// get Position Vector
 		XMVECTOR GameObjectPosition = XMLoadFloat3(&culledList[i]->transform->position);
@@ -426,6 +446,11 @@ GameObject** RenderEngine::CullGameObjectsFromCamera(Camera* camera, GameObject*
 	// sort Render list. For now std::sort to get quick results.
 	RenderList = sortList(RenderList, renderlistCount, renderDistFromCamera);
 
+	//If the the Camera has a skybox atttached to it, set the skay box at the end of the render list.
+	if (camera->CubeMap != nullptr)
+	{
+		RenderList[j] = camera->CubeMap;
+	}
 	// return the list which needs to be drawn
 	renderListCount = renderlistCount;
 

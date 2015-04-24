@@ -2,6 +2,8 @@
 #include <d3dcompiler.h>
 #include <direct.h>
 #include <WICTextureLoader.h>
+#include <DDSTextureLoader.h>
+
 
 #define GetCurrentDir _getcwd
 
@@ -74,6 +76,40 @@ void Material::SetResource(ID3D11Resource* resource, const char* name)
 	resourceMap[name] = shaderResourceView;
 }
 
+// TO load DDS files as sky Boxes
+void Material::SetTextureCubeResource(const wchar_t* filename, const char* name)
+{
+	if (resourceMap.find(name) != resourceMap.end()) {
+		resourceMap[name]->Release();
+	}
+
+	ID3D11ShaderResourceView* shaderResourceView;
+	//filename to be changed later
+	CreateDDSTextureFromFile(device, deviceContext, filename, 0, &shaderResourceView);
+	resourceMap[name] = shaderResourceView;
+}
+
+
+void Material::SetClampSampler(const char* name)
+{
+	if (samplerMap.find(name) != samplerMap.end()) {
+		samplerMap[name]->Release();
+	}
+
+	// TO DO: Instantiating a basic sampler until we determine abstraction for D3D11_SAMPLER_DESC
+	ID3D11SamplerState* sampler;
+	D3D11_SAMPLER_DESC samplerDescription;
+	ZeroMemory(&samplerDescription, sizeof(D3D11_SAMPLER_DESC));
+	samplerDescription.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+	samplerDescription.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+	samplerDescription.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
+	samplerDescription.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+	samplerDescription.MaxLOD = D3D11_FLOAT32_MAX;
+	device->CreateSamplerState(&samplerDescription, &sampler);
+	samplerMap[name] = sampler;
+}
+
+
 void Material::SetSampler(const char* name)
 {
 	if (samplerMap.find(name) != samplerMap.end()) {
@@ -108,3 +144,4 @@ void Material::UpdatePixelShaderSamplers()
 		sPixelShader->SetSamplerState(iter->first, iter->second);
 	}
 }
+

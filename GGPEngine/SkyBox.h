@@ -25,7 +25,7 @@ public:
 	int													NumCubeVertices;
 	int													NumCubeFaces;
 	int													NumIndices;
-	XMMATRIX											CubeWorld;
+	XMFLOAT4X4											CubeWorld;
 	Transform											camTransform;
 
 	void CreateCube();

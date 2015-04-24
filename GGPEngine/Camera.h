@@ -4,7 +4,7 @@
 #include <d3d11.h>
 #include "Transform.h"
 #include <vector>
-#include "SkyBox.h"
+#include "GameObject.h"
 
 #ifdef _WINDLL
 #define GPPEngineAPI   __declspec( dllexport )
@@ -26,14 +26,16 @@ public:
 	float		fov;
 	float		farPlane;
 
-	SkyBox* cubemap;
-
-	Camera() {};
+	Camera(){ CubeMap = nullptr; };
 	~Camera();
 
+	GameObject* CubeMap;
 
 	void UpdateProjection(float fov, float aspectRatio, float zNear, float zFar);
 	void Update();
-	void createCubeMap(ID3D11Device* device, ID3D11DeviceContext* DeviceContext);
+	void createCubeMap(GameObject* cube);
+
+private:
+	void drawCubeMap();
 };
 

@@ -1,6 +1,5 @@
 #include "Camera.h"
 
-
 Camera::~Camera()
 {
 }
@@ -20,7 +19,6 @@ void Camera::UpdateProjection(float fov, float aspectRatio, float zNear, float z
 		zFar);						// Far clip plane distance
 	XMStoreFloat4x4(&projection, XMMatrixTranspose(P));
 
-	cubemap = nullptr;
 }
 
 void Camera::Update()
@@ -32,17 +30,18 @@ void Camera::Update()
 
 	XMStoreFloat4x4(&view, XMMatrixTranspose(XMMatrixLookToLH(EyePosition, EyeDirection, UpDirection)));
 
-	if (cubemap != nullptr)
+	if (CubeMap != nullptr)
 	{
-		cubemap->update(*transform);
-
-		cubemap->draw(view, projection);
+		CubeMap->transform->position = XMFLOAT3(0.0f, 3.0f, 0.0f);// transform->position;
+		CubeMap->transform->scale = transform->scale;
 	}
 }
 
-void Camera::createCubeMap(ID3D11Device* device, ID3D11DeviceContext* DeviceContext)
+void Camera::createCubeMap(GameObject* cube)
 {
-	cubemap = new SkyBox();
-
-	cubemap->init(device, DeviceContext);
+	CubeMap = cube;
+	CubeMap->transform = new Transform();
+	CubeMap->transform->position = XMFLOAT3(0.0f, 3.0f, 0.0f);
+	CubeMap->transform->scale = transform->scale;
+	CubeMap->transform->rotation = XMFLOAT3(0.0f, 0.0f, 0.0f);
 }

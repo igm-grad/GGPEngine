@@ -8,7 +8,7 @@ struct VertexToPixel
 	float3 uv			: TEXCOORD;
 };
 
-Texture2D skyBoxTexture : register(t0);
+TextureCube skyBoxTexture : register(t0);
 SamplerState skyBoxSampler: register(s0);
 
 // Entry point for this pixel shader
