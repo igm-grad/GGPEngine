@@ -2,7 +2,7 @@
 // The constant buffer that holds our "per model" data
 // - Each object you draw with this shader will probably have
 //   slightly different data (at least for the world matrix)
-cbuffer perModel : register( b0 )
+cbuffer transform : register(b0)
 {
 	matrix world;
 	matrix view;
@@ -37,7 +37,10 @@ VertexToPixel main( VertexShaderInput input )
 	// Calculate output position
 	output.position = mul(float4(input.position, 1.0f), world).xyww;
 
-	output.uv = input.position;
+	output.uv = (input.position);
+
+	matrix clip = mul(mul(world, view), projection);
+	output.position = mul(float4(input.position, 1.0f), clip);
 
 	// Pass the color through - will be interpolated per-pixel by the rasterizer
 	return output;

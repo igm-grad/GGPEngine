@@ -61,8 +61,7 @@ bool RenderEngine::Initialize()
 		return false;
 	}
 
-	setCameraCubeMap(defaultCamera, L"Textures\\skyBoxSample.dds");
-	return true;
+	setCameraCubeMap(defaultCamera, L"Textures\\Skybox.dds");
 }
 
 #pragma region Window Resizing Public
@@ -194,10 +193,66 @@ void RenderEngine::DrawScene(GameObject** gameObjects, int gameObjectsCount, dou
 	// Background color (Cornflower Blue in this case) for clearing
 	const float color[4] = { 0.4f, 0.6f, 0.75f, 0.0f };
 
-	// Clear the buffer (erases what's on the screen)
+	//Clear the renderTarget Buffer
+	deviceContext->ClearRenderTargetView(renderTargetView, color);
+
+	if (defaultCamera->CubeMap != nullptr)
+	{
+		D3D11_RASTERIZER_DESC rastDesc;
+		ZeroMemory(&rastDesc, sizeof(D3D11_RASTERIZER_DESC));
+		rastDesc.CullMode = D3D11_CULL_BACK;
+		rastDesc.FrontCounterClockwise = true;
+		rastDesc.FillMode = D3D11_FILL_SOLID;
+		device->CreateRasterizerState(&rastDesc, &rasterizerState);
+		
+
+		D3D11_DEPTH_STENCIL_DESC dssDesc;
+		ZeroMemory(&dssDesc, sizeof(D3D11_DEPTH_STENCIL_DESC));
+		dssDesc.DepthEnable = true;
+		dssDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+		dssDesc.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
+
+		device->CreateDepthStencilState(&dssDesc, &DSLessEqual);
+		deviceContext->RSSetState(rasterizerState);
+		deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+		// Copy CPU-side data to a single CPU-side structure
+		//  - Allows us to send the data to the GPU buffer in one step
+		//  - Do this PER OBJECT, before drawing it
+		XMFLOAT4X4 world;
+		XMStoreFloat4x4(&world, XMMatrixTranspose(defaultCamera->CubeMap->transform->getWorldTransform()));
+		defaultCamera->CubeMap->material->sVertexShader->SetMatrix4x4("world", world);
+		defaultCamera->CubeMap->material->sVertexShader->SetMatrix4x4("view", defaultCamera->view);
+		defaultCamera->CubeMap->material->sVertexShader->SetMatrix4x4("projection", defaultCamera->projection);
+		defaultCamera->CubeMap->material->sVertexShader->SetShader();
+
+		defaultCamera->CubeMap->material->UpdatePixelShaderResources();
+		defaultCamera->CubeMap->material->UpdatePixelShaderSamplers();
+		defaultCamera->CubeMap->material->sPixelShader->SetShader();
+
+		// Set buffers in the input assembler
+		//  - This should be done PER OBJECT you intend to draw, as each object could
+		//    potentially have different geometry (and therefore different buffers!)
+		//  - You must have both a vertex and index buffer set to draw
+		UINT stride = sizeof(Vertex);
+		UINT offset = 0;
+		deviceContext->IASetVertexBuffers(0, 1, defaultCamera->CubeMap->mesh->GetVertexBuffer(), &stride, &offset);
+		deviceContext->IASetIndexBuffer(defaultCamera->CubeMap->mesh->GetIndexBuffer(), DXGI_FORMAT_R32_UINT, 0);
+
+
+		// Finally do the actual drawing
+		//  - This should be done PER OBJECT you index to draw
+		//  - This will use all of the currently set DirectX stuff (shaders, buffers, etc)
+		deviceContext->DrawIndexed(
+			defaultCamera->CubeMap->mesh->indexCount,	// The number of indices we're using in this draw
+			0,
+			0);
+
+	}
+
+	// Clear the Depth buffer (erases depthbuffer)
 	//  - Do this once per frame
 	//  - At the beginning (before drawing anything)
-	deviceContext->ClearRenderTargetView(renderTargetView, color);
 	deviceContext->ClearDepthStencilView(
 		depthStencilView,
 		D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL,
@@ -235,10 +290,11 @@ void RenderEngine::DrawScene(GameObject** gameObjects, int gameObjectsCount, dou
 	renderList = CullGameObjectsFromCamera(defaultCamera, gameObjects, gameObjectsCount);
 
 
-	if (defaultCamera->CubeMap != nullptr)
-	{
-		renderListCount++;							// We also have to draw one extra cube, the skyBox
-	}
+	//if (defaultCamera->CubeMap != nullptr)
+	//{
+	//	renderList[renderListCount] = defaultCamera->CubeMap;
+	//	renderListCount++;							// We also have to draw one extra cube, the skyBox
+	//}
 	//renderlist[count] = skybox; count++
 	for (int i = 0; i < renderListCount ; ++i) {
 		// Set up the input assembler
@@ -344,10 +400,9 @@ void RenderEngine::setCameraCubeMap(Camera* camera, const wchar_t* filename)
 	Mesh* mesh = CreateMesh("Models\\cube.obj");
 	GameObject* cube = new GameObject(mesh);
 
-	Material* cubeMapTex = CreateMaterial(L"Shaders\\SkyBoxVertexShader.hlsl", L"Shaders\\SkyBoxPixelShader.hlsl");
+	Material* cubeMapTex = CreateMaterial(L"SkyBoxVertexShader.cso", L"SkyBoxPixelShader.cso");
 	cubeMapTex->SetTextureCubeResource(filename, "skyBoxTexture");
 	cubeMapTex->SetClampSampler("skyBoxSampler");
-
 	cube->material = cubeMapTex;
 
 	camera->createCubeMap(cube);
@@ -446,11 +501,6 @@ GameObject** RenderEngine::CullGameObjectsFromCamera(Camera* camera, GameObject*
 	// sort Render list. For now std::sort to get quick results.
 	RenderList = sortList(RenderList, renderlistCount, renderDistFromCamera);
 
-	//If the the Camera has a skybox atttached to it, set the skay box at the end of the render list.
-	if (camera->CubeMap != nullptr)
-	{
-		RenderList[j] = camera->CubeMap;
-	}
 	// return the list which needs to be drawn
 	renderListCount = renderlistCount;
 
