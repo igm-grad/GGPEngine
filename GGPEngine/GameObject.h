@@ -4,7 +4,6 @@
 #include "Mesh.h"
 #include "Material.h"
 #include "Effects.h"
-#include "ParticleSystem.h"
 #include "Transform.h"
 #include "Behavior.h"
 
@@ -27,7 +26,7 @@ public:
 	Mesh*		mesh;
 	Material*	material;
 	Behavior*	behavior;
-	ParticleSystem* particleSystem;
+	//ParticleSystem* particleSystem;
 
 	GameObject(Mesh* mesh) : mesh(mesh) {};
 	GameObject() : GameObject(NULL) {};

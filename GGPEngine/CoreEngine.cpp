@@ -227,7 +227,7 @@ void CoreEngine::AddParticleSystem(GameObject* targetObject, ParticleSystem* add
 {
 	//Temporary:
 	//Replace target's particle system
-	targetObject->particleSystem = addedPartSystem;
+	//targetObject->particleSystem = addedPartSystem;
 
 
 	//Future:

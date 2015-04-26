@@ -1,6 +1,7 @@
 #include "ParticleSystem.h"
 #include "RenderEngine.h"
 #include "GameObject.h"
+#include "Camera.h"
 
 ParticleSystem::ParticleSystem(RenderEngine* renderer) : mInitVB(0), mDrawVB(0), mStreamOutVB(0), mTexArraySRV(0), mRandomTexSRV(0)
 {

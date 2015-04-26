@@ -66,8 +66,9 @@ protected:
 	SpotLight*								CreateSpotLight();
 
 	Camera*									CreateCamera();
-	ParticleSystem*							CreateParticleSystem(const char* attributes, UINT maxParticles);
 	void									setCameraCubeMap(Camera* camera, const wchar_t* filename);
+
+	ParticleSystem*							CreateParticleSystem(const char* attributes, UINT maxParticles);
 
 	GameObject**							CullGameObjectsFromCamera(Camera* camera, GameObject** list, int listCount);
 	GameObject**							sortList(GameObject** RenderList, int renderlistCount, float* renderDistFromCamera);

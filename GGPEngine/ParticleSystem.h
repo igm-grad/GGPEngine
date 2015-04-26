@@ -1,13 +1,13 @@
 #pragma once
 #include <DirectXMath.h>
 #include <d3d11.h>
-#include "Camera.h"
 #include "RenderEngine.h"
 #include "Vertex.h"
 #include <vector>
 
 using namespace DirectX;
 
+class Camera;
 class RenderEngine; //Forward declaration
 class GameObject; //Forward declaration
 //typedef GPPEngineAPI void(*JSFunctionCallback)();
