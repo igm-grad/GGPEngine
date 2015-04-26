@@ -327,6 +327,22 @@ void RenderEngine::DrawScene(GameObject** gameObjects, int gameObjectsCount, dou
 	HR(swapChain->Present(0, 0));
 }
 
+void RenderEngine::DrawParticleSystems(ParticleSystem** particleSystems, int particleSystemCount, double deltaTime)
+{
+	float blendFactor[4];
+
+	blendFactor[0] = 0.0f;
+	blendFactor[1] = 0.0f;
+	blendFactor[2] = 0.0f;
+	blendFactor[3] = 0.0f;
+
+	deviceContext->OMSetBlendState()
+
+	for (int i = 0; i < particleSystemCount; i++) {
+
+	}
+}
+
 void RenderEngine::drawSkyBoxes()
 {
 	//Set the rasterizer to cull the front face
