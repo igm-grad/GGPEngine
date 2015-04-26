@@ -86,6 +86,7 @@ private:
 	bool wmMouseMoveHook(WPARAM wParam, LPARAM lParam);
 	bool wmMouseButtonDownHook(WPARAM wParam, LPARAM lParam, MouseButton btn);
 	bool wmMouseButtonUpHook(WPARAM wParam, LPARAM lParam, MouseButton btn);
+	void drawSkyBoxes();
 
 	// Game and window state tracking
 	bool      minimized;
@@ -103,6 +104,7 @@ private:
 	ID3D11Texture2D* depthStencilBuffer;
 	ID3D11RenderTargetView* renderTargetView;
 	ID3D11DepthStencilView* depthStencilView;
+	D3D11_RASTERIZER_DESC defaultrasterizerDesc;
 	ID3D11RasterizerState* rasterizerState;
 	ID3D11DepthStencilState* DSLessEqual;
 	D3D11_VIEWPORT viewport;

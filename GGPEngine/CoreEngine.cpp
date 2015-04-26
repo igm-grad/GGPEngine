@@ -64,6 +64,12 @@ void CoreEngine::EnableDebugLines() {
 	renderer->isDebugging = true;
 }
 
+
+void CoreEngine::createCameraCubemap(Camera* camera, const wchar_t* filePath)
+{
+	renderer->setCameraCubeMap(camera,filePath);
+}
+
 void CoreEngine::Update()
 {
 	// Peek at the next message (and remove it from the queue)

@@ -31,6 +31,11 @@ RenderEngine::RenderEngine(HINSTANCE hInstance, WNDPROC MainWndProc) :
 	defaultCamera->transform = new Transform();
 	defaultCamera->transform->position = { 0, 0, -10 };
 	defaultCamera->UpdateProjection(0.25f * 3.1415926535f, AspectRatio(), 0.1f, 100.0f);
+
+	ZeroMemory(&defaultrasterizerDesc, sizeof(D3D11_RASTERIZER_DESC));
+	defaultrasterizerDesc.CullMode = D3D11_CULL_FRONT;
+	defaultrasterizerDesc.FrontCounterClockwise = true;
+	defaultrasterizerDesc.FillMode = D3D11_FILL_SOLID;
 }
 
 RenderEngine::~RenderEngine()
@@ -61,7 +66,8 @@ bool RenderEngine::Initialize()
 		return false;
 	}
 
-	setCameraCubeMap(defaultCamera, L"Textures\\Skybox.dds");
+	//set the default camera's skybox
+	//setCameraCubeMap(defaultCamera, L"Textures\\Skybox.dds");
 }
 
 #pragma region Window Resizing Public
@@ -196,59 +202,11 @@ void RenderEngine::DrawScene(GameObject** gameObjects, int gameObjectsCount, dou
 	//Clear the renderTarget Buffer
 	deviceContext->ClearRenderTargetView(renderTargetView, color);
 
-	if (defaultCamera->CubeMap != nullptr)
-	{
-		D3D11_RASTERIZER_DESC rastDesc;
-		ZeroMemory(&rastDesc, sizeof(D3D11_RASTERIZER_DESC));
-		rastDesc.CullMode = D3D11_CULL_BACK;
-		rastDesc.FrontCounterClockwise = true;
-		rastDesc.FillMode = D3D11_FILL_SOLID;
-		device->CreateRasterizerState(&rastDesc, &rasterizerState);
-		
+	drawSkyBoxes();
 
-		D3D11_DEPTH_STENCIL_DESC dssDesc;
-		ZeroMemory(&dssDesc, sizeof(D3D11_DEPTH_STENCIL_DESC));
-		dssDesc.DepthEnable = true;
-		dssDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
-		dssDesc.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
-
-		device->CreateDepthStencilState(&dssDesc, &DSLessEqual);
-		deviceContext->RSSetState(rasterizerState);
-		deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-		// Copy CPU-side data to a single CPU-side structure
-		//  - Allows us to send the data to the GPU buffer in one step
-		//  - Do this PER OBJECT, before drawing it
-		XMFLOAT4X4 world;
-		XMStoreFloat4x4(&world, XMMatrixTranspose(defaultCamera->CubeMap->transform->getWorldTransform()));
-		defaultCamera->CubeMap->material->sVertexShader->SetMatrix4x4("world", world);
-		defaultCamera->CubeMap->material->sVertexShader->SetMatrix4x4("view", defaultCamera->view);
-		defaultCamera->CubeMap->material->sVertexShader->SetMatrix4x4("projection", defaultCamera->projection);
-		defaultCamera->CubeMap->material->sVertexShader->SetShader();
-
-		defaultCamera->CubeMap->material->UpdatePixelShaderResources();
-		defaultCamera->CubeMap->material->UpdatePixelShaderSamplers();
-		defaultCamera->CubeMap->material->sPixelShader->SetShader();
-
-		// Set buffers in the input assembler
-		//  - This should be done PER OBJECT you intend to draw, as each object could
-		//    potentially have different geometry (and therefore different buffers!)
-		//  - You must have both a vertex and index buffer set to draw
-		UINT stride = sizeof(Vertex);
-		UINT offset = 0;
-		deviceContext->IASetVertexBuffers(0, 1, defaultCamera->CubeMap->mesh->GetVertexBuffer(), &stride, &offset);
-		deviceContext->IASetIndexBuffer(defaultCamera->CubeMap->mesh->GetIndexBuffer(), DXGI_FORMAT_R32_UINT, 0);
-
-
-		// Finally do the actual drawing
-		//  - This should be done PER OBJECT you index to draw
-		//  - This will use all of the currently set DirectX stuff (shaders, buffers, etc)
-		deviceContext->DrawIndexed(
-			defaultCamera->CubeMap->mesh->indexCount,	// The number of indices we're using in this draw
-			0,
-			0);
-
-	}
+	//Setting the rasterizer mode back to default.			
+	device->CreateRasterizerState(&defaultrasterizerDesc, &rasterizerState);
+	deviceContext->RSSetState(rasterizerState);
 
 	// Clear the Depth buffer (erases depthbuffer)
 	//  - Do this once per frame
@@ -359,6 +317,102 @@ void RenderEngine::DrawScene(GameObject** gameObjects, int gameObjectsCount, dou
 	//  - Do this EXACTLY once per frame
 	//  - Always at the end of the frame
 	HR(swapChain->Present(0, 0));
+}
+
+void RenderEngine::drawSkyBoxes()
+{
+	//Set the rasterizer to cull the front face
+	D3D11_RASTERIZER_DESC rastDesc;
+	ZeroMemory(&rastDesc, sizeof(D3D11_RASTERIZER_DESC));
+	rastDesc.CullMode = D3D11_CULL_BACK;
+	rastDesc.FrontCounterClockwise = true;
+	rastDesc.FillMode = D3D11_FILL_SOLID;
+	device->CreateRasterizerState(&rastDesc, &rasterizerState);
+	deviceContext->RSSetState(rasterizerState);
+
+	//Set the depth as far as possible. and set the depth as less equal 
+	//so that even the object at the farthest distance are considered closer than the box.
+	D3D11_DEPTH_STENCIL_DESC dssDesc;
+	ZeroMemory(&dssDesc, sizeof(D3D11_DEPTH_STENCIL_DESC));
+	dssDesc.DepthEnable = true;
+	dssDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+	dssDesc.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
+	device->CreateDepthStencilState(&dssDesc, &DSLessEqual);
+
+	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	if (defaultCamera->CubeMap != nullptr)
+	{
+		// Copy CPU-side data to a single CPU-side structure
+		//  - Allows us to send the data to the GPU buffer in one step
+		//  - Do this PER OBJECT, before drawing it
+		XMFLOAT4X4 world;
+		XMStoreFloat4x4(&world, XMMatrixTranspose(defaultCamera->CubeMap->transform->getWorldTransform()));
+		defaultCamera->CubeMap->material->sVertexShader->SetMatrix4x4("world", world);
+		defaultCamera->CubeMap->material->sVertexShader->SetMatrix4x4("view", defaultCamera->view);
+		defaultCamera->CubeMap->material->sVertexShader->SetMatrix4x4("projection", defaultCamera->projection);
+		defaultCamera->CubeMap->material->sVertexShader->SetShader();
+
+		defaultCamera->CubeMap->material->UpdatePixelShaderResources();
+		defaultCamera->CubeMap->material->UpdatePixelShaderSamplers();
+		defaultCamera->CubeMap->material->sPixelShader->SetShader();
+
+		// Set buffers in the input assembler
+		//  - This should be done PER OBJECT you intend to draw, as each object could
+		//    potentially have different geometry (and therefore different buffers!)
+		//  - You must have both a vertex and index buffer set to draw
+		UINT stride = sizeof(Vertex);
+		UINT offset = 0;
+		deviceContext->IASetVertexBuffers(0, 1, defaultCamera->CubeMap->mesh->GetVertexBuffer(), &stride, &offset);
+		deviceContext->IASetIndexBuffer(defaultCamera->CubeMap->mesh->GetIndexBuffer(), DXGI_FORMAT_R32_UINT, 0);
+
+
+		// Finally do the actual drawing
+		//  - This should be done PER OBJECT you index to draw
+		//  - This will use all of the currently set DirectX stuff (shaders, buffers, etc)
+		deviceContext->DrawIndexed(
+			defaultCamera->CubeMap->mesh->indexCount,	// The number of indices we're using in this draw
+			0,
+			0);
+
+	}
+
+	//Draw the skyBoxes for every camera
+	vector<Camera>::iterator it;
+	for (it = cameras.begin(); it != cameras.end(); it++)
+	{
+		// Copy CPU-side data to a single CPU-side structure
+		//  - Allows us to send the data to the GPU buffer in one step
+		//  - Do this PER OBJECT, before drawing it
+		XMFLOAT4X4 world;
+		XMStoreFloat4x4(&world, XMMatrixTranspose((*it).CubeMap->transform->getWorldTransform()));
+		(*it).CubeMap->material->sVertexShader->SetMatrix4x4("world", world);
+		(*it).CubeMap->material->sVertexShader->SetMatrix4x4("view", defaultCamera->view);
+		(*it).CubeMap->material->sVertexShader->SetMatrix4x4("projection", defaultCamera->projection);
+		(*it).CubeMap->material->sVertexShader->SetShader();
+
+		(*it).CubeMap->material->UpdatePixelShaderResources();
+		(*it).CubeMap->material->UpdatePixelShaderSamplers();
+		(*it).CubeMap->material->sPixelShader->SetShader();
+
+		// Set buffers in the input assembler
+		//  - This should be done PER OBJECT you intend to draw, as each object could
+		//    potentially have different geometry (and therefore different buffers!)
+		//  - You must have both a vertex and index buffer set to draw
+		UINT stride = sizeof(Vertex);
+		UINT offset = 0;
+		deviceContext->IASetVertexBuffers(0, 1, (*it).CubeMap->mesh->GetVertexBuffer(), &stride, &offset);
+		deviceContext->IASetIndexBuffer((*it).CubeMap->mesh->GetIndexBuffer(), DXGI_FORMAT_R32_UINT, 0);
+
+
+		// Finally do the actual drawing
+		//  - This should be done PER OBJECT you index to draw
+		//  - This will use all of the currently set DirectX stuff (shaders, buffers, etc)
+		deviceContext->DrawIndexed(
+			(*it).CubeMap->mesh->indexCount,	// The number of indices we're using in this draw
+			0,
+			0);
+	}
 }
 
 Mesh* RenderEngine::CreateMesh(const char* filename)
