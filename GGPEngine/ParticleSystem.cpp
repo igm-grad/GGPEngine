@@ -298,8 +298,7 @@ void ParticleSystem::EmitParticles(float dt)
 	//}
 
 	// If there are particles to emit then emit one per frame.
-	if ((emitParticle == true) && (particles.size() < (mMaxParticles
-		- 1)))
+	if ((emitParticle == true) && (particles.size() < (mMaxParticles)))
 	{
 		//m_currentParticleCount++;
 

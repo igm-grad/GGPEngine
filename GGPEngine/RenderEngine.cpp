@@ -193,6 +193,8 @@ void RenderEngine::UpdateScene(GameObject** gameObjects, int gameObjectsCount, d
 			gameObjects[i]->behavior->renderCallback(*gameObjects[i], deltaTime);
 		}
 	}
+
+	// Iterate and Update Particle Systems
 }
 
 void RenderEngine::DrawScene(GameObject** gameObjects, int gameObjectsCount, double deltaTime)
