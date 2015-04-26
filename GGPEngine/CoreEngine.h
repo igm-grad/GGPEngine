@@ -56,6 +56,8 @@ public:
 	Material*		DiffuseMaterial();
 	Material*		DiffuseNormalMaterial();
 
+	void createCameraCubemap(Camera* camera, const wchar_t* filePath);
+
 	Material*		CreateMaterial(LPCWSTR vertexShaderFile, LPCWSTR pixelShaderFile);
 
 	void				AddParticleSystem(GameObject* targetObject, ParticleSystem* addedPartSystem);

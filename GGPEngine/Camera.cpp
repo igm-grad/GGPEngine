@@ -1,6 +1,5 @@
 #include "Camera.h"
 
-
 Camera::~Camera()
 {
 }
@@ -19,6 +18,7 @@ void Camera::UpdateProjection(float fov, float aspectRatio, float zNear, float z
 		zNear,						// Near clip plane distance
 		zFar);						// Far clip plane distance
 	XMStoreFloat4x4(&projection, XMMatrixTranspose(P));
+
 }
 
 void Camera::Update()
@@ -29,5 +29,19 @@ void Camera::Update()
 	XMVECTOR EyeDirection = XMLoadFloat3(&transform->forward);
 
 	XMStoreFloat4x4(&view, XMMatrixTranspose(XMMatrixLookToLH(EyePosition, EyeDirection, UpDirection)));
+
+	if (CubeMap != nullptr)
+	{
+		CubeMap->transform->position = transform->position;
+		CubeMap->transform->scale = transform->scale;
+	}
 }
 
+void Camera::createCubeMap(GameObject* cube)
+{
+	CubeMap = cube;
+	CubeMap->transform = new Transform();
+	CubeMap->transform->position = transform->position;
+	CubeMap->transform->scale = transform->scale;
+	CubeMap->transform->rotation = XMFLOAT3(0.0f, 0.0f, 0.0f);
+}

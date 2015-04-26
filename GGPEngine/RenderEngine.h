@@ -67,6 +67,7 @@ protected:
 
 	Camera*									CreateCamera();
 	ParticleSystem*							CreateParticleSystem(const char* attributes, UINT maxParticles);
+	void									setCameraCubeMap(Camera* camera, const wchar_t* filename);
 
 	GameObject**							CullGameObjectsFromCamera(Camera* camera, GameObject** list, int listCount);
 	GameObject**							sortList(GameObject** RenderList, int renderlistCount, float* renderDistFromCamera);
@@ -88,6 +89,7 @@ private:
 	bool wmMouseMoveHook(WPARAM wParam, LPARAM lParam);
 	bool wmMouseButtonDownHook(WPARAM wParam, LPARAM lParam, MouseButton btn);
 	bool wmMouseButtonUpHook(WPARAM wParam, LPARAM lParam, MouseButton btn);
+	void drawSkyBoxes();
 
 	// Game and window state tracking
 	bool      minimized;
@@ -105,6 +107,9 @@ private:
 	ID3D11Texture2D* depthStencilBuffer;
 	ID3D11RenderTargetView* renderTargetView;
 	ID3D11DepthStencilView* depthStencilView;
+	D3D11_RASTERIZER_DESC defaultrasterizerDesc;
+	ID3D11RasterizerState* rasterizerState;
+	ID3D11DepthStencilState* DSLessEqual;
 	D3D11_VIEWPORT viewport;
 	D3D_DRIVER_TYPE driverType;
 	D3D_FEATURE_LEVEL featureLevel;
