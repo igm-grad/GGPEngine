@@ -193,8 +193,13 @@ void RenderEngine::UpdateScene(GameObject** gameObjects, int gameObjectsCount, d
 			gameObjects[i]->behavior->renderCallback(*gameObjects[i], deltaTime);
 		}
 	}
+}
 
-	// Iterate and Update Particle Systems
+void RenderEngine::UpdateParticleSystems(ParticleSystem** particleSystems, int particleSystemCount, double deltaTime)
+{
+	for (int i = 0; i < particleSystemCount; i++) {
+		particleSystems[i]->Update(deltaTime, 0);
+	}
 }
 
 void RenderEngine::DrawScene(GameObject** gameObjects, int gameObjectsCount, double deltaTime)
@@ -310,10 +315,8 @@ void RenderEngine::DrawScene(GameObject** gameObjects, int gameObjectsCount, dou
 			0);
 	}
 
-	if (partSys) {
-		partSys->Update(deltaTime, 0);
-		partSys->Draw(deviceContext, defaultCamera);
-	}
+	UpdateParticleSystems(&partSys, 1, deltaTime);
+	DrawParticleSystems(&partSys, 1, deltaTime);
 
 	if (ui) {
 		ui->Update(); // Maybe now as frequently?
@@ -336,10 +339,37 @@ void RenderEngine::DrawParticleSystems(ParticleSystem** particleSystems, int par
 	blendFactor[2] = 0.0f;
 	blendFactor[3] = 0.0f;
 
-	deviceContext->OMSetBlendState()
+
+	deviceContext->OMSetBlendState(blendState, blendFactor, 0xffffffff);
+
+	// Set the type of primitive that should be rendered from this vertex buffer.
+	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
+
+	UINT offset = 0;
+	size_t stride = sizeof(Transform);
+
+	Transform w = Transform();
+	XMMATRIX m = w.getWorldTransform();
+	XMFLOAT4X4 m1;
+	XMStoreFloat4x4(&m1, m);
 
 	for (int i = 0; i < particleSystemCount; i++) {
+		deviceContext->IASetVertexBuffers(0, 1, &particleSystems[i]->mVertexBuffer, &stride, &offset);
+		deviceContext->IASetIndexBuffer(particleSystems[i]->mIndexBuffer, DXGI_FORMAT_R32_UINT, 0);
+		
+		
 
+		// TODO: set vertex shader props
+		particleSystems[i]->simpleVS->SetMatrix4x4("worldMatrix", m1);
+		particleSystems[i]->simpleVS->SetMatrix4x4("viewMatrix", defaultCamera->view);
+		particleSystems[i]->simpleVS->SetMatrix4x4("projectionMatrix", defaultCamera->projection);
+		particleSystems[i]->simpleVS->SetShader();
+
+		// TODO: set pixel shader props
+		particleSystems[i]->simplePS->SetShader();
+	
+		// Render the triangle.
+		deviceContext->DrawIndexed(particleSystems[i]->particles.size(), 0, 0);
 	}
 }
 

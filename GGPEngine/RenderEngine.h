@@ -56,6 +56,7 @@ protected:
 	void OnResize();
 	void CalculateFrameStats(float totalTime);
 	void UpdateScene(GameObject** gameObjects, int gameObjectsCount, double deltaTime);
+	void UpdateParticleSystems(ParticleSystem** particleSystems, int particleSystemCount, double deltaTime);
 	void DrawScene(GameObject** gameObjects, int gameObjectsCount, double deltaTime);
 	void DrawParticleSystems(ParticleSystem** particleSystems, int particleSystemCount, double deltaTime);
 	

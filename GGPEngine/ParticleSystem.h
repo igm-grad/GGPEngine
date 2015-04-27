@@ -7,6 +7,7 @@
 
 using namespace DirectX;
 
+class Transform;
 class Camera;
 class RenderEngine; //Forward declaration
 class GameObject; //Forward declaration
@@ -34,6 +35,12 @@ public:
 	//ParticleSystem();
 	~ParticleSystem();
 
+	ID3D11Buffer* mVertexBuffer;
+	ID3D11Buffer* mIndexBuffer;
+	SimpleVertexShader* simpleVS;
+	SimplePixelShader* simplePS;
+	std::vector<Transform> particles;
+
 	float GetAge()const;
 
 	void SetEyePos(const XMFLOAT3& eyePosW);
@@ -58,7 +65,7 @@ public:
 	void UpdateParticles(float dt);
 	void KillParticles();
 
-	void InitializeParticleSystem();
+//	void InitializeParticleSystem();
 	void ShutdownParticleSystem();
 
 	bool InitializeBuffers(ID3D11Device* device);
@@ -76,8 +83,6 @@ private:
 	bool LoadTexture(ID3D11Device* device, WCHAR* filename);
 	void ReleaseTexture();
 
-
-private:
 	RenderEngine* e;
 
 	UINT mMaxParticles;
@@ -95,22 +100,7 @@ private:
 	XMFLOAT3 mEyePosW;
 	XMFLOAT3 mEmitPosW;
 	XMFLOAT3 mEmitDirW;
-
-	//ParticleEffect* mFX;
-	
-	ID3D11Buffer* mInitVB;
-	ID3D11Buffer* mDrawVB;
-	ID3D11Buffer* mStreamOutVB;
-
-	SimpleVertexShader* simpleVS;
-	SimplePixelShader* simplePS;
-
 	ID3D11ShaderResourceView* mTexArraySRV;
 	ID3D11ShaderResourceView* mRandomTexSRV;
-
-	std::vector<ParticleVertex> particles;
-
-	int m_vertexCount, m_indexCount;
-	Vertex* m_vertices;
 };
 

@@ -39,5 +39,5 @@ float4 ParticlePixelShader(PixelInputType input) : SV_TARGET
 		// Combine the texture color and the particle color to get the final color result.
 		finalColor = textureColor * input.color;
 
-	return finalColor;
+	return float4(1, 0, 0, 1);
 }

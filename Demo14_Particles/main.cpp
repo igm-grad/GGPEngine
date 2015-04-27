@@ -32,7 +32,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 
 	GameObject* gameObject = engine->CreateGameObject("Models\\Lego.obj");
 	gameObject->material = engine->BasicMaterial();
-	gameObject->transform->position.y = -2;
+	gameObject->transform->position.y = -20000;
 
 	/*GameObject* rainGameObject = engine->CreateGameObject();
 
