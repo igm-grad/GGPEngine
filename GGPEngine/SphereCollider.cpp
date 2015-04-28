@@ -21,6 +21,11 @@ void SphereCollider::update(const GameObject& gameObject)
 	position = gameObject.transform->position;
 }
 
+float SphereCollider::findMax(XMFLOAT3 gameObjectScale)
+{
+	float temp_max = ((gameObjectScale.x + gameObjectScale.y + abs(gameObjectScale.x - gameObjectScale.y)) / 2);
+}
+
 bool SphereCollider::checkCollisions(SphereCollider* gameObjectA, SphereCollider* gameObjectB)
 {
 	// store in XMVECTOR
@@ -33,5 +38,12 @@ bool SphereCollider::checkCollisions(SphereCollider* gameObjectA, SphereCollider
 	// find magnitude of displacemnt
 	XMFLOAT3 displacement;
 	XMStoreFloat3(&displacement, Displacement);
-	float displacementMag = displacement.x * displacement.x + displacement.x * displacement.x + displacement.x * displacement.x
+	float displacementMag = displacement.x * displacement.x + displacement.y * displacement.y + displacement.z * displacement.z;
+
+	// find largest of the scales in x, y, z
+	float maxScaleA = findMax(gameObjectA->scale);
+	float maxScaleb = findMax(gameObjectB->scale);
+
+	// add the radius' of objects to compae with distance magnitude
+	float radiusAB = gameObjectA->radius * gameObjectA->scale + gameObjectB->radius * gameObjectA->scale;
 }

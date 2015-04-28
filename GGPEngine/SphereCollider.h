@@ -20,6 +20,8 @@ public:
 
 	std::string ColliderType() { return colliderType; }
 
+	float findMax(XMFLOAT3 gameObjectScale);
+
 private:
 
 	std::string colliderType;
