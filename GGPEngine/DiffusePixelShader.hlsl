@@ -64,12 +64,14 @@ float4 specularColor(float3 eyePosition, float3 pixelPositionT, float3 pixelNorm
 float4 main(Pixel pixel) : SV_TARGET
 {
 	pixel.normal = normalize(pixel.normal);
-	float4 colorAccumulator = float4(0.0f, 0.0f, 0.0f, 1.0f);
+	float4 dColorAccumulator = float4(0.0f, 0.0f, 0.0f, 1.0f);
+	float4 aColorAccumulator = float4(0.0f, 0.0f, 0.0f, 1.0f);
 
 	for (int i = 0; i < DIRECTIONAL_LIGHT_COUNT; i++) {
 		float4 dColor = diffuseColor(directionalLights[i].diffuseColor, directionalLights[i].ambientColor, pixel.normal, -directionalLights[i].direction);
 		float4 sColor = specularColor(eyePosition, pixel.positionT, pixel.normal, directionalLights[i].direction);
-		colorAccumulator += (dColor + directionalLights[i].ambientColor + sColor);
+		dColorAccumulator += (dColor + sColor);
+		aColorAccumulator += directionalLights[i].ambientColor;
 	}
 
 	for (int j = 0; j < POINT_LIGHT_COUNT; j++) {
@@ -77,7 +79,8 @@ float4 main(Pixel pixel) : SV_TARGET
 		float4	dColor = diffuseColor(pointLights[j].diffuseColor, pointLights[j].ambientColor, pixel.normal, pixelToLight);
 		float4  sColor = specularColor(eyePosition, pixel.positionT, pixel.normal, -pixelToLight);
 		float   attenuation = 1 - (length(pixelToLight) * (1 / pointLights[j].radius));
-		colorAccumulator += (dColor + pointLights[j].ambientColor + sColor) * saturate(attenuation);
+		dColorAccumulator += (dColor + sColor) * saturate(attenuation);
+		aColorAccumulator += pointLights[j].ambientColor;
 	}
 
 	for (int k = 0; k < SPOT_LIGHT_COUNT; k++)
@@ -102,11 +105,12 @@ float4 main(Pixel pixel) : SV_TARGET
 		}
 
 		totalAttenuation *= linearAttenuation;
-		colorAccumulator += (dColor + spotLights[k].ambientColor + sColor) * saturate(totalAttenuation);
+		dColorAccumulator += (dColor + sColor) * saturate(totalAttenuation);
+		aColorAccumulator += spotLights[k].ambientColor;
 	}
 
 	float4 textureColor = diffuseTexture.Sample(diffuseSampler, pixel.uv);
-	return colorAccumulator * textureColor;
+	return (dColorAccumulator + aColorAccumulator) * textureColor;
 }
 
 
