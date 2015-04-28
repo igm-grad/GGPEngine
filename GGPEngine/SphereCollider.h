@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Collider.h"
+#include "GameObject.h"
 
 class SphereCollider : public Collider
 {
@@ -9,13 +10,13 @@ public:
 	~SphereCollider();
 
 	// init sphere collider
-	void init();
+	void init(const GameObject& gameObject);
 
 	// update position of collider
-	void update();
+	void update(const GameObject& gameObject);
 
 	// check sphere/sphere collisions
-	bool checkCollisions();
+	bool checkCollisions(SphereCollider* gameObjectA, SphereCollider* gameObjectB);
 
 	std::string ColliderType() { return colliderType; }
 

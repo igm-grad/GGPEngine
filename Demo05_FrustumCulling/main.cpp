@@ -16,6 +16,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 	gameObject1->material = engine->BasicMaterial();
 	gameObject1->transform->position = XMFLOAT3(0.0f, 0.0f, 10.0f);
 	gameObject1->transform->movementSpeed = 0.001f;
+	gameObject1->transform->scale = XMFLOAT3(5.0f, 5.0f, 5.0f);
 
 	GameObject* gameObject2 = engine->Sphere();
 	gameObject2->material = engine->BasicMaterial();
