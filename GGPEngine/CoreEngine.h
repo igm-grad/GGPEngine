@@ -17,6 +17,7 @@
 #include "Mesh.h"
 #include "Material.h"
 #include "Behavior.h"
+#include "Collider.h"
 #include <vector>
 #include <unordered_map>
 
@@ -32,6 +33,7 @@ public:
 
 	std::vector<GameObject*>	gameObjects;
 	std::vector<Behavior>		behaviors;
+	std::vector<Collider*>		colliders;
 
 	CoreEngine(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine, int showCmd);
 	CoreEngine();
