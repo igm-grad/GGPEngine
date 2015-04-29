@@ -52,6 +52,8 @@ public:
 	GameObject*		Helix();
 	GameObject*		Torus();
 
+	Collider*		createCollider(std::string colliderType);
+
 	Mesh*			CreateMesh(const char* filename);
 	
 	Material*       BasicMaterial();

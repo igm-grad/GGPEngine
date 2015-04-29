@@ -147,6 +147,11 @@ GameObject* CoreEngine::CreateGameObject(const char* filename)
 	return obj;
 }
 
+Collider* CoreEngine::createCollider(std::string colliderType)
+{
+
+}
+
 GameObject*	CoreEngine::Sphere()
 {
 	return CreateGameObject("Models\\Sphere.obj");
