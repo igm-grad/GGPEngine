@@ -49,7 +49,7 @@ public:
 	GameObject*		Cylinder();
 	GameObject*		Helix();
 	GameObject*		Torus();
-	//#MyChages
+	//#MyChanges
 	GameObject*		Terrain(float width, int vertexPerWidth, float depth, int vertexPerDepth);
 
 	Mesh*			CreateMesh(const char* filename);
@@ -61,7 +61,7 @@ public:
 	Material*		CreateMaterial(LPCWSTR vertexShaderFile, LPCWSTR pixelShaderFile);
 
 	//#MyChanges
-	Material*		loadHeightMap(const char* filename);
+	Material*		loadHeightMap(/*const char* filename*/);
 
 	DirectionalLight*	CreateDirectionalLight(XMFLOAT4& ambientColor, XMFLOAT4& diffuseColor, XMFLOAT3& direction);
 	PointLight*			CreatePointLight(XMFLOAT4& ambientColor, XMFLOAT4& diffuseColor, XMFLOAT3& position, float radius);

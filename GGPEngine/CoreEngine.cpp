@@ -171,17 +171,17 @@ GameObject*	CoreEngine::Torus()
 	return CreateGameObject("Models\\Torus.obj");
 }
 
-//#MyChages
+//#MyChanges
 // Returns a Terrain Game Object. Heightmap must be loaded afterwards.
 GameObject* CoreEngine::Terrain(float width, int vertexPerWidth, float depth, int vertexPerDepth)
 {
-	// Creates Game Object.
+	// Creates Game Object to return.
 	GameObject* returnObject = CreateGameObject();
 	
 	// Creates the Terrain Plane Mesh
 	Mesh* planeMesh = renderer->CreatePlaneMesh(width, vertexPerWidth, depth, vertexPerDepth);
 
-	// Add mesh to the GameObject
+	// Add mesh to Return GameObject
 	returnObject->mesh = planeMesh;
 
 	return returnObject;
@@ -230,13 +230,13 @@ Material* CoreEngine::CreateMaterial(LPCWSTR vertexShaderFile, LPCWSTR pixelShad
 }
 
 //#MyChanges
-Material* CoreEngine::loadHeightMap(const char* filename)
+Material* CoreEngine::loadHeightMap(/*const char* filename*/)
 {
 	//Implement loading the HeightMap File here.
 	Material* HeightMap = nullptr;
-	
-	//HeightMap = renderer->CreateMaterial(L"terrainVertexShader.cso", L"terrainPixelShader.cso");
 
+	HeightMap = CreateMaterial(L"TerrainVertexShader.cso", L"TerrainPixelShader.cso");
+	HeightMap->SetSampler("omniSampler");
 	return HeightMap;
 }
 
