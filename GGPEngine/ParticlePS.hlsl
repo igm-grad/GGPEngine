@@ -31,6 +31,7 @@ float4 ParticlePixelShader(PixelInputType input) : SV_TARGET
 	float4 textureColor;
 	float4 finalColor;
 
+	return float4(1, 0, 0, 1);
 	return input.color;
 
 	// Sample the pixel color from the texture using the sampler at this texture coordinate location.

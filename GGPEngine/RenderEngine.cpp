@@ -357,8 +357,6 @@ void RenderEngine::DrawParticleSystems(ParticleSystem** particleSystems, int par
 		deviceContext->IASetVertexBuffers(0, 1, &particleSystems[i]->mVertexBuffer, &stride, &offset);
 		deviceContext->IASetIndexBuffer(particleSystems[i]->mIndexBuffer, DXGI_FORMAT_R32_UINT, 0);
 		
-		
-
 		// TODO: set vertex shader props
 		particleSystems[i]->simpleVS->SetMatrix4x4("worldMatrix", m1);
 		particleSystems[i]->simpleVS->SetMatrix4x4("viewMatrix", defaultCamera->view);

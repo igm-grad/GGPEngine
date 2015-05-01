@@ -48,6 +48,7 @@ float ParticleSystem::GetAge()const
 	return mAge;
 }
 
+#pragma region Set Eye & Emit Pos/Dir
 void ParticleSystem::SetEyePos(const XMFLOAT3& eyePosW)
 {
 	mEyePosW = eyePosW;
@@ -62,7 +63,9 @@ void ParticleSystem::SetEmitDir(const XMFLOAT3& emitDirW)
 {
 	mEmitDirW = emitDirW;
 }
+#pragma endregion
 
+#pragma region Setting Vertex & Pixel Shaders
 void ParticleSystem::SetVertexShader(ID3D11Device* device, ID3D11DeviceContext* deviceContext, LPCWSTR vertexShaderFile)
 {
 	simpleVS = new SimpleVertexShader(device, deviceContext);
@@ -84,6 +87,7 @@ void ParticleSystem::SetPixelShader(SimplePixelShader* simplePixelShader)
 {
 	simplePS = simplePixelShader;
 }
+#pragma endregion
 
 void ParticleSystem::Init(ID3D11Device* device, /*ParticleEffect* fx,*/ ID3D11ShaderResourceView* texArraySRV,
 	ID3D11ShaderResourceView* randomTexSRV, UINT maxParticles)
@@ -93,7 +97,7 @@ void ParticleSystem::Init(ID3D11Device* device, /*ParticleEffect* fx,*/ ID3D11Sh
 	mTexArraySRV = texArraySRV;
 	mRandomTexSRV = randomTexSRV;
 
-	BuildVB(device);
+	//BuildVB(device);
 }
 
 void ParticleSystem::Reset()
@@ -120,124 +124,102 @@ void ParticleSystem::Update(float dt, float gameTime)
 	UpdateBuffers(e->deviceContext);
 }
 
-void ParticleSystem::Draw(ID3D11DeviceContext* dc, const Camera* cam)
+bool ParticleSystem::InitializeBuffers(ID3D11Device* device)
 {
-	XMMATRIX VP = XMLoadFloat4x4(&cam->view);
-
-
-	/*XMFLOAT4X4 view = cam.view();
-	XMMATRIX VP = XMLoadFloat4x4(&view);
-
-	//
-	// Set constants.
-	//
-	mFX->SetViewProj(VP);
-	mFX->SetGameTime(mGameTime);
-	mFX->SetTimeStep(mTimeStep);
-	mFX->SetEyePosW(mEyePosW);
-	mFX->SetEmitPosW(mEmitPosW);
-	mFX->SetEmitDirW(mEmitDirW);
-	mFX->SetTexArray(mTexArraySRV);
-	mFX->SetRandomTex(mRandomTexSRV);
-
-	//
-	// Set IA stage.
-	//
-	dc->IASetInputLayout(InputLayouts::Particle);
-	dc->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
-
-	UINT stride = sizeof(Vertex::Particle);
-	UINT offset = 0;
-
-	// On the first pass, use the initialization VB.  Otherwise, use
-	// the VB that contains the current particle list.
-	if (mFirstRun)
-	dc->IASetVertexBuffers(0, 1, &mInitVB, &stride, &offset);
-	else
-	dc->IASetVertexBuffers(0, 1, &mDrawVB, &stride, &offset);
-
-	//
-	// Draw the current particle list using stream-out only to update them.
-	// The updated vertices are streamed-out to the target VB.
-	//
-	dc->SOSetTargets(1, &mStreamOutVB, &offset);
-
-	D3DX11_TECHNIQUE_DESC techDesc;
-	mFX->StreamOutTech->GetDesc(&techDesc);
-	for (UINT p = 0; p < techDesc.Passes; ++p)
+	for (int i = 0; i < 1; i++)
 	{
-	mFX->StreamOutTech->GetPassByIndex(p)->Apply(0, dc);
-
-	if (mFirstRun)
-	{
-	dc->Draw(1, 0);
-	mFirstRun = false;
-	}
-	else
-	{
-	dc->DrawAuto();
-	}
+		particles.push_back(Transform());
+		particles[i].position = { 500, 0, 0 };
+		//particles[i].size = { 1.0f, 1.0f, 1.0f };
+		//particles[i].color = { 1.0f, 0, 0, 1.0f };
+		//particles[i].age = 0;
+		//particles[i].velocity = { 0, 3.0f, 0 };
 	}
 
-	// done streaming-out--unbind the vertex buffer
-	ID3D11Buffer* bufferArray[1] = { 0 };
-	dc->SOSetTargets(1, bufferArray, &offset);
+	unsigned long indices[] = {0};
+	D3D11_BUFFER_DESC vertexBufferDesc, indexBufferDesc;
+	D3D11_SUBRESOURCE_DATA vertexData, indexData;
+	HRESULT result;
 
-	// ping-pong the vertex buffers
-	std::swap(mDrawVB, mStreamOutVB);
+	// Set up the description of the dynamic vertex buffer.
+	vertexBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+	vertexBufferDesc.ByteWidth = sizeof(Transform) * mMaxParticles;
+	vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	vertexBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	vertexBufferDesc.MiscFlags = 0;
+	vertexBufferDesc.StructureByteStride = 0;
 
-	//
-	// Draw the updated particle system we just streamed-out.
-	//
-	dc->IASetVertexBuffers(0, 1, &mDrawVB, &stride, &offset);
+	// Give the subresource structure a pointer to the vertex data.
+	vertexData.pSysMem = &particles[0];
+	//vertexData.SysMemPitch = 0;
+	//vertexData.SysMemSlicePitch = 0;
 
-	mFX->DrawTech->GetDesc(&techDesc);
-	for (UINT p = 0; p < techDesc.Passes; ++p)
+	// Now finally create the vertex buffer.
+	result = device->CreateBuffer(&vertexBufferDesc, &vertexData, &mVertexBuffer);
+	if (FAILED(result))
 	{
-	mFX->DrawTech->GetPassByIndex(p)->Apply(0, dc);
+		return false;
+	}
 
-	dc->DrawAuto();
-	}*/
+	// Set up the description of the static index buffer.
+	indexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
+	indexBufferDesc.ByteWidth = sizeof(unsigned long) * particles.size();
+	indexBufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
+	indexBufferDesc.CPUAccessFlags = 0;
+	indexBufferDesc.MiscFlags = 0;
+	indexBufferDesc.StructureByteStride = 0;
+
+	// Give the subresource structure a pointer to the index data.
+	indexData.pSysMem = indices;
+	indexData.SysMemPitch = 0;
+	indexData.SysMemSlicePitch = 0;
+
+	// Create the index buffer.
+	result = device->CreateBuffer(&indexBufferDesc, &indexData, &mIndexBuffer);
+	if (FAILED(result))
+	{
+		return false;
+	}
+
+	// Release the index array since it is no longer needed.
+	//delete[] indices;
+	//indices = 0;
+	
+	return true;
 }
 
-void ParticleSystem::BuildVB(ID3D11Device* device)
+void ParticleSystem::UpdateBuffers(ID3D11DeviceContext* deviceContext)
 {
-	/*
-	//
-	// Create the buffer to kick-off the particle system.
-	//
+	int index;
+	HRESULT result;
+	D3D11_MAPPED_SUBRESOURCE mappedResource;
+	Transform* verticesPtr;
 
-	D3D11_BUFFER_DESC vbd;
-	vbd.Usage = D3D11_USAGE_DEFAULT;
-	vbd.ByteWidth = sizeof(Vertex::Particle) * 1;
-	vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	vbd.CPUAccessFlags = 0;
-	vbd.MiscFlags = 0;
-	vbd.StructureByteStride = 0;
 
-	// The initial particle emitter has type 0 and age 0.  The rest
-	// of the particle attributes do not apply to an emitter.
-	Vertex::Particle p;
-	ZeroMemory(&p, sizeof(Vertex::Particle));
-	p.Age = 0.0f;
-	p.Type = 0;
+	// Initialize vertex array to zeros at first.
+//	memset(m_vertices, 0, (sizeof(Vertex) * m_vertexCount));
 
-	D3D11_SUBRESOURCE_DATA vinitData;
-	vinitData.pSysMem = &p;
+	// Now build the vertex array from the particle list array.  Each particle is a quad made out of two triangles.
+	index = 0;
 
-	HR(device->CreateBuffer(&vbd, &vinitData, &mInitVB));
+	// Lock the vertex buffer.
+	result = deviceContext->Map(mVertexBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	if (FAILED(result))
+	{
+		printf("fuck\n");
+	}
 
-	//
-	// Create the ping-pong buffers for stream-out and drawing.
-	//
-	vbd.ByteWidth = sizeof(Vertex::Particle) * mMaxParticles;
-	vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER | D3D11_BIND_STREAM_OUTPUT;
+	// Get a pointer to the data in the vertex buffer.
+	verticesPtr = (Transform*)mappedResource.pData;
 
-	HR(device->CreateBuffer(&vbd, 0, &mDrawVB));
-	HR(device->CreateBuffer(&vbd, 0, &mStreamOutVB));
-	*/
+	// Copy the data into the vertex buffer.
+	memcpy(verticesPtr, &particles[0], (sizeof(Transform) * particles.size()));
+
+	// Unlock the vertex buffer.
+	deviceContext->Unmap(mVertexBuffer, 0);
 }
 
+#pragma region Incomplete or Old Methods
 bool ParticleSystem::LoadTexture(ID3D11Device* device, WCHAR* filename)
 {
 	/*bool result;
@@ -246,14 +228,14 @@ bool ParticleSystem::LoadTexture(ID3D11Device* device, WCHAR* filename)
 	mTexArraySRV = new TextureClass;
 	if (!m_Texture)
 	{
-		return false;
+	return false;
 	}
 
 	// Initialize the texture object.
 	result = m_Texture->Initialize(device, filename);
 	if (!result)
 	{
-		return false;
+	return false;
 	}*/
 
 	return true;
@@ -264,9 +246,9 @@ void ParticleSystem::ReleaseTexture()
 	/*// Release the texture object.
 	if (mTexArraySRV)
 	{
-		m_Texture->Shutdown();
-		delete m_Texture;
-		m_Texture = 0;
+	m_Texture->Shutdown();
+	delete m_Texture;
+	m_Texture = 0;
 	}*/
 
 	return;
@@ -274,9 +256,8 @@ void ParticleSystem::ReleaseTexture()
 
 void ParticleSystem::EmitParticles(float dt)
 {
-	bool emitParticle, found;
+	bool emitParticle;
 	float positionX, positionY, positionZ, velocity, red, green, blue;
-	int index, i, j;
 
 	// Increment the frame time.
 	//m_accumulatedTime += frameTime;
@@ -326,7 +307,7 @@ void ParticleSystem::EmitParticles(float dt)
 		// Now that we know the location to insert into we need to copy the array over by one position from the index to make room for the new particle.
 		//i = m_currentParticleCount;
 		//j = i - 1;
-	
+
 		Transform first;
 		particles.push_back(first);
 
@@ -348,76 +329,76 @@ void ParticleSystem::UpdateParticles(float dt)
 
 void ParticleSystem::KillParticles()
 {
-//	int i, j;
-//
-//	 Kill all the particles that have gone below a certain height range.
-//	for (i = 0; i < particles.size(); i++)
-//	{
-//		if ((particles[i].active == true) && (particles[i].position.y < -3.0f))
-//		{
-//			particles[i].active = false;
-//			m_currentParticleCount--;
-//
-//			 Now shift all the live particles back up the array to erase the destroyed particle and keep the array sorted correctly.
-//			for (j = i; j < particles.size(); j++)
-//			{
-//				particles[j].position.x = particles[j + 1].position.x;
-//				particles[j].position.y = particles[j + 1].position.y;
-//				particles[j].position.z = particles[j + 1].position.z;
-//				particles[j].color.x = particles[j + 1].color.x;
-//				particles[j].color.y = particles[j + 1].color.y;
-//				particles[j].color.z = particles[j + 1].color.z;
-//				particles[j].velocity = particles[j + 1].velocity;
-//				particles[j].active = particles[j + 1].active;
-//			}
-//		}
-//	}
-//}
-//
-//void ParticleSystem::InitializeParticleSystem()
-//{
-//	 Set the random deviation of where the particles can be located when emitted.
-//	m_particleDeviationX = 0.5f;
-//	m_particleDeviationY = 0.1f;
-//	m_particleDeviationZ = 2.0f;
-//
-//	 Set the speed and speed variation of particles.
-//	m_particleVelocity = 1.0f;
-//	m_particleVelocityVariation = 0.2f;
-//
-//	 Set the physical size of the particles.
-//	m_particleSize = 0.2f;
-//
-//	 Set the number of particles to emit per second.
-//	m_particlesPerSecond = 250.0f;
-//
-//	 Set the maximum number of particles allowed in the particle system.
-//	mMaxParticles = 5000;
-//	 Create the particle list.
-//
-//	ParticleVertex first;
-//	particles.push_back(first);
-//
-//	particles[0].position = { 0, 0, 0 };
-//	particles[0].size = { 1.0f, 1.0f, 1.0f };
-//	particles[0].color = { 1.0f, 0, 0, 1.0f };
-//	particles[0].age = 0;
-//	particles[0].velocity = { 0, 3.0f, 0 };
-//
-//	m_particleList = new ParticleType[m_maxParticles];
-//	if (!m_particleList)
-//	{
-//		return false;
-//	}
-//
-//	 Initialize the particle list.
-//	/*for (i = 0; i<m_maxParticles; i++)
-//	{
-//		m_particleList[i].active = false;
-//	}*/
-//
-//	 Clear the initial accumulated time for the particle per second emission rate.
-//	mAccumulatedTime = 0.0f;
+	//	int i, j;
+	//
+	//	 Kill all the particles that have gone below a certain height range.
+	//	for (i = 0; i < particles.size(); i++)
+	//	{
+	//		if ((particles[i].active == true) && (particles[i].position.y < -3.0f))
+	//		{
+	//			particles[i].active = false;
+	//			m_currentParticleCount--;
+	//
+	//			 Now shift all the live particles back up the array to erase the destroyed particle and keep the array sorted correctly.
+	//			for (j = i; j < particles.size(); j++)
+	//			{
+	//				particles[j].position.x = particles[j + 1].position.x;
+	//				particles[j].position.y = particles[j + 1].position.y;
+	//				particles[j].position.z = particles[j + 1].position.z;
+	//				particles[j].color.x = particles[j + 1].color.x;
+	//				particles[j].color.y = particles[j + 1].color.y;
+	//				particles[j].color.z = particles[j + 1].color.z;
+	//				particles[j].velocity = particles[j + 1].velocity;
+	//				particles[j].active = particles[j + 1].active;
+	//			}
+	//		}
+	//	}
+	//}
+	//
+	//void ParticleSystem::InitializeParticleSystem()
+	//{
+	//	 Set the random deviation of where the particles can be located when emitted.
+	//	m_particleDeviationX = 0.5f;
+	//	m_particleDeviationY = 0.1f;
+	//	m_particleDeviationZ = 2.0f;
+	//
+	//	 Set the speed and speed variation of particles.
+	//	m_particleVelocity = 1.0f;
+	//	m_particleVelocityVariation = 0.2f;
+	//
+	//	 Set the physical size of the particles.
+	//	m_particleSize = 0.2f;
+	//
+	//	 Set the number of particles to emit per second.
+	//	m_particlesPerSecond = 250.0f;
+	//
+	//	 Set the maximum number of particles allowed in the particle system.
+	//	mMaxParticles = 5000;
+	//	 Create the particle list.
+	//
+	//	ParticleVertex first;
+	//	particles.push_back(first);
+	//
+	//	particles[0].position = { 0, 0, 0 };
+	//	particles[0].size = { 1.0f, 1.0f, 1.0f };
+	//	particles[0].color = { 1.0f, 0, 0, 1.0f };
+	//	particles[0].age = 0;
+	//	particles[0].velocity = { 0, 3.0f, 0 };
+	//
+	//	m_particleList = new ParticleType[m_maxParticles];
+	//	if (!m_particleList)
+	//	{
+	//		return false;
+	//	}
+	//
+	//	 Initialize the particle list.
+	//	/*for (i = 0; i<m_maxParticles; i++)
+	//	{
+	//		m_particleList[i].active = false;
+	//	}*/
+	//
+	//	 Clear the initial accumulated time for the particle per second emission rate.
+	//	mAccumulatedTime = 0.0f;
 }
 
 void ParticleSystem::ShutdownParticleSystem()
@@ -431,104 +412,4 @@ void ParticleSystem::ShutdownParticleSystem()
 
 	return;
 }
-
-bool ParticleSystem::InitializeBuffers(ID3D11Device* device)
-{
-	for (int i = 0; i < 1; i++)
-	{
-		particles.push_back(Transform());
-		particles[i].position = { 0, 0, 0 };
-		//particles[i].size = { 1.0f, 1.0f, 1.0f };
-		//particles[i].color = { 1.0f, 0, 0, 1.0f };
-		//particles[i].age = 0;
-		//particles[i].velocity = { 0, 3.0f, 0 };
-	}
-
-	unsigned long indices[] = {0};
-	int i;
-	D3D11_BUFFER_DESC vertexBufferDesc, indexBufferDesc;
-	D3D11_SUBRESOURCE_DATA vertexData, indexData;
-	HRESULT result;
-
-	// Set up the description of the dynamic vertex buffer.
-	vertexBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-	vertexBufferDesc.ByteWidth = sizeof(Transform) * particles.size();
-	vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	vertexBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	vertexBufferDesc.MiscFlags = 0;
-	vertexBufferDesc.StructureByteStride = 0;
-
-	// Give the subresource structure a pointer to the vertex data.
-	vertexData.pSysMem = &particles[0];
-	vertexData.SysMemPitch = 0;
-	vertexData.SysMemSlicePitch = 0;
-
-	// Now finally create the vertex buffer.
-	result = device->CreateBuffer(&vertexBufferDesc, &vertexData, &mVertexBuffer);
-	if (FAILED(result))
-	{
-		return false;
-	}
-
-	// Set up the description of the static index buffer.
-	indexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-	indexBufferDesc.ByteWidth = sizeof(unsigned long) * particles.size();
-	indexBufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
-	indexBufferDesc.CPUAccessFlags = 0;
-	indexBufferDesc.MiscFlags = 0;
-	indexBufferDesc.StructureByteStride = 0;
-
-	// Give the subresource structure a pointer to the index data.
-	indexData.pSysMem = indices;
-	indexData.SysMemPitch = 0;
-	indexData.SysMemSlicePitch = 0;
-
-	// Create the index buffer.
-	result = device->CreateBuffer(&indexBufferDesc, &indexData, &mIndexBuffer);
-	if (FAILED(result))
-	{
-		return false;
-	}
-
-	// Release the index array since it is no longer needed.
-	//delete[] indices;
-	//indices = 0;
-	
-	return true;
-}
-
-void ParticleSystem::UpdateBuffers(ID3D11DeviceContext* deviceContext)
-{
-	int index, i;
-	HRESULT result;
-	D3D11_MAPPED_SUBRESOURCE mappedResource;
-	Transform* verticesPtr;
-
-
-	// Initialize vertex array to zeros at first.
-//	memset(m_vertices, 0, (sizeof(Vertex) * m_vertexCount));
-
-	// Now build the vertex array from the particle list array.  Each particle is a quad made out of two triangles.
-	index = 0;
-
-	// Lock the vertex buffer.
-	result = deviceContext->Map(mVertexBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-	if (FAILED(result))
-	{
-		printf("fuck\n");
-	}
-
-	// Get a pointer to the data in the vertex buffer.
-	verticesPtr = (Transform*)mappedResource.pData;
-
-	// Copy the data into the vertex buffer.
-	memcpy(verticesPtr, &particles[0], (sizeof(Transform) * particles.size()));
-
-	// Unlock the vertex buffer.
-	deviceContext->Unmap(mVertexBuffer, 0);
-}
-
-void ParticleSystem::RenderBuffers(ID3D11DeviceContext* context)
-{
-
-}
+#pragma endregion

@@ -75,7 +75,6 @@ public:
 	void RenderBuffers(ID3D11DeviceContext* context);
 
 private:
-	void BuildVB(ID3D11Device* device);
 
 	ParticleSystem(const ParticleSystem& rhs);
 	ParticleSystem& operator=(const ParticleSystem& rhs);
