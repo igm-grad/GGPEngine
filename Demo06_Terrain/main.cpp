@@ -15,7 +15,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 	// Creates Plane Object:
 	GameObject* gameObject = engine->Terrain(7.0f,10,10.0f,5);
 	gameObject->material = engine->loadHeightMap();
-	gameObject->material->SetResource(L"Textures/DiffuseTexture1.JPG", "diffuseTexture");
+	gameObject->material->SetResource(L"Textures/DiffuseTexture2.JPG", "diffuseTexture");
+	gameObject->material->SetResource(L"Textures/NormalTexture2.JPG", "normalTexture");
 
 	// Positions plane in center
 	gameObject->transform->position = XMFLOAT3(0.0f, 0.0f, 0.0f);
@@ -26,6 +27,5 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 	while (!engine->exitRequested())
 	{
 		engine->Update();
-	}
-	
+	}	
 }
