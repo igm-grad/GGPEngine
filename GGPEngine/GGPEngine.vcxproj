@@ -171,6 +171,12 @@ xcopy /y "$(SolutionDir)libs\awesomium\1.7.5.0\build\bin\awesomium_process.exe" 
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
     </FxCompile>
+    <FxCompile Include="TerrainlVertexShader.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
+    </FxCompile>
+    <FxCompile Include="TerrainPixelShader.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DirectXTK\DirectXTK_Desktop_2013.vcxproj">
