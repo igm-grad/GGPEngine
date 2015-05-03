@@ -177,7 +177,13 @@ GameObject*	CoreEngine::Torus()
 	return CreateGameObject("Models\\Torus.obj");
 }
 
-//#MyChanges
+GameObject* CoreEngine::Plane(float width, int vertexPerWidth, float depth, int vertexPerDepth)
+{
+	GameObject* plane = CreateGameObject();
+	plane->mesh = renderer->CreatePlaneMesh(width, vertexPerWidth, depth, vertexPerDepth);
+	return plane;
+}
+
 // Returns a Terrain Game Object. Heightmap must be loaded afterwards.
 GameObject* CoreEngine::Terrain(float width, int vertexPerWidth, float depth, int vertexPerDepth)
 {
@@ -230,12 +236,18 @@ Material* CoreEngine::DiffuseNormalMaterial()
 	return diffuseNormalMaterial;
 }
 
+Material* CoreEngine::DiffuseFluidMaterial()
+{
+	Material* diffuseMaterial = CreateMaterial(L"DiffuseFluidVertexShader.cso", L"DiffuseFluidPixelShader.cso");
+	diffuseMaterial->SetSampler("diffuseSampler");
+	return diffuseMaterial;
+}
+
 Material* CoreEngine::CreateMaterial(LPCWSTR vertexShaderFile, LPCWSTR pixelShaderFile)
 {
 	return renderer->CreateMaterial(vertexShaderFile, pixelShaderFile);
 }
 
-//#MyChanges
 Material* CoreEngine::loadHeightMap(/*const char* filename*/)
 {
 	//Implement loading the HeightMap File here.

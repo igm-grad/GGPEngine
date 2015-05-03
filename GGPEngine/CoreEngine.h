@@ -49,7 +49,8 @@ public:
 	GameObject*		Cylinder();
 	GameObject*		Helix();
 	GameObject*		Torus();
-	//#MyChanges
+	GameObject*		Plane(float width, int vertexPerWidth, float depth, int vertexPerDepth);
+
 	GameObject*		Terrain(float width, int vertexPerWidth, float depth, int vertexPerDepth);
 
 	Mesh*			CreateMesh(const char* filename);
@@ -57,12 +58,13 @@ public:
 	Material*       BasicMaterial();
 	Material*		DiffuseMaterial();
 	Material*		DiffuseNormalMaterial();
+	Material*		DiffuseFluidMaterial();
 
 	void createCameraCubemap(Camera* camera, const wchar_t* filePath);
 
 	Material*		CreateMaterial(LPCWSTR vertexShaderFile, LPCWSTR pixelShaderFile);
 
-	//#MyChanges
+
 	Material*		loadHeightMap(/*const char* filename*/);
 
 	DirectionalLight*	CreateDirectionalLight(XMFLOAT4& ambientColor, XMFLOAT4& diffuseColor, XMFLOAT3& direction);
