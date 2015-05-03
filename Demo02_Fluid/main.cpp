@@ -3,6 +3,26 @@
 
 #include <Windows.h>
 
+void renderCallback(GameObject& gameObject, double secondsElapsed)
+{
+	gameObject.material->time += 0.000001f;
+}
+
+void keyXCallback(GameObject& gameObject)
+{
+	gameObject.transform->RotatePitch(1.0f);
+}
+
+void keyYCallback(GameObject& gameObject)
+{
+	gameObject.transform->RotateYaw(1.0f);
+}
+
+void keyZCallback(GameObject& gameObject)
+{
+	gameObject.transform->RotateRoll(1.0f);
+}
+
 #pragma region Win32 Entry Point (WinMain)
 
 // Win32 Entry Point
@@ -12,8 +32,22 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 	CoreEngine * engine = new CoreEngine(hInstance, prevInstance, cmdLine, showCmd);
 	engine->Initialize();
 
-	GameObject* gameObject = engine->Sphere();
-	gameObject->material = engine->BasicMaterial();
+	GameObject* gameObject = engine->Plane(10.f, 10, 10.f, 10);
+	gameObject->transform->RotatePitch(-90.f);
+
+	Material* diffuseMaterial2 = engine->DiffuseFluidMaterial();
+	diffuseMaterial2->SetResource(L"Textures/water1.png", "diffuseTexture");
+	diffuseMaterial2->specularExponent = 128.f;
+
+	gameObject->material = diffuseMaterial2;
+	
+	DirectionalLight* directionalLight = engine->CreateDirectionalLight(DirectX::XMFLOAT4(0.2f, 0.2f, 0.2f, 1.0f), DirectX::XMFLOAT4(0.2f, 0.2f, 0.2f, 1.0f), DirectX::XMFLOAT3(1.f, -1.f, 1.f));
+
+	gameObject->behavior = engine->CreateBehavior();
+	gameObject->behavior->renderCallback = renderCallback;
+	gameObject->behavior->SetCallbackForKey(keyXCallback, KEYCODE_X);
+	gameObject->behavior->SetCallbackForKey(keyYCallback, KEYCODE_Y);
+	gameObject->behavior->SetCallbackForKey(keyZCallback, KEYCODE_Z);
 
 	// Loop until we get a quit message from the engine
 	while (!engine->exitRequested())
