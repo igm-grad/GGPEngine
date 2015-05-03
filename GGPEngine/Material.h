@@ -13,7 +13,8 @@
 class GPPEngineAPI Material
 {
 public:
-	float specularExponent;
+	float	specularExponent;
+	double	time;
 
 	void SetResource(const wchar_t* filename, const char* name);
 	void SetTextureCubeResource(const wchar_t* filename, const char* name);
