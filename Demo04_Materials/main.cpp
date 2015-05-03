@@ -21,12 +21,14 @@ void keyDownLeftCallback(GameObject& gameObject)
 
 void keyWCallback(GameObject& gameObject)
 {
-	gameObject.transform->MoveForward();
+	//gameObject.transform->MoveForward();
+	gameObject.material->specularExponent = 128.f;
 }
 
 void keySCallback(GameObject& gameObject)
 {
-	gameObject.transform->MoveBackward();
+	//gameObject.transform->MoveBackward();
+	gameObject.material->specularExponent = 32.f;
 }
 
 void keyACallback(GameObject& gameObject)
@@ -64,10 +66,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 
 	Material* diffuseMaterial = engine->DiffuseMaterial();
 	diffuseMaterial->SetResource(L"Textures/DiffuseTexture1.JPG", "diffuseTexture");
+	diffuseMaterial->specularExponent = 128.f;
 
 	Material* diffuseNormalMaterial = engine->DiffuseNormalMaterial();
 	diffuseNormalMaterial->SetResource(L"Textures/DiffuseTexture2.JPG", "diffuseTexture");
 	diffuseNormalMaterial->SetResource(L"Textures/NormalTexture2.JPG", "normalTexture");
+	diffuseNormalMaterial->specularExponent = 128.f;
 
 	mats = new Material*[MATERIAL_COUNT];
 	mats[0] = debugMaterial;

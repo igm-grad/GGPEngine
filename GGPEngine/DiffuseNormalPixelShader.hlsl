@@ -47,6 +47,7 @@ cbuffer			lights			: register (b0)
 	PointLight			pointLights[POINT_LIGHT_COUNT];
 	SpotLight			spotLights[SPOT_LIGHT_COUNT];
 	float3				eyePosition;
+	float				specularExponent;
 }
 
 
@@ -62,7 +63,7 @@ float4 specularColor(float3 eyePosition, float3 pixelPositionT, float3 pixelNorm
 	float3 pixelToEye = normalize(eyePosition - pixelPositionT);
 		float3 pixelReflection = normalize(reflect(directionToLight, pixelNormal));
 		float specularContribution = saturate(dot(pixelToEye, pixelReflection));
-	return float4(1.f, 1.f, 1.f, 1.0f) * pow(specularContribution, 32);
+	return float4(1.f, 1.f, 1.f, 1.0f) * pow(specularContribution, specularExponent);
 }
 
 float4 main(Pixel pixel) : SV_TARGET

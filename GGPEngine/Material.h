@@ -13,6 +13,8 @@
 class GPPEngineAPI Material
 {
 public:
+	float specularExponent;
+
 	void SetResource(const wchar_t* filename, const char* name);
 	void SetResource(ID3D11Resource* resource, const char* name);
 	void SetSampler(const char* name);								// TO DO: We only setting a basic sampler for a key... need to think this through
