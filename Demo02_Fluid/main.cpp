@@ -5,7 +5,7 @@
 
 void renderCallback(GameObject& gameObject, double secondsElapsed)
 {
-	gameObject.material->time += 0.000001f;
+	gameObject.material->time += 1.f;
 }
 
 void keyXCallback(GameObject& gameObject)
@@ -32,7 +32,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 	CoreEngine * engine = new CoreEngine(hInstance, prevInstance, cmdLine, showCmd);
 	engine->Initialize();
 
-	GameObject* gameObject = engine->Plane(10.f, 10, 10.f, 10);
+	GameObject* gameObject = engine->Plane(15.f, 50, 15.f, 50);
+	gameObject->transform->position.y = -2.f;
+	gameObject->transform->position.z = 2.5f;
 	gameObject->transform->RotatePitch(-90.f);
 
 	Material* diffuseMaterial2 = engine->DiffuseFluidMaterial();

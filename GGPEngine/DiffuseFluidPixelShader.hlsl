@@ -111,7 +111,7 @@ float4 main(Pixel pixel) : SV_TARGET
 		aColorAccumulator += spotLights[k].ambientColor;
 	}
 
-	pixel.uv += time;
+	pixel.uv += time * 0.00001f;
 
 	float4 textureColor = diffuseTexture.Sample(diffuseSampler, pixel.uv);
 		return (dColorAccumulator + aColorAccumulator) * textureColor;

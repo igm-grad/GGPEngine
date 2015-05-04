@@ -27,7 +27,8 @@ Pixel main(Vertex vertex)
 	matrix clip = mul(mul(world, view), projection);
 
 	Pixel pixel;
-	vertex.position += vertex.normal * sin(time * 100000.0);
+	float wave = vertex.uv.y * (time * 0.0002f); // frequency
+	vertex.position += (vertex.normal * sin(wave)) * 0.25f; // Amplitude
 	pixel.position = mul(float4(vertex.position, 1.0f), clip);
 	pixel.normal = mul(vertex.normal, (float3x3)world);
 	pixel.positionT = mul(float4(vertex.position, 1.0f), world).xyz;
