@@ -17,11 +17,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 	gameObject1->transform->position = XMFLOAT3(0.0f, 0.0f, 10.0f);
 	gameObject1->transform->movementSpeed = 0.001f;
 	gameObject1->transform->scale = XMFLOAT3(5.0f, 5.0f, 5.0f);
+	engine->CreateSphereCollider(gameObject1);
 
 	GameObject* gameObject2 = engine->Sphere();
 	gameObject2->material = engine->BasicMaterial();
 	gameObject2->transform->position = XMFLOAT3(0.3f, 0.0f, 0.0f);
-	gameObject1->transform->movementSpeed = 0.001f;
+	gameObject2->transform->movementSpeed = 0.001f;
+	engine->CreateSphereCollider(gameObject2);
 
 	//Set a .html file ad overlayer UI
 	engine->InitializeUI("file:///./UI/main.html");

@@ -553,7 +553,7 @@ GameObject** RenderEngine::CullGameObjectsFromCamera(Camera* camera, GameObject*
 		}
 	}
 
-	// sort Render list. For now std::sort to get quick results.
+	// sort Render list. For now counting to get quick results.
 	RenderList = sortList(RenderList, renderlistCount, renderDistFromCamera);
 
 	// return the list which needs to be drawn
@@ -567,7 +567,7 @@ GameObject** RenderEngine::CullGameObjectsFromCamera(Camera* camera, GameObject*
 
 GameObject** RenderEngine::sortList(GameObject** RenderList, int renderlistCount, float* renderDistFromCamera)
 {
-	// for now using quick sort (integer only). Will implement radix sort with floating point later.
+	// for now using counting sort (integer only). Will implement radix sort with floating point later.
 	GameObject** sortedList = new GameObject*[renderlistCount];
 
 	// max possible dist value 100^2 = 10000

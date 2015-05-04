@@ -9,16 +9,17 @@ SphereCollider::~SphereCollider()
 {
 }
 
-void SphereCollider::init(const GameObject& gameObject)
+void SphereCollider::init(GameObject* gameObject)
 {
-	position = gameObject.transform->position;
-	scale = gameObject.transform->scale;
+	this->gameObject = gameObject;
+	position = gameObject->transform->position;
+	scale = gameObject->transform->scale;
 	radius = 1.0f; // for now
 }
 
-void SphereCollider::update(const GameObject& gameObject)
+void SphereCollider::update()
 {
-	position = gameObject.transform->position;
+	position = gameObject->transform->position;
 }
 
 float SphereCollider::findMax(XMFLOAT3 gameObjectScale)
@@ -28,11 +29,11 @@ float SphereCollider::findMax(XMFLOAT3 gameObjectScale)
 	return max;
 }
 
-bool SphereCollider::checkCollisions(SphereCollider* gameObjectA, SphereCollider* gameObjectB)
+bool SphereCollider::checkCollisions(Collider* gameObjectCollider)
 {
 	// store in XMVECTOR
-	XMVECTOR GameObjectAPosition = XMLoadFloat3(&gameObjectA->position);
-	XMVECTOR GameObjectBPosition = XMLoadFloat3(&gameObjectB->position);
+	XMVECTOR GameObjectAPosition = XMLoadFloat3(&position);
+	XMVECTOR GameObjectBPosition = XMLoadFloat3(&gameObjectCollider->position);
 
 	// find distance between GameObject1 and GameObject2
 	XMVECTOR Displacement = GameObjectBPosition - GameObjectAPosition;
@@ -43,11 +44,11 @@ bool SphereCollider::checkCollisions(SphereCollider* gameObjectA, SphereCollider
 	float displacementMag = displacement.x * displacement.x + displacement.y * displacement.y + displacement.z * displacement.z;
 
 	// find largest of the scales in x, y, z
-	float maxScaleA = findMax(gameObjectA->scale);
-	float maxScaleB = findMax(gameObjectB->scale);
+	float maxScaleA = findMax(scale);
+	float maxScaleB = findMax(gameObjectCollider->scale);
 
 	// add the radius' of objects to compare with distance magnitude
-	float radiusAB = gameObjectA->radius * maxScaleA + gameObjectB->radius * maxScaleB;
+	float radiusAB = radius * maxScaleA + gameObjectCollider->radius * maxScaleB;
 
 	if (radiusAB > displacementMag)
 		return true;

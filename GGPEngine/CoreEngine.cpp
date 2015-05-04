@@ -1,5 +1,7 @@
 #include "CoreEngine.h"
 
+#include <iostream>
+
 #pragma region Global Window Callback
 namespace
 {
@@ -111,6 +113,23 @@ void CoreEngine::Update()
 				}
 			}
 
+			// ugly collider stuff
+			for (int i = 0; i < colliders.size(); ++i)
+			{
+				colliders[i]->update();
+
+				for (int j = 0; j < colliders.size(); ++j)
+				{
+					if (i == j)
+						continue;
+					bool collided = false;
+					collided = colliders[i]->checkCollisions(colliders[j]);
+					// temp check
+					if (collided)
+						OutputDebugStringW(L"collided");
+				}
+			}
+
 			// Standard game loop type stuff
 			physics->Update(timer.TotalTime());
 
@@ -147,9 +166,21 @@ GameObject* CoreEngine::CreateGameObject(const char* filename)
 	return obj;
 }
 
-Collider* CoreEngine::createCollider(std::string colliderType)
+Collider* CoreEngine::CreateCollider(std::string colliderType, GameObject* gameObject)
 {
+	if (colliderType.compare("SphereCollider") == 0)
+	{
+		SphereCollider* tempCollider = new SphereCollider();
+		tempCollider->init(gameObject);
+		colliders.push_back(tempCollider);
+		return tempCollider;
+	}
+	return nullptr;
+}
 
+Collider* CoreEngine::CreateSphereCollider(GameObject* gameObject)
+{
+	return CreateCollider("SphereCollider", gameObject);
 }
 
 GameObject*	CoreEngine::Sphere()

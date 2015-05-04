@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Collider.h"
-#include "GameObject.h"
+
 
 class SphereCollider : public Collider
 {
@@ -10,15 +10,15 @@ public:
 	~SphereCollider();
 
 	// init sphere collider
-	void init(const GameObject& gameObject);
+	void init(GameObject* gameObject) override;
 
 	// update position of collider
-	void update(const GameObject& gameObject);
+	void update() override;
 
 	// check sphere/sphere collisions
-	bool checkCollisions(SphereCollider* gameObjectA, SphereCollider* gameObjectB);
+	virtual bool checkCollisions(Collider* gameObjectCollider) override;
 
-	std::string ColliderType() { return colliderType; }
+	std::string ColliderType() override { return colliderType; }
 
 	float findMax(XMFLOAT3 gameObjectScale);
 
