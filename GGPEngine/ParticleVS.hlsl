@@ -1,7 +1,7 @@
-float4 main( float4 pos : POSITION ) : SV_POSITION
+/*float4 main( float4 pos : POSITION ) : SV_POSITION
 {
 	return pos;
-}
+}*/
 
 // Credit:
 // http://www.rastertek.com/dx11tut39.html
@@ -45,7 +45,7 @@ struct PixelInputType
 ////////////////////////////////////////////////////////////////////////////////
 // Vertex Shader
 ////////////////////////////////////////////////////////////////////////////////
-PixelInputType ParticleVertexShader(VertexInputType input)
+PixelInputType main(VertexInputType input)
 {
 	PixelInputType output;
 
@@ -58,8 +58,8 @@ PixelInputType ParticleVertexShader(VertexInputType input)
 	// Store the texture coordinates for the pixel shader.
 	output.tex = float2(0,0);
 
-		// Store the particle color for the pixel shader. 
-		output.color = float4(1,0,0,1);
+	// Store the particle color for the pixel shader. 
+	output.color = float4(1,0,0,1);
 
 	return output;
 }

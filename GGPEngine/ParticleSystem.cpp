@@ -118,7 +118,7 @@ void ParticleSystem::Update(float dt, float gameTime)
 	for (i = 0; i < particles.size(); i++)
 	{
 	//	particles[i].age += dt;
-		particles[i].position.y = particles[i].position.y - (0.1f);
+		particles[i].position.y = particles[i].position.y - (0.0001f);
 	}
 
 	UpdateBuffers(e->deviceContext);
@@ -129,7 +129,7 @@ bool ParticleSystem::InitializeBuffers(ID3D11Device* device)
 	for (int i = 0; i < 1; i++)
 	{
 		particles.push_back(Transform());
-		particles[i].position = { 500, 0, 0 };
+		particles[i].position = { 1, 0, 0 };
 		//particles[i].size = { 1.0f, 1.0f, 1.0f };
 		//particles[i].color = { 1.0f, 0, 0, 1.0f };
 		//particles[i].age = 0;
