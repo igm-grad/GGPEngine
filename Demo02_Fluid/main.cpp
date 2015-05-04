@@ -38,12 +38,16 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 	gameObject->transform->RotatePitch(-90.f);
 
 	Material* diffuseMaterial2 = engine->DiffuseFluidMaterial();
-	diffuseMaterial2->SetResource(L"Textures/water1.png", "diffuseTexture");
+	diffuseMaterial2->SetResource(L"Textures/DiffuseWater1.jpg", "diffuseTexture");
+	diffuseMaterial2->SetResource(L"Textures/NormalWater1.jpg", "normalTexture");
+
 	diffuseMaterial2->specularExponent = 128.f;
 
 	gameObject->material = diffuseMaterial2;
 	
-	DirectionalLight* directionalLight = engine->CreateDirectionalLight(DirectX::XMFLOAT4(0.2f, 0.2f, 0.2f, 1.0f), DirectX::XMFLOAT4(0.2f, 0.2f, 0.2f, 1.0f), DirectX::XMFLOAT3(1.f, -1.f, 1.f));
+	//DirectionalLight* directionalLight = engine->CreateDirectionalLight(DirectX::XMFLOAT4(0.2f, 0.2f, 0.2f, 1.0f), DirectX::XMFLOAT4(0.2f, 0.2f, 0.2f, 1.0f), DirectX::XMFLOAT3(0.f, -1.f, 1.f));
+	//PointLight *pointLight = engine->CreatePointLight(DirectX::XMFLOAT4(0.1f, 0.1f, 0.1f, 1.0f), DirectX::XMFLOAT4(0.2f, 0.2f, 0.2f, 1.0f), DirectX::XMFLOAT3(0.f, 5.f, 5.f), 15.0f);
+	SpotLight* spotLight = engine->CreateSpotLight(DirectX::XMFLOAT4(0.2f, 0.2f, 0.2f, 1.0f), DirectX::XMFLOAT4(0.2f, 0.2f, 0.2f, 1.0f), DirectX::XMFLOAT3(0.0, -1.0f, 0.0), DirectX::XMFLOAT3(0.0f, 5.0f, 0.0f), 30.0f, 20.f);
 
 	gameObject->behavior = engine->CreateBehavior();
 	gameObject->behavior->renderCallback = renderCallback;

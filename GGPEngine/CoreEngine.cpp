@@ -239,7 +239,7 @@ Material* CoreEngine::DiffuseNormalMaterial()
 Material* CoreEngine::DiffuseFluidMaterial()
 {
 	Material* diffuseMaterial = CreateMaterial(L"DiffuseFluidVertexShader.cso", L"DiffuseFluidPixelShader.cso");
-	diffuseMaterial->SetSampler("diffuseSampler");
+	diffuseMaterial->SetSampler("omniSampler");
 	return diffuseMaterial;
 }
 

@@ -11,6 +11,8 @@ struct Pixel
 	float4 position	: SV_POSITION;
 	float3 normal	: NORMAL;
 	float3 positionT: POSITIONT;
+	float3 tangent	: TANGENT;
+	float3 bitangent: BINORMAL;
 	float2 uv		: TEXCOORD;
 };
 
@@ -26,12 +28,15 @@ Pixel main(Vertex vertex)
 {
 	matrix clip = mul(mul(world, view), projection);
 
+	float wave = vertex.uv.y * (time * 0.0005f); // frequency
+	vertex.position += (vertex.normal * sin(wave)) * 0.1f; // Amplitude
+
 	Pixel pixel;
-	float wave = vertex.uv.y * (time * 0.0002f); // frequency
-	vertex.position += (vertex.normal * sin(wave)) * 0.25f; // Amplitude
 	pixel.position = mul(float4(vertex.position, 1.0f), clip);
 	pixel.normal = mul(vertex.normal, (float3x3)world);
 	pixel.positionT = mul(float4(vertex.position, 1.0f), world).xyz;
+	pixel.tangent = vertex.tangent.xyz;
+	pixel.bitangent = cross(vertex.normal, vertex.tangent.xyz) * vertex.tangent.w;
 	pixel.uv = vertex.uv;
 
 	return pixel;
