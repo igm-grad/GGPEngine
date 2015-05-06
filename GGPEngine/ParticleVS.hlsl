@@ -1,8 +1,3 @@
-/*float4 main( float4 pos : POSITION ) : SV_POSITION
-{
-	return pos;
-}*/
-
 // Credit:
 // http://www.rastertek.com/dx11tut39.html
 

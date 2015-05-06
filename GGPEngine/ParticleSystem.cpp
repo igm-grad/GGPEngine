@@ -16,7 +16,7 @@ ParticleSystem::ParticleSystem(RenderEngine* renderer) : mTexArraySRV(0), mRando
 	mTimeStep = 0.0f;
 	mAge = 0.0f;
 
-	mMaxParticles = 1;
+	mMaxParticles = 500;
 
 	mEyePosW = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	mEmitPosW = XMFLOAT3(0.0f, 0.0f, 0.0f);
@@ -113,6 +113,8 @@ void ParticleSystem::Update(float dt, float gameTime)
 
 	mAge += dt;
 
+	EmitParticles(dt);
+
 	// Each frame we update all the particles by making them move downwards using their position, velocity, and the frame time.
 	int i;
 	for (i = 0; i < particles.size(); i++)
@@ -126,10 +128,10 @@ void ParticleSystem::Update(float dt, float gameTime)
 
 bool ParticleSystem::InitializeBuffers(ID3D11Device* device)
 {
-	for (int i = 0; i < 1; i++)
+	for (int i = 0; i < 5; i++)
 	{
 		particles.push_back(Transform());
-		particles[i].position = { 1, 0, 0 };
+		particles[i].position = { 3.0f, 0, 0 };
 		//particles[i].size = { 1.0f, 1.0f, 1.0f };
 		//particles[i].color = { 1.0f, 0, 0, 1.0f };
 		//particles[i].age = 0;

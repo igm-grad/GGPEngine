@@ -1,8 +1,3 @@
-float4 main() : SV_TARGET
-{
-	return float4(1.0f, 1.0f, 1.0f, 1.0f);
-}
-
 // Credit:
 // http://www.rastertek.com/dx11tut39.html
 
@@ -26,7 +21,7 @@ struct PixelInputType
 //
 // Pixel Shader
 //
-float4 ParticlePixelShader(PixelInputType input) : SV_TARGET
+float4 main(PixelInputType input) : SV_TARGET
 {
 	float4 textureColor;
 	float4 finalColor;
