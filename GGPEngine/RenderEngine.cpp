@@ -367,7 +367,8 @@ void RenderEngine::DrawParticleSystems(ParticleSystem** particleSystems, int par
 		particleSystems[i]->simplePS->SetShader();
 	
 		// Render the triangle.
-		deviceContext->DrawIndexed(particleSystems[i]->particles.size(), 0, 0);
+		deviceContext->Draw(particleSystems[i]->particles.size(), 0);
+		//deviceContext->DrawIndexed(particleSystems[i]->particles.size(), 0, 0);
 	}
 }
 

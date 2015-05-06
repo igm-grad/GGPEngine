@@ -138,7 +138,8 @@ bool ParticleSystem::InitializeBuffers(ID3D11Device* device)
 		//particles[i].velocity = { 0, 3.0f, 0 };
 	}
 
-	unsigned long indices[] = {0};
+	unsigned long indices[] = { 0 };
+	//unsigned long* indices = new unsigned long[mMaxParticles];
 	D3D11_BUFFER_DESC vertexBufferDesc, indexBufferDesc;
 	D3D11_SUBRESOURCE_DATA vertexData, indexData;
 	HRESULT result;
@@ -221,41 +222,6 @@ void ParticleSystem::UpdateBuffers(ID3D11DeviceContext* deviceContext)
 	deviceContext->Unmap(mVertexBuffer, 0);
 }
 
-#pragma region Incomplete or Old Methods
-bool ParticleSystem::LoadTexture(ID3D11Device* device, WCHAR* filename)
-{
-	/*bool result;
-
-	// Create the texture object.
-	mTexArraySRV = new TextureClass;
-	if (!m_Texture)
-	{
-	return false;
-	}
-
-	// Initialize the texture object.
-	result = m_Texture->Initialize(device, filename);
-	if (!result)
-	{
-	return false;
-	}*/
-
-	return true;
-}
-
-void ParticleSystem::ReleaseTexture()
-{
-	/*// Release the texture object.
-	if (mTexArraySRV)
-	{
-	m_Texture->Shutdown();
-	delete m_Texture;
-	m_Texture = 0;
-	}*/
-
-	return;
-}
-
 void ParticleSystem::EmitParticles(float dt)
 {
 	bool emitParticle;
@@ -280,9 +246,12 @@ void ParticleSystem::EmitParticles(float dt)
 		//m_currentParticleCount++;
 
 		// Now generate the randomized particle properties.
-		positionX = (((float)rand() - (float)rand()) / RAND_MAX) * m_particleDeviationX;
-		positionY = (((float)rand() - (float)rand()) / RAND_MAX) * m_particleDeviationY;
-		positionZ = (((float)rand() - (float)rand()) / RAND_MAX) * m_particleDeviationZ;
+		positionX = (((float)rand() - (float)rand()) / RAND_MAX) * 5.0f;
+		positionY = (((float)rand() - (float)rand()) / RAND_MAX) * 5.0f;
+		positionZ = (((float)rand() - (float)rand()) / RAND_MAX) * 5.0f;
+		//positionX = (((float)rand() - (float)rand()) / RAND_MAX) * m_particleDeviationX;
+		//positionY = (((float)rand() - (float)rand()) / RAND_MAX) * m_particleDeviationY;
+		//positionZ = (((float)rand() - (float)rand()) / RAND_MAX) * m_particleDeviationZ;
 
 		velocity = m_particleVelocity + (((float)rand() - (float)rand()) / RAND_MAX) * m_particleVelocityVariation;
 
@@ -323,6 +292,42 @@ void ParticleSystem::EmitParticles(float dt)
 		//particles[newEnd].active = true;
 	}
 }
+
+#pragma region Incomplete or Old Methods
+bool ParticleSystem::LoadTexture(ID3D11Device* device, WCHAR* filename)
+{
+	/*bool result;
+
+	// Create the texture object.
+	mTexArraySRV = new TextureClass;
+	if (!m_Texture)
+	{
+	return false;
+	}
+
+	// Initialize the texture object.
+	result = m_Texture->Initialize(device, filename);
+	if (!result)
+	{
+	return false;
+	}*/
+
+	return true;
+}
+
+void ParticleSystem::ReleaseTexture()
+{
+	/*// Release the texture object.
+	if (mTexArraySRV)
+	{
+	m_Texture->Shutdown();
+	delete m_Texture;
+	m_Texture = 0;
+	}*/
+
+	return;
+}
+
 
 void ParticleSystem::UpdateParticles(float dt)
 {
