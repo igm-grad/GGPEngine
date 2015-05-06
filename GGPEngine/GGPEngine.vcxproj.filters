@@ -160,10 +160,10 @@
     <FxCompile Include="DebugPixelShader.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="TerrainlVertexShader.hlsl">
+    <FxCompile Include="TerrainPixelShader.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="TerrainPixelShader.hlsl">
+    <FxCompile Include="TerrainVertexShader.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
   </ItemGroup>

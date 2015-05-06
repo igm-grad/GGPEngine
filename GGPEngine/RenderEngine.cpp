@@ -342,18 +342,21 @@ Mesh* RenderEngine::CreatePlaneMesh(float width, int vertexPerWidth, float depth
 			// #1
 			CurVertex.Position			= XMFLOAT3(i*widthStep - planeWidthDesloc,			0,	k*depthStep - planeDepthDesloc);
 			CurVertex.Normal			= XMFLOAT3(0, 1, 0);
+			CurVertex.UV = XMFLOAT2((float)(i / vertexPerWidth - 1), (float)(k / vertexPerDepth - 1));
 			verts.push_back(CurVertex);
 			indices.push_back(IndicesIndex++);
 				
 			// #2
 			CurVertex.Position			= XMFLOAT3(i*widthStep - planeWidthDesloc,			0,	(k + 1)*depthStep - planeDepthDesloc);
 			CurVertex.Normal			= XMFLOAT3(0, 1, 0);
+			CurVertex.UV = XMFLOAT2((float)(i / vertexPerWidth - 1), (float)((k + 1) / vertexPerDepth - 1));
 			verts.push_back(CurVertex);
 			indices.push_back(IndicesIndex++);
 
 			// #3
 			CurVertex.Position			= XMFLOAT3((i + 1)*widthStep - planeWidthDesloc,	0,	k*depthStep - planeDepthDesloc);
 			CurVertex.Normal			= XMFLOAT3(0, 1, 0);
+			CurVertex.UV = XMFLOAT2((float)((i + 1) / vertexPerWidth - 1), (float)(k / vertexPerDepth - 1));
 			verts.push_back(CurVertex);
 			indices.push_back(IndicesIndex++);
 
@@ -361,18 +364,21 @@ Mesh* RenderEngine::CreatePlaneMesh(float width, int vertexPerWidth, float depth
 			// #1
 			CurVertex.Position			= XMFLOAT3((i+1)*widthStep - planeWidthDesloc,		0,	k*depthStep - planeDepthDesloc);
 			CurVertex.Normal			= XMFLOAT3(0, 1, 0);
+			CurVertex.UV = XMFLOAT2((float)((i + 1) / vertexPerWidth - 1), (float)(k / vertexPerDepth - 1));
 			verts.push_back(CurVertex);
 			indices.push_back(IndicesIndex++);
 
 			// #2
 			CurVertex.Position			= XMFLOAT3(i*widthStep - planeWidthDesloc,			0,	(k + 1)*depthStep - planeDepthDesloc);
 			CurVertex.Normal			= XMFLOAT3(0, 1, 0);
+			CurVertex.UV = XMFLOAT2((float)(i / vertexPerWidth - 1), (float)((k + 1) / vertexPerDepth - 1));
 			verts.push_back(CurVertex);
 			indices.push_back(IndicesIndex++);
 
 			// #3
 			CurVertex.Position			= XMFLOAT3((i + 1)*widthStep - planeWidthDesloc,	0,	(k + 1)*depthStep - (planeDepthDesloc));
 			CurVertex.Normal			= XMFLOAT3(0, 1, 0);
+			CurVertex.UV = XMFLOAT2((float)((i + 1) / vertexPerWidth - 1), (float)((k + 1) / vertexPerDepth - 1));
 			verts.push_back(CurVertex);
 			indices.push_back(IndicesIndex++);				
 		}

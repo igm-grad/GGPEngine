@@ -41,6 +41,7 @@ struct Pixel
 SamplerState	omniSampler		: register(s0);
 Texture2D		diffuseTexture	: register(t0);
 Texture2D		normalTexture	: register(t1);
+Texture1D		heightMap		: register(t2);
 
 cbuffer			lights			: register (b0)
 {
@@ -109,6 +110,7 @@ float4 main(Pixel pixel) : SV_TARGET
 		colorAccumulator += ((contribution * spotLights[k].diffuseColor) + spotLights[k].ambientColor) * saturate(totalAttenuation);
 	}
 
-	float4 textureColor = diffuseTexture.Sample(omniSampler, pixel.uv);
+	//float4 textureColor = diffuseTexture.Sample(omniSampler, pixel.uv);
+	float4 textureColor = heightMap.Sample(omniSampler, pixel.uv);
 	return colorAccumulator * textureColor;
 }

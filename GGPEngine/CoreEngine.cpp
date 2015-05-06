@@ -229,7 +229,8 @@ Material* CoreEngine::CreateMaterial(LPCWSTR vertexShaderFile, LPCWSTR pixelShad
 	return renderer->CreateMaterial(vertexShaderFile, pixelShaderFile);
 }
 
-//#MyChanges
+
+
 Material* CoreEngine::loadHeightMap(/*const char* filename*/)
 {
 	//Implement loading the HeightMap File here.

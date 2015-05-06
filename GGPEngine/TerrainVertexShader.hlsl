@@ -24,7 +24,7 @@ cbuffer transform : register(b0)
 }
 
 Pixel main(Vertex vertex)
-{
+{	
 	matrix clip = mul(mul(world, view), projection);
 
 	Pixel pixel;

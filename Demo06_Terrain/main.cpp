@@ -13,10 +13,23 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 	engine->Initialize();
 
 	// Creates Plane Object:
-	GameObject* gameObject = engine->Terrain(7.0f,10,10.0f,5);
+	GameObject* gameObject = engine->Terrain(10, 512, 10, 512);
+	//gameObject->material = engine->BasicMaterial();
+
+	
+	SpotLight* SptLght = engine->CreateSpotLight(XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f),	// Color
+		XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f), // Difuse Coloer
+		XMFLOAT3(0.0f, -1.0f, 0.0f), // Direction
+		XMFLOAT3(0.0f, 10.0f, 0.0f), // Position
+		50.0f, // Angle
+		30.0f); // Range
+
+
 	gameObject->material = engine->loadHeightMap();
-	gameObject->material->SetResource(L"Textures/DiffuseTexture2.JPG", "diffuseTexture");
-	gameObject->material->SetResource(L"Textures/NormalTexture2.JPG", "normalTexture");
+	gameObject->material->SetResource(L"Textures/DiffuseTexture2.jpg", "diffuseTexture");
+	gameObject->material->SetResource(L"Textures/NormalTexture2.jpg", "normalTexture");
+	
+	gameObject->material->SetResource(L"Textures/HeightMap.png", "heightMap");
 
 	// Positions plane in center
 	gameObject->transform->position = XMFLOAT3(0.0f, 0.0f, 0.0f);
