@@ -65,6 +65,7 @@ protected:
 	SpotLight*								CreateSpotLight();
 
 	Camera*									CreateCamera();
+	Camera*									getDefaultCamera();
 	void									setCameraCubeMap(Camera* camera, const wchar_t* filename);
 
 	GameObject**							CullGameObjectsFromCamera(Camera* camera, GameObject** list, int listCount);

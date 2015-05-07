@@ -65,10 +65,14 @@ bool RenderEngine::Initialize()
 	if (!InitDirect3D()) {
 		return false;
 	}
-
-	//set the default camera's skybox
-	//setCameraCubeMap(defaultCamera, L"Textures\\Skybox.dds");
 }
+
+
+Camera*	RenderEngine::getDefaultCamera()
+{
+	return	defaultCamera;
+}
+
 
 #pragma region Window Resizing Public
 
