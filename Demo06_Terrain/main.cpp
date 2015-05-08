@@ -13,9 +13,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 	engine->Initialize();
 
 	// Creates Plane Object:
-	GameObject* gameObject = engine->Terrain(10, 512, 10, 512);
-	//gameObject->material = engine->BasicMaterial();
-
+	GameObject* gameObject = engine->Terrain(10, 256, 10, 256);
 	
 	SpotLight* SptLght = engine->CreateSpotLight(XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f),	// Color
 		XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f), // Difuse Coloer
@@ -25,11 +23,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 		30.0f); // Range
 
 	
-	gameObject->material = engine->loadHeightMap();
+	gameObject->material = engine->loadHeightMap(L"Textures/HorseHM.png");
 	gameObject->material->SetResource(L"Textures/DiffuseTexture2.jpg", "diffuseTexture");
-	//gameObject->material->SetResource(L"Textures/NormalTexture2.jpg", "normalTexture");
-	
-	gameObject->material->SetResource(L"Textures/HeightMap.png", "heightMap");
+	gameObject->material->SetResource(L"Textures/NormalTexture2.jpg", "normalTexture");
 	
 	// Positions plane in center
 	gameObject->transform->position = XMFLOAT3(0.0f, 0.0f, 0.0f);

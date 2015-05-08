@@ -229,13 +229,14 @@ Material* CoreEngine::CreateMaterial(LPCWSTR vertexShaderFile, LPCWSTR pixelShad
 	return renderer->CreateMaterial(vertexShaderFile, pixelShaderFile);
 }
 
-Material* CoreEngine::loadHeightMap(/*const char* filename*/)
+Material* CoreEngine::loadHeightMap(const wchar_t* filename)
 {
 	//Implement loading the HeightMap File here.
 	Material* HeightMap = nullptr;
 
 	HeightMap = CreateMaterial(L"TerrainVertexShader.cso", L"TerrainPixelShader.cso");
 	HeightMap->SetSampler("omniSampler");
+	HeightMap->SetResource(filename, "heightMap");
 	return HeightMap;
 }
 
