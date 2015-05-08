@@ -339,7 +339,6 @@ void RenderEngine::DrawParticleSystems(ParticleSystem** particleSystems, int par
 	blendFactor[2] = 0.0f;
 	blendFactor[3] = 0.0f;
 
-
 	deviceContext->OMSetBlendState(blendState, blendFactor, 0xffffffff);
 
 	// Set the type of primitive that should be rendered from this vertex buffer.

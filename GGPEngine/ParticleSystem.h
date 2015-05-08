@@ -39,7 +39,7 @@ public:
 	ID3D11Buffer* mIndexBuffer;
 	SimpleVertexShader* simpleVS;
 	SimplePixelShader* simplePS;
-	std::vector<Transform> particles;
+	std::vector<ParticleVertex> particles;
 
 	float GetAge()const;
 

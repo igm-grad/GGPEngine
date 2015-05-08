@@ -43,6 +43,12 @@ ParticleSystem::~ParticleSystem()
 	ReleaseTexture();
 }
 
+void ParticleSystem::Reset()
+{
+	mFirstRun = true;
+	mAge = 0.0f;
+}
+
 float ParticleSystem::GetAge()const
 {
 	return mAge;
@@ -100,45 +106,50 @@ void ParticleSystem::Init(ID3D11Device* device, /*ParticleEffect* fx,*/ ID3D11Sh
 	//BuildVB(device);
 }
 
-void ParticleSystem::Reset()
-{
-	mFirstRun = true;
-	mAge = 0.0f;
-}
-
-void ParticleSystem::Update(float dt, float gameTime)
-{
-	mGameTime = gameTime;
-	mTimeStep = dt;
-
-	mAge += dt;
-
-	EmitParticles(dt);
-
-	// Each frame we update all the particles by making them move downwards using their position, velocity, and the frame time.
-	int i;
-	for (i = 0; i < particles.size(); i++)
-	{
-	//	particles[i].age += dt;
-		particles[i].position.y = particles[i].position.y - (0.0001f);
-	}
-
-	UpdateBuffers(e->deviceContext);
-}
-
 bool ParticleSystem::InitializeBuffers(ID3D11Device* device)
 {
-	for (int i = 0; i < 5; i++)
+	float velX, velY, velZ;
+	
+	for (int i = 0; i < 1; i++)
 	{
-		particles.push_back(Transform());
-		particles[i].position = { 3.0f, 0, 0 };
-		//particles[i].size = { 1.0f, 1.0f, 1.0f };
-		//particles[i].color = { 1.0f, 0, 0, 1.0f };
-		//particles[i].age = 0;
-		//particles[i].velocity = { 0, 3.0f, 0 };
+		particles.push_back(ParticleVertex());
+		particles[i].position = { 0, 0, 0 };
+
+		velX = 0;
+		velY = 0;
+		velZ = 0;
+
+		particles[i].size = { 1.0f, 1.0f, 1.0f };
+		particles[i].color = { 1.0f, 1.0f, 1.0f, 1.0f };
+		particles[i].velocity = { velX, velY, velZ };
 	}
 
-	unsigned long indices[] = { 0 };
+	for (int i = 0; i < 5; i++)
+	{
+		particles.push_back(ParticleVertex());
+		float spare = 0.25f * i;
+		particles[i + 1].position = { spare, 1.0f, 0 };
+
+		//velX = (((float)rand() - (float)rand()) / RAND_MAX) * 10.0f;
+		//velY = (((float)rand() - (float)rand()) / RAND_MAX) * 10.0f;
+		//velZ = (((float)rand() - (float)rand()) / RAND_MAX) * 10.0f;
+		velX = 0;
+		velY = 0;
+		velZ = 0;
+
+		particles[i + 1].size = { 1.0f, 1.0f, 1.0f };
+		particles[i + 1].color = { 1.0f, 0.0f, 1.0f, 1.0f };
+		//particles[i].age = 1;
+		particles[i + 1].velocity = { velX, velY, velZ };
+	}
+
+	#pragma region Buffer Setup
+	unsigned long indices[] = {
+		0, 0, 0, 0, 0,
+		0, 0, 0, 0, 0,
+		0, 0, 0, 0, 0,
+		0, 0, 0, 0, 0,
+		0, 0, 0, 0, 0, };
 	//unsigned long* indices = new unsigned long[mMaxParticles];
 	D3D11_BUFFER_DESC vertexBufferDesc, indexBufferDesc;
 	D3D11_SUBRESOURCE_DATA vertexData, indexData;
@@ -146,7 +157,7 @@ bool ParticleSystem::InitializeBuffers(ID3D11Device* device)
 
 	// Set up the description of the dynamic vertex buffer.
 	vertexBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-	vertexBufferDesc.ByteWidth = sizeof(Transform) * mMaxParticles;
+	vertexBufferDesc.ByteWidth = sizeof(ParticleVertex) * mMaxParticles;
 	vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 	vertexBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 	vertexBufferDesc.MiscFlags = 0;
@@ -166,7 +177,7 @@ bool ParticleSystem::InitializeBuffers(ID3D11Device* device)
 
 	// Set up the description of the static index buffer.
 	indexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-	indexBufferDesc.ByteWidth = sizeof(unsigned long) * particles.size();
+	indexBufferDesc.ByteWidth = sizeof(unsigned long) * mMaxParticles;
 	indexBufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
 	indexBufferDesc.CPUAccessFlags = 0;
 	indexBufferDesc.MiscFlags = 0;
@@ -187,8 +198,34 @@ bool ParticleSystem::InitializeBuffers(ID3D11Device* device)
 	// Release the index array since it is no longer needed.
 	//delete[] indices;
 	//indices = 0;
-	
+
 	return true;
+
+	#pragma endregion
+}
+
+void ParticleSystem::Update(float dt, float gameTime)
+{
+	mGameTime = gameTime;
+	mTimeStep = dt;
+
+	mAge += dt;
+
+	//EmitParticles(dt);
+
+	// Each frame we update all the particles by making them move downwards using their position, velocity, and the frame time.
+	int i;
+	for (i = 0; i < particles.size(); i++)
+	{
+		//particles[i].age += dt;
+		//particles[i].position.y = particles[i].position.y - (0.0001f);
+/*
+		particles[i].position.x = particles[i].position.x + particles[i].velocity.x * dt/1000;
+		particles[i].position.y = particles[i].position.y + particles[i].velocity.y * dt / 1000;
+		particles[i].position.z = particles[i].position.z + particles[i].velocity.z * dt / 1000;*/
+	}
+
+	UpdateBuffers(e->deviceContext);
 }
 
 void ParticleSystem::UpdateBuffers(ID3D11DeviceContext* deviceContext)
@@ -196,7 +233,7 @@ void ParticleSystem::UpdateBuffers(ID3D11DeviceContext* deviceContext)
 	int index;
 	HRESULT result;
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
-	Transform* verticesPtr;
+	ParticleVertex* verticesPtr;
 
 
 	// Initialize vertex array to zeros at first.
@@ -213,10 +250,10 @@ void ParticleSystem::UpdateBuffers(ID3D11DeviceContext* deviceContext)
 	}
 
 	// Get a pointer to the data in the vertex buffer.
-	verticesPtr = (Transform*)mappedResource.pData;
+	verticesPtr = (ParticleVertex*)mappedResource.pData;
 
 	// Copy the data into the vertex buffer.
-	memcpy(verticesPtr, &particles[0], (sizeof(Transform) * particles.size()));
+	memcpy(verticesPtr, &particles[0], (sizeof(ParticleVertex) * particles.size()));
 
 	// Unlock the vertex buffer.
 	deviceContext->Unmap(mVertexBuffer, 0);
@@ -237,7 +274,15 @@ void ParticleSystem::EmitParticles(float dt)
 	//if (m_accumulatedTime > (1000.0f / m_particlesPerSecond))
 	//{
 	//m_accumulatedTime = 0.0f;
-	emitParticle = true;
+	
+	if (particles.size() < mMaxParticles)
+	{
+		emitParticle = true;
+	}
+	else
+	{
+		emitParticle = false;
+	}
 	//}
 
 	// If there are particles to emit then emit one per frame.
@@ -246,18 +291,18 @@ void ParticleSystem::EmitParticles(float dt)
 		//m_currentParticleCount++;
 
 		// Now generate the randomized particle properties.
-		positionX = (((float)rand() - (float)rand()) / RAND_MAX) * 5.0f;
-		positionY = (((float)rand() - (float)rand()) / RAND_MAX) * 5.0f;
-		positionZ = (((float)rand() - (float)rand()) / RAND_MAX) * 5.0f;
+		positionX = 0;// (((float)rand() - (float)rand()) / RAND_MAX) * 15.0f;
+		positionY = 0;//(((float)rand() - (float)rand()) / RAND_MAX) * 15.0f;
+		positionZ = 0;//(((float)rand() - (float)rand()) / RAND_MAX) * 15.0f;
 		//positionX = (((float)rand() - (float)rand()) / RAND_MAX) * m_particleDeviationX;
 		//positionY = (((float)rand() - (float)rand()) / RAND_MAX) * m_particleDeviationY;
 		//positionZ = (((float)rand() - (float)rand()) / RAND_MAX) * m_particleDeviationZ;
 
-		velocity = m_particleVelocity + (((float)rand() - (float)rand()) / RAND_MAX) * m_particleVelocityVariation;
+		velocity = 0;// m_particleVelocity + (((float)rand() - (float)rand()) / RAND_MAX) * m_particleVelocityVariation;
 
-		red = (((float)rand() - (float)rand()) / RAND_MAX) + 0.5f;
-		green = (((float)rand() - (float)rand()) / RAND_MAX) + 0.5f;
-		blue = (((float)rand() - (float)rand()) / RAND_MAX) + 0.5f;
+		red = 0;// (((float)rand()) / RAND_MAX) + 0.5f;
+		green = 0;//(((float)rand()) / RAND_MAX) + 0.5f;
+		blue = 0;//(((float)rand()) / RAND_MAX) + 0.5f;
 
 		// Now since the particles need to be rendered from back to front for blending we have to sort the particle array.
 		// We will sort using Z depth so we need to find where in the list the particle should be inserted.
@@ -279,12 +324,18 @@ void ParticleSystem::EmitParticles(float dt)
 		//i = m_currentParticleCount;
 		//j = i - 1;
 
-		Transform first;
+		ParticleVertex first;
 		particles.push_back(first);
 
 		int newEnd = particles.size() - 1;
 
 		particles[newEnd].position = { positionX, positionY, positionZ };
+		particles[newEnd].color = { red, green, blue, 1.0f };
+		particles[newEnd].velocity = { 0.0f, 0.0f, 0.0f };
+		//particles[newEnd].age = 1;
+		particles[newEnd].size = {1.0f, 1.0f, 1.0f};
+
+
 		//particles[newEnd].size = { 1.0f, 1.0f, 1.0f };
 		//particles[newEnd].color = { red, green, blue, 1.0f };
 		//particles[newEnd].age = 0;
@@ -327,7 +378,6 @@ void ParticleSystem::ReleaseTexture()
 
 	return;
 }
-
 
 void ParticleSystem::UpdateParticles(float dt)
 {
