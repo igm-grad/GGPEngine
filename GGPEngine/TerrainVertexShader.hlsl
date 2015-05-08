@@ -29,7 +29,7 @@ Texture2D		heightMap		: register(t2);
 Pixel main(Vertex vertex)
 {	
 	float HeightMapPosition = heightMap.SampleLevel(omniSampler, vertex.uv, 0).r;
-	vertex.position.y += mul(HeightMapPosition,100.0f);
+	vertex.position.y += HeightMapPosition;
 
 	matrix clip = mul(mul(world, view), projection);
 	

@@ -29,7 +29,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 	gameObject->material->SetResource(L"Textures/DiffuseTexture2.jpg", "diffuseTexture");
 	//gameObject->material->SetResource(L"Textures/NormalTexture2.jpg", "normalTexture");
 	
-	gameObject->material->SetResource(L"Textures/SimpleHeightMap.png", "heightMap");
+	gameObject->material->SetResource(L"Textures/HeightMap.png", "heightMap");
 	
 	// Positions plane in center
 	gameObject->transform->position = XMFLOAT3(0.0f, 0.0f, 0.0f);

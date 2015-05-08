@@ -249,6 +249,8 @@ void RenderEngine::DrawScene(GameObject** gameObjects, int gameObjectsCount, dou
 		renderList[i]->material->sVertexShader->SetMatrix4x4("world", world);
 		renderList[i]->material->sVertexShader->SetMatrix4x4("view", defaultCamera->view);
 		renderList[i]->material->sVertexShader->SetMatrix4x4("projection", defaultCamera->projection);
+		renderList[i]->material->UpdateVertexShaderResources();
+		renderList[i]->material->UpdateVertexShaderSamplers();
 		renderList[i]->material->sVertexShader->SetShader();
 
 		// TO DO: This is gross. Less branching would be optimal since lights are the same for every object currently.
