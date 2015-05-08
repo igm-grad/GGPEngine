@@ -22,6 +22,7 @@ public:
 private:
 	bool loadOBJfile	(const char* filePath, std::vector<Vertex>& verts, std::vector<UINT>& indices);			// to load OBJ model
 	bool loadFBXfile	(const char* filePath, std::vector<Vertex>& verts, std::vector<UINT>& indices);			// to load FBX model
+	bool loadMD5MeshFile(const char* filePath, std::vector<Vertex>& verts, std::vector<UINT>& indices);			// to load MD5mesh model
 
 };
 

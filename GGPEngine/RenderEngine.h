@@ -4,7 +4,7 @@
 #include "dxerr.h"
 #include <string>
 #include <assert.h>
-#include "Material.h"
+#include "Model.h"
 #include <DirectXMath.h>
 #include <vector>
 #include "GameObject.h"

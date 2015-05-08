@@ -1,8 +1,7 @@
 #pragma once
 #pragma warning( disable: 4251 )
 #include <DirectXMath.h>
-#include "Mesh.h"
-#include "Material.h"
+#include "Model.h"
 #include "Transform.h"
 #include "Behavior.h"
 
@@ -18,14 +17,12 @@ class  GameObject
 {
 public:
 
-	UINT32		id;
 	Transform*	transform;
-	Mesh*		mesh;
-	Material*	material;
+	Model*		model;
 	Behavior*	behavior;
 
-	GameObject(Mesh* mesh) : mesh(mesh) {};
+	GameObject(Model* model) : model(model) {};
 	GameObject() : GameObject(NULL) {};
-	~GameObject() { delete(mesh); delete(material); delete(transform);  delete(behavior); };
+	~GameObject() { delete(model); delete(transform);  delete(behavior); };
 };
 

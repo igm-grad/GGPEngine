@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.30501.0
+VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GGPEngine", "GGPEngine\GGPEngine.vcxproj", "{596D301E-50B2-4205-A1A6-B04C2D4732A3}"
 EndProject
@@ -19,6 +19,8 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Demo11_UI", "Demo11_UI\Demo11_UI.vcxproj", "{B4FEB8BF-6DFB-40D9-B083-7E10A7C8F3FB}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Demo09_SkyBox", "Demo09_SkyBox\Demo09_SkyBox.vcxproj", "{C4530E58-5B10-47B1-B10B-04430755BE3E}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Demo17_Animation", "Demo17_Animation\Demo17_Animation.vcxproj", "{3EA084AA-730E-446D-94C2-822A231706B3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -116,6 +118,18 @@ Global
 		{C4530E58-5B10-47B1-B10B-04430755BE3E}.Release|Win32.ActiveCfg = Release|Win32
 		{C4530E58-5B10-47B1-B10B-04430755BE3E}.Release|Win32.Build.0 = Release|Win32
 		{C4530E58-5B10-47B1-B10B-04430755BE3E}.Release|x64.ActiveCfg = Release|Win32
+		{3EA084AA-730E-446D-94C2-822A231706B3}.Debug|Any CPU.ActiveCfg = Debug|Win32
+		{3EA084AA-730E-446D-94C2-822A231706B3}.Debug|Mixed Platforms.ActiveCfg = Debug|Win32
+		{3EA084AA-730E-446D-94C2-822A231706B3}.Debug|Mixed Platforms.Build.0 = Debug|Win32
+		{3EA084AA-730E-446D-94C2-822A231706B3}.Debug|Win32.ActiveCfg = Debug|Win32
+		{3EA084AA-730E-446D-94C2-822A231706B3}.Debug|Win32.Build.0 = Debug|Win32
+		{3EA084AA-730E-446D-94C2-822A231706B3}.Debug|x64.ActiveCfg = Debug|Win32
+		{3EA084AA-730E-446D-94C2-822A231706B3}.Release|Any CPU.ActiveCfg = Release|Win32
+		{3EA084AA-730E-446D-94C2-822A231706B3}.Release|Mixed Platforms.ActiveCfg = Release|Win32
+		{3EA084AA-730E-446D-94C2-822A231706B3}.Release|Mixed Platforms.Build.0 = Release|Win32
+		{3EA084AA-730E-446D-94C2-822A231706B3}.Release|Win32.ActiveCfg = Release|Win32
+		{3EA084AA-730E-446D-94C2-822A231706B3}.Release|Win32.Build.0 = Release|Win32
+		{3EA084AA-730E-446D-94C2-822A231706B3}.Release|x64.ActiveCfg = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
