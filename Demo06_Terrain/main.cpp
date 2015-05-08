@@ -24,13 +24,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 		50.0f, // Angle
 		30.0f); // Range
 
-
+	
 	gameObject->material = engine->loadHeightMap();
 	gameObject->material->SetResource(L"Textures/DiffuseTexture2.jpg", "diffuseTexture");
-	gameObject->material->SetResource(L"Textures/NormalTexture2.jpg", "normalTexture");
+	//gameObject->material->SetResource(L"Textures/NormalTexture2.jpg", "normalTexture");
 	
-	gameObject->material->SetResource(L"Textures/HeightMap.png", "heightMap");
-
+	gameObject->material->SetResource(L"Textures/SimpleHeightMap.png", "heightMap");
+	
 	// Positions plane in center
 	gameObject->transform->position = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	// Rotates plane so it is visible
@@ -40,5 +40,5 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 	while (!engine->exitRequested())
 	{
 		engine->Update();
-	}	
+	}
 }

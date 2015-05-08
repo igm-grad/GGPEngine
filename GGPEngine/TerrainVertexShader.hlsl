@@ -23,19 +23,16 @@ cbuffer transform : register(b0)
 	matrix projection;
 }
 
-
 SamplerState	omniSampler		: register(s0);
 Texture2D		heightMap		: register(t2);
 
-
 Pixel main(Vertex vertex)
 {	
+	float HeightMapPosition = heightMap.SampleLevel(omniSampler, vertex.uv, 0).r;
+	vertex.position.y += mul(HeightMapPosition,100.0f);
+
 	matrix clip = mul(mul(world, view), projection);
-
 	
-	float HeightPosition = heightMap.Sample(omniSampler, vertex.uv).r;
-	vertex.position = float3 (vertex.position.x, HeightPosition.x, vertex.position.z).xyz;
-
 	Pixel pixel;
 	pixel.position = mul(float4(vertex.position, 1.0f), clip);
 	pixel.normal = mul(vertex.normal, (float3x3)world);
