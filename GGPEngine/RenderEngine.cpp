@@ -345,7 +345,7 @@ void RenderEngine::DrawParticleSystems(ParticleSystem** particleSystems, int par
 	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
 
 	UINT offset = 0;
-	size_t stride = sizeof(Transform);
+	size_t stride = sizeof(ParticleVertex);
 
 	Transform w = Transform();
 	XMMATRIX m = w.getWorldTransform();
@@ -354,7 +354,7 @@ void RenderEngine::DrawParticleSystems(ParticleSystem** particleSystems, int par
 
 	for (int i = 0; i < particleSystemCount; i++) {
 		deviceContext->IASetVertexBuffers(0, 1, &particleSystems[i]->mVertexBuffer, &stride, &offset);
-		deviceContext->IASetIndexBuffer(particleSystems[i]->mIndexBuffer, DXGI_FORMAT_R32_UINT, 0);
+		//deviceContext->IASetIndexBuffer(particleSystems[i]->mIndexBuffer, DXGI_FORMAT_R32_UINT, 0);
 		
 		// TODO: set vertex shader props
 		particleSystems[i]->simpleVS->SetMatrix4x4("worldMatrix", m1);

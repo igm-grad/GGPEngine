@@ -17,29 +17,23 @@ cbuffer MatrixBuffer
 
 struct VertexInputType
 {
-	//bool	active		:;
 	float3	position	:POSITION;
-	float	spacerA		: PSIZE;
-	//float	age			:PSIZE;
 	float4	color		:COLOR;
 	float3	size		:TEXCOORD;
-	float	spacerB		:PSIZE;
 	float3	velocity	:TEXCOORD3;
-	float	spacerC		: PSIZE;
-	/*float3 rotation	: TEXCOORD;
-	float3	position : POSITION;
-	float3	scale  : TEXCOORD1;
-	float3	forward : TEXCOORD2;
-	float3	up : TEXCOORD3;
-	float3	right : TEXCOORD4;
-	float	movementSpeed : TEXCOORD5;*/
 };
 
 struct PixelInputType
 {
-	float4 position : SV_POSITION;
-	float2 tex : TEXCOORD0;
-	float4 color : COLOR;
+	//float4 position : SV_POSITION;
+	//float2 tex : TEXCOORD0;
+	//float4 color : COLOR;
+
+
+	float4	position	:SV_POSITION;
+	float4	color		:COLOR;
+	float3	size		:TEXCOORD;
+	float3	velocity	:TEXCOORD3;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -56,10 +50,13 @@ PixelInputType main(VertexInputType input)
 	output.position = mul(float4(input.position, 1), clip);
 
 	// Store the texture coordinates for the pixel shader.
-	output.tex = float2(0,0);
+	//output.tex = float2(0,0);
 
 	// Store the particle color for the pixel shader. 
+	//output.position = input.position;
 	output.color = input.color;
+	output.size = input.size;
+	output.velocity = input.velocity;
 
 	return output;
 }

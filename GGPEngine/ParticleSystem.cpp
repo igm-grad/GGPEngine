@@ -113,22 +113,23 @@ bool ParticleSystem::InitializeBuffers(ID3D11Device* device)
 	for (int i = 0; i < 1; i++)
 	{
 		particles.push_back(ParticleVertex());
-		particles[i].position = { 0, 0, 0 };
+		particles[i].position = XMFLOAT3(0, 0, 0);
 
 		velX = 0;
 		velY = 0;
 		velZ = 0;
 
-		particles[i].size = { 1.0f, 1.0f, 1.0f };
-		particles[i].color = { 1.0f, 1.0f, 1.0f, 1.0f };
-		particles[i].velocity = { velX, velY, velZ };
+		particles[i].size = XMFLOAT3(1.0f, 1.0f, 1.0f);
+		particles[i].color = XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f);
+		//particles[i].age = 1;
+		particles[i].velocity = XMFLOAT3(velX, velY, velZ);
 	}
 
 	for (int i = 0; i < 5; i++)
 	{
 		particles.push_back(ParticleVertex());
 		float spare = 0.25f * i;
-		particles[i + 1].position = { spare, 1.0f, 0 };
+		particles[i + 1].position = XMFLOAT3( spare, 0.36f, 0.33f );
 
 		//velX = (((float)rand() - (float)rand()) / RAND_MAX) * 10.0f;
 		//velY = (((float)rand() - (float)rand()) / RAND_MAX) * 10.0f;
@@ -137,10 +138,10 @@ bool ParticleSystem::InitializeBuffers(ID3D11Device* device)
 		velY = 0;
 		velZ = 0;
 
-		particles[i + 1].size = { 1.0f, 1.0f, 1.0f };
-		particles[i + 1].color = { 1.0f, 0.0f, 1.0f, 1.0f };
+		particles[i + 1].size = XMFLOAT3( 1.0f, 1.0f, 1.0f );
+		particles[i + 1].color = XMFLOAT4( 0.0f, 1.0f, 0.0f, 1.0f );
 		//particles[i].age = 1;
-		particles[i + 1].velocity = { velX, velY, velZ };
+		particles[i + 1].velocity = XMFLOAT3( velX, velY, velZ);
 	}
 
 	#pragma region Buffer Setup
@@ -165,8 +166,8 @@ bool ParticleSystem::InitializeBuffers(ID3D11Device* device)
 
 	// Give the subresource structure a pointer to the vertex data.
 	vertexData.pSysMem = &particles[0];
-	//vertexData.SysMemPitch = 0;
-	//vertexData.SysMemSlicePitch = 0;
+	vertexData.SysMemPitch = 0;
+	vertexData.SysMemSlicePitch = 0;
 
 	// Now finally create the vertex buffer.
 	result = device->CreateBuffer(&vertexBufferDesc, &vertexData, &mVertexBuffer);
