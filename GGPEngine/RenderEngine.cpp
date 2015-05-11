@@ -66,10 +66,14 @@ bool RenderEngine::Initialize()
 	if (!InitDirect3D()) {
 		return false;
 	}
-
-	//set the default camera's skybox
-	//setCameraCubeMap(defaultCamera, L"Textures\\Skybox.dds");
 }
+
+
+Camera*	RenderEngine::getDefaultCamera()
+{
+	return	defaultCamera;
+}
+
 
 #pragma region Window Resizing Public
 
@@ -292,7 +296,8 @@ void RenderEngine::DrawScene(GameObject** gameObjects, int gameObjectsCount, dou
 		if (spotLights.size() > 0) {
 			renderList[i]->material->sPixelShader->SetData("spotLights", &spotLights[0], sizeof(SpotLight) * spotLights.size());
 		}
-
+		renderList[i]->material->sPixelShader->SetFloat3("eyePosition", defaultCamera->transform->position);
+		renderList[i]->material->sPixelShader->SetFloat("specularExponent", renderList[i]->material->specularExponent);
 		renderList[i]->material->UpdatePixelShaderResources();
 		renderList[i]->material->UpdatePixelShaderSamplers();
 		renderList[i]->material->sPixelShader->SetShader();

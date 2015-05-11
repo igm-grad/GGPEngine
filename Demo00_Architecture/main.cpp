@@ -12,6 +12,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 	CoreEngine * engine = new CoreEngine(hInstance, prevInstance, cmdLine, showCmd);
 	engine->Initialize();
 
+	engine->CreateCubemap(L"Textures\\Skybox.dds");
+
 	GameObject* gameObject = engine->Sphere();
 	gameObject->material = engine->BasicMaterial();
 

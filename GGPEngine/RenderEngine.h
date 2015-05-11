@@ -68,6 +68,7 @@ protected:
 	SpotLight*								CreateSpotLight();
 
 	Camera*									CreateCamera();
+	Camera*									getDefaultCamera();
 	void									setCameraCubeMap(Camera* camera, const wchar_t* filename);
 
 	ParticleSystem*							CreateParticleSystem(const char* attributes, UINT maxParticles);

@@ -69,9 +69,14 @@ void CoreEngine::EnableDebugLines() {
 }
 
 
-void CoreEngine::createCameraCubemap(Camera* camera, const wchar_t* filePath)
+void CoreEngine::CreateCubemap(Camera* camera, const wchar_t* filePath)
 {
 	renderer->setCameraCubeMap(camera,filePath);
+}
+
+void CoreEngine::CreateCubemap(const wchar_t* filePath)
+{
+	renderer->setCameraCubeMap(renderer->getDefaultCamera(), filePath);
 }
 
 void CoreEngine::Update()
