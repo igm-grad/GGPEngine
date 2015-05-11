@@ -298,9 +298,6 @@ void ParticleSystem::EmitParticles(float dt)
 		//m_currentParticleCount++;
 
 		// Now generate the randomized particle properties.
-		//positionX = 0;// (((float)rand() - (float)rand()) / RAND_MAX) * 15.0f;
-		//positionY = 0;//(((float)rand() - (float)rand()) / RAND_MAX) * 15.0f;
-		//positionZ = 0;//(((float)rand() - (float)rand()) / RAND_MAX) * 15.0f;
 		positionX = (((float)rand() - (float)rand()) / RAND_MAX) * 5;//m_particleDeviationX;
 		positionY = (((float)rand() - (float)rand()) / RAND_MAX) * 5;//m_particleDeviationY;
 		positionZ = (((float)rand() - (float)rand()) / RAND_MAX) * 5;//m_particleDeviationZ;
@@ -333,23 +330,20 @@ void ParticleSystem::EmitParticles(float dt)
 		//i = m_currentParticleCount;
 		//j = i - 1;
 
-		ParticleVertex first;
+		//Create a new particle
+		ParticleVertex newParticle;
 
-		int newEnd = particles.size() - 1;
+		//int newEnd = particles.size() - 1;
 
-		first.position = XMFLOAT3(positionX, positionY, positionZ);
-		first.color = XMFLOAT4(red, green, blue, 1.0f);
-		//particles[newEnd].velocity = { 0.0f, 0.0f, 0.0f };
-		first.age = .5f;
-		first.size = XMFLOAT3(1.0f, 1.0f, 1.0f);
+		//Set information about the new particle.
+		newParticle.position = XMFLOAT3(positionX, positionY, positionZ);
+		newParticle.color = XMFLOAT4(red, green, blue, 1.0f);
+		newParticle.velocity = XMFLOAT3(velX, velY, velZ);
+		newParticle.age = .5f;
+		newParticle.size = XMFLOAT3(1.0f, 1.0f, 1.0f);
 
-
-		//particles[newEnd].size = { 1.0f, 1.0f, 1.0f };
-		//particles[newEnd].color = { red, green, blue, 1.0f };
-		//particles[newEnd].age = 0;
-		first.velocity = XMFLOAT3(velX, velY, velZ);
-		//particles[newEnd].active = true;
-		particles.push_back(first);
+		//Push it into the vector of particles (which is handed to the GPU)
+		particles.push_back(newParticle);
 	}
 }
 
@@ -436,57 +430,3 @@ void ParticleSystem::KillParticles()
 	//	 Clear the initial accumulated time for the particle per second emission rate.
 	//	mAccumulatedTime = 0.0f;
 }
-
-
-#pragma region Incomplete or Old Methods
-bool ParticleSystem::LoadTexture(ID3D11Device* device, WCHAR* filename)
-{
-	/*bool result;
-
-	// Create the texture object.
-	mTexArraySRV = new TextureClass;
-	if (!m_Texture)
-	{
-	return false;
-	}
-
-	// Initialize the texture object.
-	result = m_Texture->Initialize(device, filename);
-	if (!result)
-	{
-	return false;
-	}*/
-
-	return true;
-}
-
-void ParticleSystem::ReleaseTexture()
-{
-	/*// Release the texture object.
-	if (mTexArraySRV)
-	{
-	m_Texture->Shutdown();
-	delete m_Texture;
-	m_Texture = 0;
-	}*/
-
-	return;
-}
-
-void ParticleSystem::UpdateParticles(float dt)
-{
-
-}
-
-void ParticleSystem::ShutdownParticleSystem()
-{
-	// Release the particle list.
-	//if (particles != null)
-	//{
-	//	delete[] particles;
-	//	particles = 0;
-	//}
-
-	return;
-}
-#pragma endregion

@@ -32,7 +32,6 @@ class ParticleSystem
 {
 public:
 	ParticleSystem(RenderEngine* renderer);
-	//ParticleSystem();
 	~ParticleSystem();
 
 	ID3D11Buffer* mVertexBuffer;
@@ -40,6 +39,8 @@ public:
 	SimpleVertexShader* simpleVS;
 	SimplePixelShader* simplePS;
 	std::vector<ParticleVertex> particles;
+
+	void Reset();
 
 	float GetAge()const;
 
@@ -52,27 +53,17 @@ public:
 	void SetPixelShader(ID3D11Device* device, ID3D11DeviceContext* deviceContext, LPCWSTR pixelShaderFile);
 	void SetPixelShader(SimplePixelShader* simplePixelShader);
 
-	void Init(ID3D11Device* device, 
-		ID3D11ShaderResourceView* texArraySRV, 
-		ID3D11ShaderResourceView* randomTexSRV, 
+	void Init(ID3D11Device* device,
+		ID3D11ShaderResourceView* texArraySRV,
+		ID3D11ShaderResourceView* randomTexSRV,
 		UINT maxParticles);
 
-	void Reset();
-	void Update(float dt, float gameTime);
-	void Draw(ID3D11DeviceContext* dc, const Camera* cam);
-
-	void EmitParticles(float dt);
-	void UpdateParticles(float dt);
-	void KillParticles();
-
-//	void InitializeParticleSystem();
-	void ShutdownParticleSystem();
-
 	bool InitializeBuffers(ID3D11Device* device);
-	void ShutdownBuffers();
-
+	void Update(float dt, float gameTime);
 	void UpdateBuffers(ID3D11DeviceContext* context);
-	void RenderBuffers(ID3D11DeviceContext* context);
+	
+	void EmitParticles(float dt);
+	void KillParticles();
 
 private:
 
