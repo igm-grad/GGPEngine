@@ -17,23 +17,20 @@ cbuffer MatrixBuffer
 
 struct VertexInputType
 {
-	float3	position	:POSITION;
+	float3	position	:SV_POSITION;
 	float4	color		:COLOR;
 	float3	size		:TEXCOORD;
-	float3	velocity	:TEXCOORD3;
+	float3	velocity	:TEXCOORD2;
+	float	age			:TEXCOORD3;
 };
 
 struct PixelInputType
 {
-	//float4 position : SV_POSITION;
-	//float2 tex : TEXCOORD0;
-	//float4 color : COLOR;
-
-
 	float4	position	:SV_POSITION;
 	float4	color		:COLOR;
 	float3	size		:TEXCOORD;
-	float3	velocity	:TEXCOORD3;
+	float3	velocity	:TEXCOORD2;
+	float	age			:TEXCOORD3;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -57,6 +54,7 @@ PixelInputType main(VertexInputType input)
 	output.color = input.color;
 	output.size = input.size;
 	output.velocity = input.velocity;
+	output.age = input.age;
 
 	return output;
 }

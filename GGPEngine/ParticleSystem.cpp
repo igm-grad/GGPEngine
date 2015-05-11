@@ -16,6 +16,8 @@ ParticleSystem::ParticleSystem(RenderEngine* renderer) : mTexArraySRV(0), mRando
 	mTimeStep = 0.0f;
 	mAge = 0.0f;
 
+	m_particlesPerSecond = 25;
+
 	mMaxParticles = 500;
 
 	mEyePosW = XMFLOAT3(0.0f, 0.0f, 0.0f);
@@ -121,13 +123,13 @@ bool ParticleSystem::InitializeBuffers(ID3D11Device* device)
 
 		particles[i].size = XMFLOAT3(1.0f, 1.0f, 1.0f);
 		particles[i].color = XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f);
-		//particles[i].age = 1;
+		particles[i].age = .5f;
 		particles[i].velocity = XMFLOAT3(velX, velY, velZ);
 	}
 
 	for (int i = 0; i < 5; i++)
 	{
-		particles.push_back(ParticleVertex());
+		/*particles.push_back(ParticleVertex());
 		float spare = 0.25f * i;
 		particles[i + 1].position = XMFLOAT3( spare, 0.36f, 0.33f );
 
@@ -140,8 +142,8 @@ bool ParticleSystem::InitializeBuffers(ID3D11Device* device)
 
 		particles[i + 1].size = XMFLOAT3( 1.0f, 1.0f, 1.0f );
 		particles[i + 1].color = XMFLOAT4( 0.0f, 1.0f, 0.0f, 1.0f );
-		//particles[i].age = 1;
-		particles[i + 1].velocity = XMFLOAT3( velX, velY, velZ);
+		particles[i+1].age = 2;
+		particles[i + 1].velocity = XMFLOAT3( velX, velY, velZ);*/
 	}
 
 	#pragma region Buffer Setup
@@ -212,18 +214,20 @@ void ParticleSystem::Update(float dt, float gameTime)
 
 	mAge += dt;
 
-	//EmitParticles(dt);
+	KillParticles();
+
+	EmitParticles(dt);
 
 	// Each frame we update all the particles by making them move downwards using their position, velocity, and the frame time.
 	int i;
 	for (i = 0; i < particles.size(); i++)
 	{
-		//particles[i].age += dt;
+		particles[i].age -= 1 / dt;
 		//particles[i].position.y = particles[i].position.y - (0.0001f);
-/*
-		particles[i].position.x = particles[i].position.x + particles[i].velocity.x * dt/1000;
-		particles[i].position.y = particles[i].position.y + particles[i].velocity.y * dt / 1000;
-		particles[i].position.z = particles[i].position.z + particles[i].velocity.z * dt / 1000;*/
+
+		particles[i].position.x = particles[i].position.x + particles[i].velocity.x / dt;
+		particles[i].position.y = particles[i].position.y + particles[i].velocity.y / dt;
+		particles[i].position.z = particles[i].position.z + particles[i].velocity.z / dt;
 	}
 
 	UpdateBuffers(e->deviceContext);
@@ -236,55 +240,57 @@ void ParticleSystem::UpdateBuffers(ID3D11DeviceContext* deviceContext)
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	ParticleVertex* verticesPtr;
 
-
-	// Initialize vertex array to zeros at first.
-//	memset(m_vertices, 0, (sizeof(Vertex) * m_vertexCount));
-
-	// Now build the vertex array from the particle list array.  Each particle is a quad made out of two triangles.
-	index = 0;
-
-	// Lock the vertex buffer.
-	result = deviceContext->Map(mVertexBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-	if (FAILED(result))
+	if (particles.size() > 0)
 	{
-		printf("fuck\n");
+		// Initialize vertex array to zeros at first.
+		//	memset(m_vertices, 0, (sizeof(Vertex) * m_vertexCount));
+
+		// Now build the vertex array from the particle list array.  Each particle is a quad made out of two triangles.
+		index = 0;
+
+		// Lock the vertex buffer.
+		result = deviceContext->Map(mVertexBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+		if (FAILED(result))
+		{
+			printf("fuck\n");
+		}
+
+		// Get a pointer to the data in the vertex buffer.
+		verticesPtr = (ParticleVertex*)mappedResource.pData;
+
+		// Copy the data into the vertex buffer.
+		memcpy(verticesPtr, &particles[0], (sizeof(ParticleVertex) * particles.size()));
+
+		// Unlock the vertex buffer.
+		deviceContext->Unmap(mVertexBuffer, 0);
 	}
-
-	// Get a pointer to the data in the vertex buffer.
-	verticesPtr = (ParticleVertex*)mappedResource.pData;
-
-	// Copy the data into the vertex buffer.
-	memcpy(verticesPtr, &particles[0], (sizeof(ParticleVertex) * particles.size()));
-
-	// Unlock the vertex buffer.
-	deviceContext->Unmap(mVertexBuffer, 0);
 }
 
 void ParticleSystem::EmitParticles(float dt)
 {
 	bool emitParticle;
-	float positionX, positionY, positionZ, velocity, red, green, blue;
+	float positionX, positionY, positionZ, velX, velY, velZ, red, green, blue;
 
 	// Increment the frame time.
-	//m_accumulatedTime += frameTime;
+	mAccumulatedTime += 1 / dt;
 
 	// Set emit particle to false for now.
 	emitParticle = false;
 
 	// Check if it is time to emit a new particle or not.
-	//if (m_accumulatedTime > (1000.0f / m_particlesPerSecond))
-	//{
-	//m_accumulatedTime = 0.0f;
-	
-	if (particles.size() < mMaxParticles)
+	if (mAccumulatedTime > (.10f / m_particlesPerSecond))
 	{
-		emitParticle = true;
+		mAccumulatedTime = 0.0f;
+
+		if (particles.size() < mMaxParticles)
+		{
+			emitParticle = true;
+		}
+		else
+		{
+			emitParticle = false;
+		}
 	}
-	else
-	{
-		emitParticle = false;
-	}
-	//}
 
 	// If there are particles to emit then emit one per frame.
 	if ((emitParticle == true) && (particles.size() < (mMaxParticles)))
@@ -292,18 +298,20 @@ void ParticleSystem::EmitParticles(float dt)
 		//m_currentParticleCount++;
 
 		// Now generate the randomized particle properties.
-		positionX = 0;// (((float)rand() - (float)rand()) / RAND_MAX) * 15.0f;
-		positionY = 0;//(((float)rand() - (float)rand()) / RAND_MAX) * 15.0f;
-		positionZ = 0;//(((float)rand() - (float)rand()) / RAND_MAX) * 15.0f;
-		//positionX = (((float)rand() - (float)rand()) / RAND_MAX) * m_particleDeviationX;
-		//positionY = (((float)rand() - (float)rand()) / RAND_MAX) * m_particleDeviationY;
-		//positionZ = (((float)rand() - (float)rand()) / RAND_MAX) * m_particleDeviationZ;
+		//positionX = 0;// (((float)rand() - (float)rand()) / RAND_MAX) * 15.0f;
+		//positionY = 0;//(((float)rand() - (float)rand()) / RAND_MAX) * 15.0f;
+		//positionZ = 0;//(((float)rand() - (float)rand()) / RAND_MAX) * 15.0f;
+		positionX = (((float)rand() - (float)rand()) / RAND_MAX) * 5;//m_particleDeviationX;
+		positionY = (((float)rand() - (float)rand()) / RAND_MAX) * 5;//m_particleDeviationY;
+		positionZ = (((float)rand() - (float)rand()) / RAND_MAX) * 5;//m_particleDeviationZ;
 
-		velocity = 0;// m_particleVelocity + (((float)rand() - (float)rand()) / RAND_MAX) * m_particleVelocityVariation;
+		velX = m_particleVelocity + (((float)rand() - (float)rand()) / RAND_MAX) * 5;
+		velY = m_particleVelocity + (((float)rand() - (float)rand()) / RAND_MAX) * 5;
+		velZ = m_particleVelocity + (((float)rand() - (float)rand()) / RAND_MAX) * 5;
 
-		red = 0;// (((float)rand()) / RAND_MAX) + 0.5f;
-		green = 0;//(((float)rand()) / RAND_MAX) + 0.5f;
-		blue = 0;//(((float)rand()) / RAND_MAX) + 0.5f;
+		red = ((float)rand()) / RAND_MAX;
+		green = ((float)rand()) / RAND_MAX;
+		blue = ((float)rand()) / RAND_MAX;
 
 		// Now since the particles need to be rendered from back to front for blending we have to sort the particle array.
 		// We will sort using Z depth so we need to find where in the list the particle should be inserted.
@@ -326,67 +334,37 @@ void ParticleSystem::EmitParticles(float dt)
 		//j = i - 1;
 
 		ParticleVertex first;
-		particles.push_back(first);
 
 		int newEnd = particles.size() - 1;
 
-		particles[newEnd].position = { positionX, positionY, positionZ };
-		particles[newEnd].color = { red, green, blue, 1.0f };
-		particles[newEnd].velocity = { 0.0f, 0.0f, 0.0f };
-		//particles[newEnd].age = 1;
-		particles[newEnd].size = {1.0f, 1.0f, 1.0f};
+		first.position = XMFLOAT3(positionX, positionY, positionZ);
+		first.color = XMFLOAT4(red, green, blue, 1.0f);
+		//particles[newEnd].velocity = { 0.0f, 0.0f, 0.0f };
+		first.age = .5f;
+		first.size = XMFLOAT3(1.0f, 1.0f, 1.0f);
 
 
 		//particles[newEnd].size = { 1.0f, 1.0f, 1.0f };
 		//particles[newEnd].color = { red, green, blue, 1.0f };
 		//particles[newEnd].age = 0;
-		//particles[newEnd].velocity = { 0, velocity, 0 };
+		first.velocity = XMFLOAT3(velX, velY, velZ);
 		//particles[newEnd].active = true;
+		particles.push_back(first);
 	}
-}
-
-#pragma region Incomplete or Old Methods
-bool ParticleSystem::LoadTexture(ID3D11Device* device, WCHAR* filename)
-{
-	/*bool result;
-
-	// Create the texture object.
-	mTexArraySRV = new TextureClass;
-	if (!m_Texture)
-	{
-	return false;
-	}
-
-	// Initialize the texture object.
-	result = m_Texture->Initialize(device, filename);
-	if (!result)
-	{
-	return false;
-	}*/
-
-	return true;
-}
-
-void ParticleSystem::ReleaseTexture()
-{
-	/*// Release the texture object.
-	if (mTexArraySRV)
-	{
-	m_Texture->Shutdown();
-	delete m_Texture;
-	m_Texture = 0;
-	}*/
-
-	return;
-}
-
-void ParticleSystem::UpdateParticles(float dt)
-{
-
 }
 
 void ParticleSystem::KillParticles()
 {
+	for (int i = 0; i < particles.size(); i++)
+	{
+		if (particles[i].age <= 0)
+		{
+			int i = 0;
+			particles.erase(particles.begin(), particles.begin() + 1);
+		}
+	}
+
+
 	//	int i, j;
 	//
 	//	 Kill all the particles that have gone below a certain height range.
@@ -457,6 +435,47 @@ void ParticleSystem::KillParticles()
 	//
 	//	 Clear the initial accumulated time for the particle per second emission rate.
 	//	mAccumulatedTime = 0.0f;
+}
+
+
+#pragma region Incomplete or Old Methods
+bool ParticleSystem::LoadTexture(ID3D11Device* device, WCHAR* filename)
+{
+	/*bool result;
+
+	// Create the texture object.
+	mTexArraySRV = new TextureClass;
+	if (!m_Texture)
+	{
+	return false;
+	}
+
+	// Initialize the texture object.
+	result = m_Texture->Initialize(device, filename);
+	if (!result)
+	{
+	return false;
+	}*/
+
+	return true;
+}
+
+void ParticleSystem::ReleaseTexture()
+{
+	/*// Release the texture object.
+	if (mTexArraySRV)
+	{
+	m_Texture->Shutdown();
+	delete m_Texture;
+	m_Texture = 0;
+	}*/
+
+	return;
+}
+
+void ParticleSystem::UpdateParticles(float dt)
+{
+
 }
 
 void ParticleSystem::ShutdownParticleSystem()

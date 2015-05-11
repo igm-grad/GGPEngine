@@ -21,7 +21,8 @@ struct PixelInputType
 	float4	position	:SV_POSITION;
 	float4	color		:COLOR;
 	float3	size		:TEXCOORD;
-	float3	velocity	:TEXCOORD3;
+	float3	velocity	:TEXCOORD2;
+	float	age			:TEXCOORD3;
 };
 
 //
