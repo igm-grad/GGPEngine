@@ -16,9 +16,9 @@ ParticleSystem::ParticleSystem(RenderEngine* renderer) : mTexArraySRV(0), mRando
 	mTimeStep = 0.0f;
 	mAge = 0.0f;
 
-	m_particlesPerSecond = 25;
+	m_particlesPerSecond = 5;
 
-	mMaxParticles = 500;
+	mMaxParticles = 50;
 
 	mEyePosW = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	mEmitPosW = XMFLOAT3(0.0f, 0.0f, 0.0f);
@@ -35,14 +35,14 @@ ParticleSystem::~ParticleSystem()
 	mVertexBuffer->Release();
 	mIndexBuffer->Release();
 
+	delete simpleVS;
+	delete simplePS;
+
 	// Release the buffers.
 	//ShutdownBuffers();
 
 	// Release the particle system.
 	//ShutdownParticleSystem();
-
-	// Release the texture used for the particles.
-	ReleaseTexture();
 }
 
 void ParticleSystem::Reset()
@@ -198,10 +198,6 @@ bool ParticleSystem::InitializeBuffers(ID3D11Device* device)
 		return false;
 	}
 
-	// Release the index array since it is no longer needed.
-	//delete[] indices;
-	//indices = 0;
-
 	return true;
 
 	#pragma endregion
@@ -339,7 +335,7 @@ void ParticleSystem::EmitParticles(float dt)
 		newParticle.position = XMFLOAT3(positionX, positionY, positionZ);
 		newParticle.color = XMFLOAT4(red, green, blue, 1.0f);
 		newParticle.velocity = XMFLOAT3(velX, velY, velZ);
-		newParticle.age = .5f;
+		newParticle.age = 1.0f;
 		newParticle.size = XMFLOAT3(1.0f, 1.0f, 1.0f);
 
 		//Push it into the vector of particles (which is handed to the GPU)

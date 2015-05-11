@@ -71,7 +71,6 @@ private:
 	ParticleSystem& operator=(const ParticleSystem& rhs);
 
 	bool LoadTexture(ID3D11Device* device, WCHAR* filename);
-	void ReleaseTexture();
 
 	RenderEngine* e;
 

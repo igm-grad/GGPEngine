@@ -205,7 +205,8 @@ void RenderEngine::UpdateParticleSystems(ParticleSystem** particleSystems, int p
 void RenderEngine::DrawScene(GameObject** gameObjects, int gameObjectsCount, double deltaTime)
 {
 	// Background color (Cornflower Blue in this case) for clearing
-	const float color[4] = { 0.4f, 0.6f, 0.75f, 0.0f };
+	//const float color[4] = { 0.4f, 0.6f, 0.75f, 0.0f };
+	const float color[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 
 	//Clear the renderTarget Buffer
 	deviceContext->ClearRenderTargetView(renderTargetView, color);
