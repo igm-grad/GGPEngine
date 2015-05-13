@@ -24,6 +24,8 @@ public:
 	void SetVSFloat(float data, const char* name);
 	void SetPSFloat(float data, const char* name);
 
+	~Material();
+
 protected:
 	std::map<const char*, ID3D11ShaderResourceView*>	resourceMap;
 	std::map<const char*, ID3D11SamplerState*>			samplerMap;
@@ -34,7 +36,6 @@ protected:
 
 	Material(ID3D11Device* device, ID3D11DeviceContext* deviceContext, LPCWSTR vertexShaderFile, LPCWSTR pixelShaderFile);
 	Material();
-	~Material();
 
 	void SetVertexShader(ID3D11Device* device, ID3D11DeviceContext* deviceContext, LPCWSTR vertexShaderFile);
 	void SetVertexShader(SimpleVertexShader* simpleVertexShader);

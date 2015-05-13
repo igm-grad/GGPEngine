@@ -132,4 +132,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 	{
 		engine->Update();
 	}
+
+	// We need a material library to handle this nicely...
+	if (MATERIAL_INDEX != 0)
+		delete mats[0];
+	if (MATERIAL_INDEX != 1)
+		delete mats[1];
+	if (MATERIAL_INDEX != 2)
+		delete mats[2];
+
+	delete engine;
 }

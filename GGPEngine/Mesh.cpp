@@ -3,6 +3,8 @@
 #include <fstream>
 #include <vector>
 
+#define ReleaseMacro(x) { if(x && ((unsigned int) x) != 0xfeeefeee){ x->Release(); x = 0; } }
+
 Mesh::Mesh(Vertex* vertices, int vertexCount, UINT* indices, int indexCount, ID3D11Device* device)
 {
 	SetVertexBuffer(vertices, vertexCount, device);
@@ -37,8 +39,8 @@ Mesh::Mesh() : indexCount(0)
 
 Mesh::~Mesh()
 {
-	vertexBuffer->Release();
-	indexBuffer->Release();
+	ReleaseMacro(vertexBuffer);
+	ReleaseMacro(indexBuffer);
 }
 
 void Mesh::SetVertexBuffer(Vertex* vertices, int vertexCount, ID3D11Device* device)

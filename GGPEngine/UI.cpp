@@ -26,7 +26,7 @@ void D3DSurfaceFactory::DestroySurface(Awesomium::Surface * surface) {
 }
 #pragma endregion
 
-UI::UI(RenderEngine* e) : view(nullptr, [](Awesomium::WebView * ptr) { ptr->Destroy(); })
+UI::UI(RenderEngine* e) : view(nullptr, [](Awesomium::WebView * ptr) { /*ptr->Destroy();*/ })
 {
 	webCore = Awesomium::WebCore::Initialize(Awesomium::WebConfig());
 	m_bossHealth = 100;
@@ -42,6 +42,10 @@ UI::~UI()
 {
 	if (webCore)
 		webCore->Shutdown();
+
+	delete material;
+	ReleaseMacro(textureResource);
+	ReleaseMacro(stagingResource);
 }
 
 bool UI::ExecuteJavascript(std::string javascript) {
@@ -127,12 +131,8 @@ void UI::Update() {
 
 void UI::CreateTexture2DResource(int width, int height, const char* name)
 {
-	if (textureResource) {
-		textureResource->Release();
-	}
-	if (stagingResource) {
-		stagingResource->Release();
-	}
+	ReleaseMacro(textureResource);
+	ReleaseMacro(stagingResource);
 
 	device->CreateTexture2D(&CD3D11_TEXTURE2D_DESC(DXGI_FORMAT_B8G8R8A8_UNORM, width, height, 1, 1), nullptr, &textureResource);
 	material->SetResource(textureResource, "uiTexture");

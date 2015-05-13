@@ -20,6 +20,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Demo11_UI", "Demo11_UI\Demo
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Demo02_Fluid", "Demo02_Fluid\Demo02_Fluid.vcxproj", "{D6FE7F21-3366-4332-B691-B731C47A469D}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Demo09_SkyBox", "Demo09_SkyBox\Demo09_SkyBox.vcxproj", "{C4530E58-5B10-47B1-B10B-04430755BE3E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -116,6 +118,18 @@ Global
 		{D6FE7F21-3366-4332-B691-B731C47A469D}.Release|Win32.ActiveCfg = Release|Win32
 		{D6FE7F21-3366-4332-B691-B731C47A469D}.Release|Win32.Build.0 = Release|Win32
 		{D6FE7F21-3366-4332-B691-B731C47A469D}.Release|x64.ActiveCfg = Release|Win32
+		{C4530E58-5B10-47B1-B10B-04430755BE3E}.Debug|Any CPU.ActiveCfg = Debug|Win32
+		{C4530E58-5B10-47B1-B10B-04430755BE3E}.Debug|Mixed Platforms.ActiveCfg = Debug|Win32
+		{C4530E58-5B10-47B1-B10B-04430755BE3E}.Debug|Mixed Platforms.Build.0 = Debug|Win32
+		{C4530E58-5B10-47B1-B10B-04430755BE3E}.Debug|Win32.ActiveCfg = Debug|Win32
+		{C4530E58-5B10-47B1-B10B-04430755BE3E}.Debug|Win32.Build.0 = Debug|Win32
+		{C4530E58-5B10-47B1-B10B-04430755BE3E}.Debug|x64.ActiveCfg = Debug|Win32
+		{C4530E58-5B10-47B1-B10B-04430755BE3E}.Release|Any CPU.ActiveCfg = Release|Win32
+		{C4530E58-5B10-47B1-B10B-04430755BE3E}.Release|Mixed Platforms.ActiveCfg = Release|Win32
+		{C4530E58-5B10-47B1-B10B-04430755BE3E}.Release|Mixed Platforms.Build.0 = Release|Win32
+		{C4530E58-5B10-47B1-B10B-04430755BE3E}.Release|Win32.ActiveCfg = Release|Win32
+		{C4530E58-5B10-47B1-B10B-04430755BE3E}.Release|Win32.Build.0 = Release|Win32
+		{C4530E58-5B10-47B1-B10B-04430755BE3E}.Release|x64.ActiveCfg = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

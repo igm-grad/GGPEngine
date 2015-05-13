@@ -33,4 +33,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 		gameObject1->transform->MoveBackward();
 		engine->Update();
 	}
+
+	delete engine;
 }
