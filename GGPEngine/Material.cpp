@@ -4,7 +4,6 @@
 #include <WICTextureLoader.h>
 #include <DDSTextureLoader.h>
 
-
 #define GetCurrentDir _getcwd
 
 using namespace DirectX;
@@ -109,6 +108,15 @@ void Material::SetClampSampler(const char* name)
 	samplerMap[name] = sampler;
 }
 
+void Material::SetVSFloat(float data, const char* name)
+{
+	sVertexShader->SetFloat(name, data);
+}
+
+void Material::SetPSFloat(float data, const char* name)
+{
+	sPixelShader->SetFloat(name, data);
+}
 
 void Material::SetSampler(const char* name)
 {

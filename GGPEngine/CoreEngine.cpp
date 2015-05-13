@@ -31,11 +31,13 @@ CoreEngine::CoreEngine(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine
 	gamePaused = false;
 	gCore = this;
 	msg = { { 0 } };
+
 }
 
 
 CoreEngine::~CoreEngine()
 {
+
 }
 
 bool CoreEngine::Initialize()
