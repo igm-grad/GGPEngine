@@ -2,6 +2,7 @@
 
 Camera::~Camera()
 {
+	delete CubeMap;
 }
 
 void Camera::UpdateProjection(float fov, float aspectRatio, float zNear, float zFar)

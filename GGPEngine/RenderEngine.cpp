@@ -46,10 +46,17 @@ RenderEngine::~RenderEngine()
 	ReleaseMacro(swapChain);
 	ReleaseMacro(depthStencilBuffer);
 
+	ReleaseMacro(rasterizerState);
+	ReleaseMacro(DSLessEqual);
+	ReleaseMacro(blendState);
+
 	// Restore default device settings
 	if (deviceContext) {
 		deviceContext->ClearState();
 	}
+
+	delete ui;
+	delete defaultCamera;
 
 	// Release the context and finally the device
 	ReleaseMacro(deviceContext);
@@ -65,6 +72,8 @@ bool RenderEngine::Initialize()
 	if (!InitDirect3D()) {
 		return false;
 	}
+
+	return true;
 }
 
 
@@ -208,7 +217,8 @@ void RenderEngine::DrawScene(GameObject** gameObjects, int gameObjectsCount, dou
 
 	drawSkyBoxes();
 
-	//Setting the rasterizer mode back to default.			
+	//Setting the rasterizer mode back to default.		
+	ReleaseMacro(rasterizerState);
 	device->CreateRasterizerState(&defaultrasterizerDesc, &rasterizerState);
 	deviceContext->RSSetState(rasterizerState);
 
@@ -237,6 +247,7 @@ void RenderEngine::DrawScene(GameObject** gameObjects, int gameObjectsCount, dou
 		D3D11_COLOR_WRITE_ENABLE_ALL
 	};
 
+	ReleaseMacro(blendState);
 	device->CreateBlendState(&blendDesc, &blendState);
 
 	deviceContext->OMSetBlendState(blendState, nullptr, ~0);
@@ -332,6 +343,7 @@ void RenderEngine::drawSkyBoxes()
 	rastDesc.CullMode = D3D11_CULL_BACK;
 	rastDesc.FrontCounterClockwise = true;
 	rastDesc.FillMode = D3D11_FILL_SOLID;
+	ReleaseMacro(rasterizerState);
 	device->CreateRasterizerState(&rastDesc, &rasterizerState);
 	deviceContext->RSSetState(rasterizerState);
 
@@ -342,6 +354,7 @@ void RenderEngine::drawSkyBoxes()
 	dssDesc.DepthEnable = true;
 	dssDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
 	dssDesc.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
+	ReleaseMacro(DSLessEqual);
 	device->CreateDepthStencilState(&dssDesc, &DSLessEqual);
 
 	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
