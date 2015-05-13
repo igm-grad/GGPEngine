@@ -49,12 +49,16 @@ public:
 	GameObject*		Cylinder();
 	GameObject*		Helix();
 	GameObject*		Torus();
+	GameObject*		Plane(float width, int vertexPerWidth, float depth, int vertexPerDepth);
+
+	GameObject*		Terrain(float width, int vertexPerWidth, float depth, int vertexPerDepth);
 
 	Mesh*			CreateMesh(const char* filename);
 	
 	Material*       BasicMaterial();
 	Material*		DiffuseMaterial();
 	Material*		DiffuseNormalMaterial();
+	Material*		DiffuseFluidMaterial();
 
 	// To create a skybox for a specific camera: the user has to pass a camera reference and .dds file
 	void				CreateCubemap(Camera* camera, const wchar_t* filePath);					
@@ -62,6 +66,9 @@ public:
 	void				CreateCubemap(const wchar_t* filePath);									
 	
 	Material*			CreateMaterial(LPCWSTR vertexShaderFile, LPCWSTR pixelShaderFile);
+
+
+	Material*		loadHeightMap(/*const char* filename*/);
 
 	DirectionalLight*	CreateDirectionalLight(XMFLOAT4& ambientColor, XMFLOAT4& diffuseColor, XMFLOAT3& direction);
 	PointLight*			CreatePointLight(XMFLOAT4& ambientColor, XMFLOAT4& diffuseColor, XMFLOAT3& position, float radius);

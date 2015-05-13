@@ -166,5 +166,13 @@
     <FxCompile Include="Shaders\SkyBoxPixelShader.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
+    <FxCompile Include="TerrainlVertexShader.hlsl" />
+    <FxCompile Include="TerrainPixelShader.hlsl" />
+    <FxCompile Include="..\Demo04_Materials\DiffuseFluidVertexShader.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="DiffuseFluidPixelShader.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

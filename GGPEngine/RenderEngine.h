@@ -59,6 +59,8 @@ protected:
 	void DrawScene(GameObject** gameObjects, int gameObjectsCount, double deltaTime);
 	
 	Mesh*									CreateMesh(const char* filename);
+	//#MyChanges
+	Mesh*									CreatePlaneMesh(float width, int vertexPerWidth, float depth, int vertexPerDepth);
 	Material*								CreateMaterial(LPCWSTR vertexShaderFile, LPCWSTR pixelShaderFile);
 
 	DirectionalLight*						CreateDirectionalLight();

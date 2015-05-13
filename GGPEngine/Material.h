@@ -13,15 +13,18 @@
 class GPPEngineAPI Material
 {
 public:
-	float specularExponent;
+	float	specularExponent;
+	double	time;
 
 	void SetResource(const wchar_t* filename, const char* name);
 	void SetTextureCubeResource(const wchar_t* filename, const char* name);
 	void SetResource(ID3D11Resource* resource, const char* name);
 	void SetSampler(const char* name);								// TO DO: We only setting a basic sampler for a key... need to think this through
 	void SetClampSampler(const char* name);							//We need a clamp for Cube map
-	~Material();
+	void SetVSFloat(float data, const char* name);
+	void SetPSFloat(float data, const char* name);
 
+	~Material();
 
 protected:
 	std::map<const char*, ID3D11ShaderResourceView*>	resourceMap;

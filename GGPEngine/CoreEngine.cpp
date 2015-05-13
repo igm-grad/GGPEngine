@@ -31,6 +31,7 @@ CoreEngine::CoreEngine(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine
 	gamePaused = false;
 	gCore = this;
 	msg = { { 0 } };
+
 }
 
 //#include <Initguid.h>
@@ -198,6 +199,28 @@ GameObject*	CoreEngine::Torus()
 	return CreateGameObject("Models\\Torus.obj");
 }
 
+GameObject* CoreEngine::Plane(float width, int vertexPerWidth, float depth, int vertexPerDepth)
+{
+	GameObject* plane = CreateGameObject();
+	plane->mesh = renderer->CreatePlaneMesh(width, vertexPerWidth, depth, vertexPerDepth);
+	return plane;
+}
+
+// Returns a Terrain Game Object. Heightmap must be loaded afterwards.
+GameObject* CoreEngine::Terrain(float width, int vertexPerWidth, float depth, int vertexPerDepth)
+{
+	// Creates Game Object to return.
+	GameObject* returnObject = CreateGameObject();
+	
+	// Creates the Terrain Plane Mesh
+	Mesh* planeMesh = renderer->CreatePlaneMesh(width, vertexPerWidth, depth, vertexPerDepth);
+
+	// Add mesh to Return GameObject
+	returnObject->mesh = planeMesh;
+
+	return returnObject;
+}
+
 Mesh* CoreEngine::CreateMesh(const char* filename)
 {
 	std::unordered_map<std::string, Mesh*>::iterator it = meshIndex.find(filename);
@@ -235,9 +258,26 @@ Material* CoreEngine::DiffuseNormalMaterial()
 	return diffuseNormalMaterial;
 }
 
+Material* CoreEngine::DiffuseFluidMaterial()
+{
+	Material* diffuseMaterial = CreateMaterial(L"DiffuseFluidVertexShader.cso", L"DiffuseFluidPixelShader.cso");
+	diffuseMaterial->SetSampler("omniSampler");
+	return diffuseMaterial;
+}
+
 Material* CoreEngine::CreateMaterial(LPCWSTR vertexShaderFile, LPCWSTR pixelShaderFile)
 {
 	return renderer->CreateMaterial(vertexShaderFile, pixelShaderFile);
+}
+
+Material* CoreEngine::loadHeightMap(/*const char* filename*/)
+{
+	//Implement loading the HeightMap File here.
+	Material* HeightMap = nullptr;
+
+	HeightMap = CreateMaterial(L"TerrainVertexShader.cso", L"TerrainPixelShader.cso");
+	HeightMap->SetSampler("omniSampler");
+	return HeightMap;
 }
 
 DirectionalLight* CoreEngine::CreateDirectionalLight(XMFLOAT4& ambientColor, XMFLOAT4& diffuseColor, XMFLOAT3& direction)
