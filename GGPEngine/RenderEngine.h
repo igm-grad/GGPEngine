@@ -20,6 +20,7 @@
 
 // Convenience macro for releasing a COM object
 #define ReleaseMacro(x) { if(x){ x->Release(); x = 0; } }
+
 // Macro for popping up a text box based
 // on a failed HRESULT and then quitting (only in debug builds)
 #if defined(DEBUG) | defined(_DEBUG)

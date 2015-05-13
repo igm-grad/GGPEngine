@@ -20,6 +20,9 @@ public:
 	void SetResource(ID3D11Resource* resource, const char* name);
 	void SetSampler(const char* name);								// TO DO: We only setting a basic sampler for a key... need to think this through
 	void SetClampSampler(const char* name);							//We need a clamp for Cube map
+	~Material();
+
+
 protected:
 	std::map<const char*, ID3D11ShaderResourceView*>	resourceMap;
 	std::map<const char*, ID3D11SamplerState*>			samplerMap;
@@ -30,7 +33,6 @@ protected:
 
 	Material(ID3D11Device* device, ID3D11DeviceContext* deviceContext, LPCWSTR vertexShaderFile, LPCWSTR pixelShaderFile);
 	Material();
-	~Material();
 
 	void SetVertexShader(ID3D11Device* device, ID3D11DeviceContext* deviceContext, LPCWSTR vertexShaderFile);
 	void SetVertexShader(SimpleVertexShader* simpleVertexShader);
