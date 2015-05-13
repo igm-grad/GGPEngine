@@ -56,9 +56,12 @@ public:
 	Material*		DiffuseMaterial();
 	Material*		DiffuseNormalMaterial();
 
-	void createCameraCubemap(Camera* camera, const wchar_t* filePath);
-
-	Material*		CreateMaterial(LPCWSTR vertexShaderFile, LPCWSTR pixelShaderFile);
+	// To create a skybox for a specific camera: the user has to pass a camera reference and .dds file
+	void				CreateCubemap(Camera* camera, const wchar_t* filePath);					
+	// To Create a skybox for the default camera. If the user does not give any camera reference, the engine Maps the skybox to the default camera 
+	void				CreateCubemap(const wchar_t* filePath);									
+	
+	Material*			CreateMaterial(LPCWSTR vertexShaderFile, LPCWSTR pixelShaderFile);
 
 	DirectionalLight*	CreateDirectionalLight(XMFLOAT4& ambientColor, XMFLOAT4& diffuseColor, XMFLOAT3& direction);
 	PointLight*			CreatePointLight(XMFLOAT4& ambientColor, XMFLOAT4& diffuseColor, XMFLOAT3& position, float radius);
