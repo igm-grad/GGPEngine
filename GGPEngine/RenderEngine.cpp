@@ -201,8 +201,12 @@ void RenderEngine::UpdateScene(GameObject** gameObjects, int gameObjectsCount, d
 
 void RenderEngine::UpdateParticleSystems(ParticleSystem** particleSystems, int particleSystemCount, double deltaTime)
 {
-	for (int i = 0; i < particleSystemCount; i++) {
-		particleSystems[i]->Update(deltaTime, 0);
+	for (int i = 0; i < particleSystemCount; i++) 
+	{
+		if (particleSystems[i] != NULL) 
+		{
+			particleSystems[i]->Update(deltaTime, 0);
+		}
 	}
 }
 
