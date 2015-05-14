@@ -55,6 +55,7 @@ public:
 	Material*       BasicMaterial();
 	Material*		DiffuseMaterial();
 	Material*		DiffuseNormalMaterial();
+	Material*		ParticleMaterial();
 
 	// To create a skybox for a specific camera: the user has to pass a camera reference and .dds file
 	void				CreateCubemap(Camera* camera, const wchar_t* filePath);					
@@ -75,7 +76,7 @@ public:
 	Behavior*			CreateBehavior();
 
 	bool InitializeUI(const char* url);
-	bool InitializeParticleSystem();
+	bool InitializeParticleSystem(Material* particleMat);
 	bool UIExecuteJavascript(std::string javascript);
 	bool UIRegisterJavascriptFunction(std::string functionName, JSFunctionCallback functionPointer);
 	void EnableDebugLines();

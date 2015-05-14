@@ -140,7 +140,7 @@ private:
 	bool InitMainWindow();
 	bool InitDirect3D();
 
-	bool InitPartSys();
+	bool InitPartSys(Material* mat);
 	bool InitUI(const char* url);
 	bool UIExecuteJavascript(std::string javascript);
 	bool UIRegisterJavascriptFunction(std::string functionName, JSFunctionCallback functionPointer);

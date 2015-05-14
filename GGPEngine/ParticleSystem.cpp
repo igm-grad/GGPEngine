@@ -4,12 +4,13 @@
 #include "Camera.h"
 #include "Transform.h"
 
-ParticleSystem::ParticleSystem(RenderEngine* renderer) : mTexArraySRV(0), mRandomTexSRV(0)
+ParticleSystem::ParticleSystem(RenderEngine* renderer, Material* mat) : mTexArraySRV(0), mRandomTexSRV(0)
 {
 	e = renderer;
+	material = mat;
 
-	SetVertexShader(e->device, e->deviceContext, L"ParticleVS.cso");
-	SetPixelShader(e->device, e->deviceContext, L"ParticlePS.cso");
+	SetVertexShader(e->device, e->deviceContext, L"ParticleVertexShader.cso");
+	SetPixelShader(e->device, e->deviceContext, L"ParticlePixelShader.cso");
 
 	mFirstRun = true;
 	mGameTime = 0.0f;
@@ -35,8 +36,8 @@ ParticleSystem::~ParticleSystem()
 	mVertexBuffer->Release();
 	mIndexBuffer->Release();
 
-	delete simpleVS;
-	delete simplePS;
+	//delete simpleVS;
+	//delete simplePS;
 
 	// Release the buffers.
 	//ShutdownBuffers();
@@ -76,24 +77,24 @@ void ParticleSystem::SetEmitDir(const XMFLOAT3& emitDirW)
 #pragma region Setting Vertex & Pixel Shaders
 void ParticleSystem::SetVertexShader(ID3D11Device* device, ID3D11DeviceContext* deviceContext, LPCWSTR vertexShaderFile)
 {
-	simpleVS = new SimpleVertexShader(device, deviceContext);
-	simpleVS->LoadShaderFile(vertexShaderFile);
+	//simpleVS = new SimpleVertexShader(device, deviceContext);
+	//simpleVS->LoadShaderFile(vertexShaderFile);
 }
 
 void ParticleSystem::SetVertexShader(SimpleVertexShader* simpleVertexShader)
 {
-	simpleVS = simpleVertexShader;
+	//simpleVS = simpleVertexShader;
 }
 
 void ParticleSystem::SetPixelShader(ID3D11Device* device, ID3D11DeviceContext* deviceContext, LPCWSTR pixelShaderFile)
 {
-	simplePS = new SimplePixelShader(device, deviceContext);
-	simplePS->LoadShaderFile(pixelShaderFile);
+	//simplePS = new SimplePixelShader(device, deviceContext);
+	//simplePS->LoadShaderFile(pixelShaderFile);
 }
 
 void ParticleSystem::SetPixelShader(SimplePixelShader* simplePixelShader)
 {
-	simplePS = simplePixelShader;
+	//simplePS = simplePixelShader;
 }
 #pragma endregion
 

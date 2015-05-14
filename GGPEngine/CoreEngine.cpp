@@ -52,8 +52,8 @@ bool CoreEngine::InitializeUI(const char* url) {
 	return renderer->InitUI(url);
 }
 
-bool CoreEngine::InitializeParticleSystem() {
-	return renderer->InitPartSys();
+bool CoreEngine::InitializeParticleSystem(Material* particleMat) {
+	return renderer->InitPartSys(particleMat);
 }
 
 bool CoreEngine::UIExecuteJavascript(std::string javascript) {
@@ -221,6 +221,13 @@ Material* CoreEngine::DiffuseNormalMaterial()
 	Material* diffuseNormalMaterial = CreateMaterial(L"DiffuseNormalVertexShader.cso", L"DiffuseNormalPixelShader.cso");
 	diffuseNormalMaterial->SetSampler("omniSampler");
 	return diffuseNormalMaterial;
+}
+
+Material* CoreEngine::ParticleMaterial()
+{
+	Material* particleMaterial = CreateMaterial(L"ParticleVertexShader.cso", L"ParticlePixelShader.cso");
+	particleMaterial->SetSampler("omniSampler");
+	return particleMaterial;
 }
 
 Material* CoreEngine::CreateMaterial(LPCWSTR vertexShaderFile, LPCWSTR pixelShaderFile)

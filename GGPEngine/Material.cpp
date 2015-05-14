@@ -21,7 +21,6 @@ Material::Material()
 	sPixelShader = __nullptr;
 }
 
-
 Material::~Material()
 {
 	deviceContext->Release();
@@ -89,7 +88,6 @@ void Material::SetTextureCubeResource(const wchar_t* filename, const char* name)
 	resourceMap[name] = shaderResourceView;
 }
 
-
 void Material::SetClampSampler(const char* name)
 {
 	if (samplerMap.find(name) != samplerMap.end()) {
@@ -108,7 +106,6 @@ void Material::SetClampSampler(const char* name)
 	device->CreateSamplerState(&samplerDescription, &sampler);
 	samplerMap[name] = sampler;
 }
-
 
 void Material::SetSampler(const char* name)
 {

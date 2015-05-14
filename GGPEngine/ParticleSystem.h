@@ -1,6 +1,7 @@
 #pragma once
 #include <DirectXMath.h>
 #include <d3d11.h>
+#include "Material.h"
 #include "RenderEngine.h"
 #include "Vertex.h"
 #include <vector>
@@ -31,14 +32,15 @@ class GameObject; //Forward declaration
 class ParticleSystem
 {
 public:
-	ParticleSystem(RenderEngine* renderer);
+	ParticleSystem(RenderEngine* renderer, Material* mat);
 	~ParticleSystem();
 
-	ID3D11Buffer* mVertexBuffer;
-	ID3D11Buffer* mIndexBuffer;
-	SimpleVertexShader* simpleVS;
-	SimplePixelShader* simplePS;
-	std::vector<ParticleVertex> particles;
+	Material*					material;
+	ID3D11Buffer*				mVertexBuffer;
+	ID3D11Buffer*				mIndexBuffer;
+	//SimpleVertexShader*			simpleVS;
+	//SimplePixelShader*			simplePS;
+	std::vector<ParticleVertex>	particles;
 
 	void Reset();
 

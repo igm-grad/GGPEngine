@@ -9,19 +9,9 @@
 int health = 80;
 CoreEngine * engine;
 
-//This function updated actively the UI by executing JS code
-void UpdateBossHealthUI() {
-	std::string javascriptStr = std::string("$('#progressbar').progressbar({ value: ") + std::to_string(health) + "}); ";
-	engine->UIExecuteJavascript(javascriptStr);
-}
-
-//This function is a callback from the UI
-//The JS function name registered to this callback is set with the engine->UIRegisterJavascriptFunction() method.
-void Attack() {
-	health -= 5;
-	if (health < 0) health = 0;
-	UpdateBossHealthUI();
-}
+Material** mats;
+int MATERIAL_COUNT = 3;
+int MATERIAL_INDEX = 0;
 
 // Win32 Entry Point
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
@@ -30,8 +20,25 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 	engine = new CoreEngine(hInstance, prevInstance, cmdLine, showCmd);
 	engine->Initialize();
 
+	#pragma region Define materials
+	Material* debugMaterial = engine->BasicMaterial();
+
+	Material* diffuseMaterial = engine->DiffuseMaterial();
+	diffuseMaterial->SetResource(L"Textures/DiffuseTexture1.JPG", "diffuseTexture");
+	diffuseMaterial->specularExponent = 128.f;
+
+	Material* particleMaterial = engine->ParticleMaterial();
+	particleMaterial->SetResource(L"Textures/DiffuseTexture2.JPG", "diffuseTexture");
+
+	mats = new Material*[MATERIAL_COUNT];
+	mats[0] = debugMaterial;
+	mats[1] = diffuseMaterial;
+	mats[2] = particleMaterial;
+	#pragma endregion
+
 	GameObject* gameObject = engine->CreateGameObject("Models\\Lego.obj");
-	gameObject->material = engine->BasicMaterial();
+	//gameObject->material = engine->BasicMaterial();
+	gameObject->material = mats[MATERIAL_INDEX];
 	gameObject->transform->position.y = -20000;
 
 	/*GameObject* rainGameObject = engine->CreateGameObject();
@@ -40,29 +47,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 	ParticleSystem* Rain = engine->CreateParticleSystemThenAdd(rainGameObject, "Rain");
 	*/
 
-	engine->InitializeParticleSystem();
+	engine->InitializeParticleSystem(mats[2]);
 
 	time_t startPoint = time(NULL);
-
-	//Set a .html file ad overlayer UI
-	//engine->InitializeUI("file:///./UI/test.html");
-	//Set the JS function app.skill to invoke a the C++ function Attack
-	//engine->UIRegisterJavascriptFunction("skill", Attack);
 		
 	// Loop until we get a quit message from the engine
 	while (!engine->exitRequested())
 	{
 		engine->Update();
-
-		//Heal Health Bar every 2 sec
-		time_t timer = time(NULL);
-		int seconds = difftime(timer, startPoint);
-		if (seconds >= 1) {
-			health += 1;
-			if (health > 100) health = 100;
-			UpdateBossHealthUI();
-			startPoint = timer;
-		}
-
 	}
 }

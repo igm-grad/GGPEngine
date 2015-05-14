@@ -14,15 +14,16 @@ SamplerState SampleType;
 struct PixelInputType
 {
 	//float4 position : SV_POSITION;
-	//float2 tex : TEXCOORD0;
+	
 	//float4 color : COLOR;
 
 
 	float4	position	:SV_POSITION;
 	float4	color		:COLOR;
-	float3	size		:TEXCOORD;
-	float3	velocity	:TEXCOORD2;
-	float	age			:TEXCOORD3;
+	float3	size		:TEXCOORD0;
+	float3	velocity	:TEXCOORD1;
+	float	age			:TEXCOORD2;
+	float2	tex			:TEXCOORD3;
 };
 
 //
@@ -39,8 +40,8 @@ float4 main(PixelInputType input) : SV_TARGET
 	// Sample the pixel color from the texture using the sampler at this texture coordinate location.
 	//textureColor = shaderTexture.Sample(SampleType, input.tex);
 
-		// Combine the texture color and the particle color to get the final color result.
-	//	finalColor = textureColor * input.color;
+	// Combine the texture color and the particle color to get the final color result.
+	//finalColor = textureColor * input.color;
 
 	return float4(1, 0, 0, 1);
 }

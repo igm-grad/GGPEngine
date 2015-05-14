@@ -367,13 +367,14 @@ void RenderEngine::DrawParticleSystems(ParticleSystem** particleSystems, int par
 		//deviceContext->IASetIndexBuffer(particleSystems[i]->mIndexBuffer, DXGI_FORMAT_R32_UINT, 0);
 		
 		// TODO: set vertex shader props
-		particleSystems[i]->simpleVS->SetMatrix4x4("worldMatrix", m1);
-		particleSystems[i]->simpleVS->SetMatrix4x4("viewMatrix", defaultCamera->view);
-		particleSystems[i]->simpleVS->SetMatrix4x4("projectionMatrix", defaultCamera->projection);
-		particleSystems[i]->simpleVS->SetShader();
+		particleSystems[i]->material->sVertexShader->SetMatrix4x4("worldMatrix", m1);
+		particleSystems[i]->material->sVertexShader->SetMatrix4x4("viewMatrix", defaultCamera->view);
+		particleSystems[i]->material->sVertexShader->SetMatrix4x4("projectionMatrix", defaultCamera->projection);
+
+		particleSystems[i]->material->sVertexShader->SetShader();
 
 		// TODO: set pixel shader props
-		particleSystems[i]->simplePS->SetShader();
+		particleSystems[i]->material->sPixelShader->SetShader();
 	
 		// Render the triangle.
 		deviceContext->Draw(particleSystems[i]->particles.size(), 0);
@@ -507,7 +508,7 @@ SpotLight*	RenderEngine::CreateSpotLight()
 
 ParticleSystem*	RenderEngine::CreateParticleSystem(const char* attributes, UINT maxParticles)
 {
-	ParticleSystem* partSys = new ParticleSystem(this);
+	ParticleSystem* partSys = new ParticleSystem(this, NULL);
 	partSys->Init(device, NULL, NULL, maxParticles);
 
 
@@ -777,8 +778,8 @@ bool RenderEngine::InitDirect3D() {
 	return true;
 }
 
-bool RenderEngine::InitPartSys() {
-	partSys = new ParticleSystem(this);
+bool RenderEngine::InitPartSys(Material* mat) {
+	partSys = new ParticleSystem(this, mat);
 
 	/*if (!partSys->Initialize()) {
 		return false;
