@@ -4,8 +4,11 @@
 /////////////
 // GLOBALS //
 /////////////
-Texture2D shaderTexture;
-SamplerState SampleType;
+//Texture2D shaderTexture;
+//SamplerState SampleType;
+
+Texture2D		particleTexture	: register(t0);
+SamplerState	omniSampler		: register(s0);
 
 //////////////
 // TYPEDEFS //
@@ -23,7 +26,7 @@ struct PixelInputType
 	float3	size		:TEXCOORD0;
 	float3	velocity	:TEXCOORD1;
 	float	age			:TEXCOORD2;
-	float2	tex			:TEXCOORD3;
+	float2	uv			:TEXCOORD3;
 };
 
 //
@@ -38,7 +41,7 @@ float4 main(PixelInputType input) : SV_TARGET
 	return input.color;
 
 	// Sample the pixel color from the texture using the sampler at this texture coordinate location.
-	//textureColor = shaderTexture.Sample(SampleType, input.tex);
+	textureColor = particleTexture.Sample(omniSampler, input.uv);
 
 	// Combine the texture color and the particle color to get the final color result.
 	//finalColor = textureColor * input.color;

@@ -22,7 +22,7 @@ struct VertexInputType
 	float3	size		:TEXCOORD0;
 	float3	velocity	:TEXCOORD1;
 	float	age			:TEXCOORD2;
-	float2	tex			:TEXCOORD3;
+	float2	uv			:TEXCOORD3;
 };
 
 struct PixelInputType
@@ -32,7 +32,7 @@ struct PixelInputType
 	float3	size		:TEXCOORD0;
 	float3	velocity	:TEXCOORD1;
 	float	age			:TEXCOORD2;
-	float2	tex			:TEXCOORD3;
+	float2	uv			:TEXCOORD3;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -56,7 +56,7 @@ PixelInputType main(VertexInputType input)
 	output.age = input.age;
 
 	// Store the texture coordinates for the pixel shader.
-	output.tex = input.tex;
+	output.uv = input.uv;
 
 	return output;
 }
