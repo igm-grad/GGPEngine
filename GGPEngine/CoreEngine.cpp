@@ -31,11 +31,28 @@ CoreEngine::CoreEngine(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine
 	gamePaused = false;
 	gCore = this;
 	msg = { { 0 } };
+
 }
 
+//#include <Initguid.h>
+//#include <DXGIDebug.h>
 
 CoreEngine::~CoreEngine()
 {
+	/*
+	//Useful for debugging COM trash left behind
+	ID3D11Debug* DebugDevice;
+	HRESULT Result = renderer->device->QueryInterface(__uuidof(ID3D11Debug), (void**)&DebugDevice);
+	DebugDevice->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL);
+	ReleaseMacro(DebugDevice);
+	*/
+
+	for (unsigned int i = 0; i < gameObjects.size(); i++)
+		delete gameObjects[i];
+	
+	delete renderer;
+	delete physics;
+	delete input;
 }
 
 bool CoreEngine::Initialize()
@@ -186,6 +203,28 @@ GameObject*	CoreEngine::Torus()
 	return CreateGameObject("Models\\Torus.obj");
 }
 
+GameObject* CoreEngine::Plane(float width, int vertexPerWidth, float depth, int vertexPerDepth)
+{
+	GameObject* plane = CreateGameObject();
+	plane->mesh = renderer->CreatePlaneMesh(width, vertexPerWidth, depth, vertexPerDepth);
+	return plane;
+}
+
+// Returns a Terrain Game Object. Heightmap must be loaded afterwards.
+GameObject* CoreEngine::Terrain(float width, int vertexPerWidth, float depth, int vertexPerDepth)
+{
+	// Creates Game Object to return.
+	GameObject* returnObject = CreateGameObject();
+	
+	// Creates the Terrain Plane Mesh
+	Mesh* planeMesh = renderer->CreatePlaneMesh(width, vertexPerWidth, depth, vertexPerDepth);
+
+	// Add mesh to Return GameObject
+	returnObject->mesh = planeMesh;
+
+	return returnObject;
+}
+
 Mesh* CoreEngine::CreateMesh(const char* filename)
 {
 	std::unordered_map<std::string, Mesh*>::iterator it = meshIndex.find(filename);
@@ -230,6 +269,13 @@ Material* CoreEngine::ParticleMaterial()
 	return particleMaterial;
 }
 
+Material* CoreEngine::DiffuseFluidMaterial()
+{
+	Material* diffuseMaterial = CreateMaterial(L"DiffuseFluidVertexShader.cso", L"DiffuseFluidPixelShader.cso");
+	diffuseMaterial->SetSampler("omniSampler");
+	return diffuseMaterial;
+}
+
 Material* CoreEngine::CreateMaterial(LPCWSTR vertexShaderFile, LPCWSTR pixelShaderFile)
 {
 	return renderer->CreateMaterial(vertexShaderFile, pixelShaderFile);
@@ -265,6 +311,18 @@ ParticleSystem* CoreEngine::CreateParticleSystemThenAdd(GameObject* targetObject
 
 	return partSys;
 }
+
+
+Material* CoreEngine::loadHeightMap(/*const char* filename*/)
+{
+	//Implement loading the HeightMap File here.
+	Material* HeightMap = nullptr;
+
+	HeightMap = CreateMaterial(L"TerrainVertexShader.cso", L"TerrainPixelShader.cso");
+	HeightMap->SetSampler("omniSampler");
+	return HeightMap;
+}
+
 
 DirectionalLight* CoreEngine::CreateDirectionalLight(XMFLOAT4& ambientColor, XMFLOAT4& diffuseColor, XMFLOAT3& direction)
 {

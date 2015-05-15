@@ -30,6 +30,6 @@ public:
 
 	GameObject(Mesh* mesh) : mesh(mesh) {};
 	GameObject() : GameObject(NULL) {};
-	~GameObject() { delete(mesh); delete(material); delete(transform);  delete(behavior); };
+	~GameObject() { delete(mesh); delete(material); delete(transform); /*delete(behavior);*/ };
 };
 

@@ -49,12 +49,16 @@ public:
 	GameObject*		Cylinder();
 	GameObject*		Helix();
 	GameObject*		Torus();
+	GameObject*		Plane(float width, int vertexPerWidth, float depth, int vertexPerDepth);
+
+	GameObject*		Terrain(float width, int vertexPerWidth, float depth, int vertexPerDepth);
 
 	Mesh*			CreateMesh(const char* filename);
 	
 	Material*       BasicMaterial();
 	Material*		DiffuseMaterial();
 	Material*		DiffuseNormalMaterial();
+	Material*		DiffuseFluidMaterial();
 	Material*		ParticleMaterial();
 
 	// To create a skybox for a specific camera: the user has to pass a camera reference and .dds file
@@ -64,6 +68,7 @@ public:
 	
 	Material*			CreateMaterial(LPCWSTR vertexShaderFile, LPCWSTR pixelShaderFile);
 
+	Material*		loadHeightMap(/*const char* filename*/);
 	void				AddParticleSystem(GameObject* targetObject, ParticleSystem* addedPartSystem);
 	ParticleSystem*		CreateParticleSystem(string attributes, UINT maxParticles = 15);
 	ParticleSystem*		CreateParticleSystemThenAdd(GameObject* targetObject, string attributes, UINT maxParticles = 15);

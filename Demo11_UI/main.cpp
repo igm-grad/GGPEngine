@@ -57,4 +57,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 		}
 
 	}
+
+	delete engine;
 }
