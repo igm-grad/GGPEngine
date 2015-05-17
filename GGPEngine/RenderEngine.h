@@ -20,6 +20,7 @@
 
 // Convenience macro for releasing a COM object
 #define ReleaseMacro(x) { if(x){ x->Release(); x = 0; } }
+
 // Macro for popping up a text box based
 // on a failed HRESULT and then quitting (only in debug builds)
 #if defined(DEBUG) | defined(_DEBUG)
@@ -67,6 +68,8 @@ protected:
 	SpotLight*								CreateSpotLight();
 
 	Camera*									CreateCamera();
+	Camera*									getDefaultCamera();
+	void									setCameraCubeMap(Camera* camera, const wchar_t* filename);
 
 	GameObject**							CullGameObjectsFromCamera(Camera* camera, GameObject** list, int listCount);
 	GameObject**							sortList(GameObject** RenderList, int renderlistCount, float* renderDistFromCamera);
@@ -87,6 +90,7 @@ private:
 	bool wmMouseMoveHook(WPARAM wParam, LPARAM lParam);
 	bool wmMouseButtonDownHook(WPARAM wParam, LPARAM lParam, MouseButton btn);
 	bool wmMouseButtonUpHook(WPARAM wParam, LPARAM lParam, MouseButton btn);
+	void drawSkyBoxes();
 
 	// Game and window state tracking
 	bool      minimized;
@@ -104,6 +108,9 @@ private:
 	ID3D11Texture2D* depthStencilBuffer;
 	ID3D11RenderTargetView* renderTargetView;
 	ID3D11DepthStencilView* depthStencilView;
+	D3D11_RASTERIZER_DESC defaultrasterizerDesc;
+	ID3D11RasterizerState* rasterizerState;
+	ID3D11DepthStencilState* DSLessEqual;
 	D3D11_VIEWPORT viewport;
 	D3D_DRIVER_TYPE driverType;
 	D3D_FEATURE_LEVEL featureLevel;

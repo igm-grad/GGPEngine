@@ -65,9 +65,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 
 	
 	// Set Up the Textures for the Terrain
-	gameObject->material = engine->loadHeightMap(L"Textures/HeightMap.png");
-	gameObject->material->SetResource(L"Textures/RockTexture.png", "diffuseTexture");
-	gameObject->material->SetResource(L"Textures/RockNormal.png", "normalTexture");
+	gameObject->material = engine->loadHeightMap(L"../Demo06_Terrain/Textures/HeightMap.png");
+	gameObject->material->SetResource(L"../Demo06_Terrain/Textures/RockTexture.png", "diffuseTexture");
+	gameObject->material->SetResource(L"../Demo06_Terrain/Textures/RockNormal.png", "normalTexture");
 	
 	// Positions plane in center
 	gameObject->transform->position = XMFLOAT3(0.0f, -1.0f, 0.0f);

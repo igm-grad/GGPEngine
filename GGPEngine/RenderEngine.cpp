@@ -31,6 +31,11 @@ RenderEngine::RenderEngine(HINSTANCE hInstance, WNDPROC MainWndProc) :
 	defaultCamera->transform = new Transform();
 	defaultCamera->transform->position = { 0, 0, -10 };
 	defaultCamera->UpdateProjection(0.25f * 3.1415926535f, AspectRatio(), 0.1f, 100.0f);
+
+	ZeroMemory(&defaultrasterizerDesc, sizeof(D3D11_RASTERIZER_DESC));
+	defaultrasterizerDesc.CullMode = D3D11_CULL_FRONT;
+	defaultrasterizerDesc.FrontCounterClockwise = true;
+	defaultrasterizerDesc.FillMode = D3D11_FILL_SOLID;
 }
 
 RenderEngine::~RenderEngine()
@@ -41,10 +46,17 @@ RenderEngine::~RenderEngine()
 	ReleaseMacro(swapChain);
 	ReleaseMacro(depthStencilBuffer);
 
+	ReleaseMacro(rasterizerState);
+	ReleaseMacro(DSLessEqual);
+	ReleaseMacro(blendState);
+
 	// Restore default device settings
 	if (deviceContext) {
 		deviceContext->ClearState();
 	}
+
+	delete ui;
+	delete defaultCamera;
 
 	// Release the context and finally the device
 	ReleaseMacro(deviceContext);
@@ -63,6 +75,13 @@ bool RenderEngine::Initialize()
 
 	return true;
 }
+
+
+Camera*	RenderEngine::getDefaultCamera()
+{
+	return	defaultCamera;
+}
+
 
 #pragma region Window Resizing Public
 
@@ -193,10 +212,19 @@ void RenderEngine::DrawScene(GameObject** gameObjects, int gameObjectsCount, dou
 	// Background color (Cornflower Blue in this case) for clearing
 	const float color[4] = { 0.4f, 0.6f, 0.75f, 0.0f };
 
-	// Clear the buffer (erases what's on the screen)
+	//Clear the renderTarget Buffer
+	deviceContext->ClearRenderTargetView(renderTargetView, color);
+
+	drawSkyBoxes();
+
+	//Setting the rasterizer mode back to default.		
+	ReleaseMacro(rasterizerState);
+	device->CreateRasterizerState(&defaultrasterizerDesc, &rasterizerState);
+	deviceContext->RSSetState(rasterizerState);
+
+	// Clear the Depth buffer (erases depthbuffer)
 	//  - Do this once per frame
 	//  - At the beginning (before drawing anything)
-	deviceContext->ClearRenderTargetView(renderTargetView, color);
 	deviceContext->ClearDepthStencilView(
 		depthStencilView,
 		D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL,
@@ -219,6 +247,7 @@ void RenderEngine::DrawScene(GameObject** gameObjects, int gameObjectsCount, dou
 		D3D11_COLOR_WRITE_ENABLE_ALL
 	};
 
+	ReleaseMacro(blendState);
 	device->CreateBlendState(&blendDesc, &blendState);
 
 	deviceContext->OMSetBlendState(blendState, nullptr, ~0);
@@ -234,7 +263,13 @@ void RenderEngine::DrawScene(GameObject** gameObjects, int gameObjectsCount, dou
 	renderList = CullGameObjectsFromCamera(defaultCamera, gameObjects, gameObjectsCount);
 
 
-	for (int i = 0; i < renderListCount; ++i) {
+	//if (defaultCamera->CubeMap != nullptr)
+	//{
+	//	renderList[renderListCount] = defaultCamera->CubeMap;
+	//	renderListCount++;							// We also have to draw one extra cube, the skyBox
+	//}
+	//renderlist[count] = skybox; count++
+	for (int i = 0; i < renderListCount ; ++i) {
 		// Set up the input assembler
 		//  - These technically don't need to be set every frame, unless you're changing the
 		//    input layout (different kinds of vertices) or the topology (different primitives)
@@ -251,6 +286,7 @@ void RenderEngine::DrawScene(GameObject** gameObjects, int gameObjectsCount, dou
 		renderList[i]->material->sVertexShader->SetMatrix4x4("projection", defaultCamera->projection);
 		renderList[i]->material->UpdateVertexShaderResources();
 		renderList[i]->material->UpdateVertexShaderSamplers();
+		renderList[i]->material->sVertexShader->SetData("time", &renderList[i]->material->time, sizeof(double));
 		renderList[i]->material->sVertexShader->SetShader();
 
 		// TO DO: This is gross. Less branching would be optimal since lights are the same for every object currently.
@@ -265,6 +301,9 @@ void RenderEngine::DrawScene(GameObject** gameObjects, int gameObjectsCount, dou
 		if (spotLights.size() > 0) {
 			renderList[i]->material->sPixelShader->SetData("spotLights", &spotLights[0], sizeof(SpotLight) * spotLights.size());
 		}
+		renderList[i]->material->sPixelShader->SetFloat3("eyePosition", defaultCamera->transform->position);
+		renderList[i]->material->sPixelShader->SetFloat("specularExponent", renderList[i]->material->specularExponent);
+		renderList[i]->material->sPixelShader->SetData("time", &renderList[i]->material->time, sizeof(double));
 
 		renderList[i]->material->UpdatePixelShaderResources();
 		renderList[i]->material->UpdatePixelShaderSamplers();
@@ -299,6 +338,104 @@ void RenderEngine::DrawScene(GameObject** gameObjects, int gameObjectsCount, dou
 	//  - Do this EXACTLY once per frame
 	//  - Always at the end of the frame
 	HR(swapChain->Present(0, 0));
+}
+
+void RenderEngine::drawSkyBoxes()
+{
+	//Set the rasterizer to cull the front face
+	D3D11_RASTERIZER_DESC rastDesc;
+	ZeroMemory(&rastDesc, sizeof(D3D11_RASTERIZER_DESC));
+	rastDesc.CullMode = D3D11_CULL_BACK;
+	rastDesc.FrontCounterClockwise = true;
+	rastDesc.FillMode = D3D11_FILL_SOLID;
+	ReleaseMacro(rasterizerState);
+	device->CreateRasterizerState(&rastDesc, &rasterizerState);
+	deviceContext->RSSetState(rasterizerState);
+
+	//Set the depth as far as possible. and set the depth as less equal 
+	//so that even the object at the farthest distance are considered closer than the box.
+	D3D11_DEPTH_STENCIL_DESC dssDesc;
+	ZeroMemory(&dssDesc, sizeof(D3D11_DEPTH_STENCIL_DESC));
+	dssDesc.DepthEnable = true;
+	dssDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+	dssDesc.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
+	ReleaseMacro(DSLessEqual);
+	device->CreateDepthStencilState(&dssDesc, &DSLessEqual);
+
+	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	if (defaultCamera->CubeMap != nullptr)
+	{
+		// Copy CPU-side data to a single CPU-side structure
+		//  - Allows us to send the data to the GPU buffer in one step
+		//  - Do this PER OBJECT, before drawing it
+		XMFLOAT4X4 world;
+		XMStoreFloat4x4(&world, XMMatrixTranspose(defaultCamera->CubeMap->transform->getWorldTransform()));
+		defaultCamera->CubeMap->material->sVertexShader->SetMatrix4x4("world", world);
+		defaultCamera->CubeMap->material->sVertexShader->SetMatrix4x4("view", defaultCamera->view);
+		defaultCamera->CubeMap->material->sVertexShader->SetMatrix4x4("projection", defaultCamera->projection);
+		defaultCamera->CubeMap->material->sVertexShader->SetShader();
+
+		defaultCamera->CubeMap->material->UpdatePixelShaderResources();
+		defaultCamera->CubeMap->material->UpdatePixelShaderSamplers();
+		defaultCamera->CubeMap->material->sPixelShader->SetShader();
+
+		// Set buffers in the input assembler
+		//  - This should be done PER OBJECT you intend to draw, as each object could
+		//    potentially have different geometry (and therefore different buffers!)
+		//  - You must have both a vertex and index buffer set to draw
+		UINT stride = sizeof(Vertex);
+		UINT offset = 0;
+		deviceContext->IASetVertexBuffers(0, 1, defaultCamera->CubeMap->mesh->GetVertexBuffer(), &stride, &offset);
+		deviceContext->IASetIndexBuffer(defaultCamera->CubeMap->mesh->GetIndexBuffer(), DXGI_FORMAT_R32_UINT, 0);
+
+
+		// Finally do the actual drawing
+		//  - This should be done PER OBJECT you index to draw
+		//  - This will use all of the currently set DirectX stuff (shaders, buffers, etc)
+		deviceContext->DrawIndexed(
+			defaultCamera->CubeMap->mesh->indexCount,	// The number of indices we're using in this draw
+			0,
+			0);
+
+	}
+
+	//Draw the skyBoxes for every camera
+	vector<Camera>::iterator it;
+	for (it = cameras.begin(); it != cameras.end(); it++)
+	{
+		// Copy CPU-side data to a single CPU-side structure
+		//  - Allows us to send the data to the GPU buffer in one step
+		//  - Do this PER OBJECT, before drawing it
+		XMFLOAT4X4 world;
+		XMStoreFloat4x4(&world, XMMatrixTranspose((*it).CubeMap->transform->getWorldTransform()));
+		(*it).CubeMap->material->sVertexShader->SetMatrix4x4("world", world);
+		(*it).CubeMap->material->sVertexShader->SetMatrix4x4("view", defaultCamera->view);
+		(*it).CubeMap->material->sVertexShader->SetMatrix4x4("projection", defaultCamera->projection);
+		(*it).CubeMap->material->sVertexShader->SetShader();
+
+		(*it).CubeMap->material->UpdatePixelShaderResources();
+		(*it).CubeMap->material->UpdatePixelShaderSamplers();
+		(*it).CubeMap->material->sPixelShader->SetShader();
+
+		// Set buffers in the input assembler
+		//  - This should be done PER OBJECT you intend to draw, as each object could
+		//    potentially have different geometry (and therefore different buffers!)
+		//  - You must have both a vertex and index buffer set to draw
+		UINT stride = sizeof(Vertex);
+		UINT offset = 0;
+		deviceContext->IASetVertexBuffers(0, 1, (*it).CubeMap->mesh->GetVertexBuffer(), &stride, &offset);
+		deviceContext->IASetIndexBuffer((*it).CubeMap->mesh->GetIndexBuffer(), DXGI_FORMAT_R32_UINT, 0);
+
+
+		// Finally do the actual drawing
+		//  - This should be done PER OBJECT you index to draw
+		//  - This will use all of the currently set DirectX stuff (shaders, buffers, etc)
+		deviceContext->DrawIndexed(
+			(*it).CubeMap->mesh->indexCount,	// The number of indices we're using in this draw
+			0,
+			0);
+	}
 }
 
 Mesh* RenderEngine::CreateMesh(const char* filename)
@@ -344,7 +481,7 @@ Mesh* RenderEngine::CreatePlaneMesh(float width, int vertexPerWidth, float depth
 			// #1
 			CurVertex.Position			= XMFLOAT3(i*widthStep - planeWidthDesloc,			0,	k*depthStep - planeDepthDesloc);
 			CurVertex.Normal			= XMFLOAT3(0, 1, 0);
-			CurVertex.UV = XMFLOAT2((float)(i / vertexPerWidth - 1), (float)(k / vertexPerDepth - 1));
+			CurVertex.UV				= XMFLOAT2((float)(i / vertexPerWidth - 1), (float)(k / vertexPerDepth - 1));
 			verts.push_back(CurVertex);
 			indices.push_back(IndicesIndex++);
 				
@@ -419,6 +556,19 @@ Camera* RenderEngine::CreateCamera()
 	return &cameras.back();
 }
 
+void RenderEngine::setCameraCubeMap(Camera* camera, const wchar_t* filename)
+{
+	Mesh* mesh = CreateMesh("Models\\cube.obj");
+	GameObject* cube = new GameObject(mesh);
+
+	Material* cubeMapTex = CreateMaterial(L"SkyBoxVertexShader.cso", L"SkyBoxPixelShader.cso");
+	cubeMapTex->SetTextureCubeResource(filename, "skyBoxTexture");
+	cubeMapTex->SetClampSampler("skyBoxSampler");
+	cube->material = cubeMapTex;
+
+	camera->createCubeMap(cube);
+}
+
 float RenderEngine::getAngle(float ax, float ay, float bx, float by)
 {
 	// manual dot product between position vector and forward direction
@@ -465,10 +615,10 @@ GameObject** RenderEngine::CullGameObjectsFromCamera(Camera* camera, GameObject*
 
 	// Game Objects which will be whithin horizontal and vertical FOV
 	GameObject** RenderList = nullptr;
-	RenderList = new GameObject*[culledListcount];
+	RenderList = new GameObject*[culledListcount+1];							// The additional +1 is to draw the skyBox
 	int renderlistCount = 0;
 
-	float* renderDistFromCamera = new float[culledListcount];
+	float* renderDistFromCamera = new float[culledListcount];			
 
 	// Horizontal FOV in radians
 	float HorizontalFOV = atan(AspectRatio()) / 2;
@@ -479,7 +629,8 @@ GameObject** RenderEngine::CullGameObjectsFromCamera(Camera* camera, GameObject*
 	// Iterate through all Game Obejcts in culled list
 	// Find Position Vector of Game Objects from camera. Positionvector = (GameObjectPosition - CameraPosition)
 	// If Coz Inverse of (PositionVector dot Forward / |Position| * |Forward|) < FOV / 2, Game Object is in view. 
-	for (int i = 0, j = 0; i < culledListcount; ++i)
+	int i, j;
+	for (i = 0, j = 0; i < culledListcount; ++i)
 	{
 		// get Position Vector
 		XMVECTOR GameObjectPosition = XMLoadFloat3(&culledList[i]->transform->position);

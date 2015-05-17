@@ -31,11 +31,28 @@ CoreEngine::CoreEngine(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine
 	gamePaused = false;
 	gCore = this;
 	msg = { { 0 } };
+
 }
 
+//#include <Initguid.h>
+//#include <DXGIDebug.h>
 
 CoreEngine::~CoreEngine()
 {
+	/*
+	//Useful for debugging COM trash left behind
+	ID3D11Debug* DebugDevice;
+	HRESULT Result = renderer->device->QueryInterface(__uuidof(ID3D11Debug), (void**)&DebugDevice);
+	DebugDevice->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL);
+	ReleaseMacro(DebugDevice);
+	*/
+
+	for (unsigned int i = 0; i < gameObjects.size(); i++)
+		delete gameObjects[i];
+	
+	delete renderer;
+	delete physics;
+	delete input;
 }
 
 bool CoreEngine::Initialize()
@@ -62,6 +79,17 @@ bool CoreEngine::UIRegisterJavascriptFunction(std::string functionName, JSFuncti
 
 void CoreEngine::EnableDebugLines() {
 	renderer->isDebugging = true;
+}
+
+
+void CoreEngine::CreateCubemap(Camera* camera, const wchar_t* filePath)
+{
+	renderer->setCameraCubeMap(camera,filePath);
+}
+
+void CoreEngine::CreateCubemap(const wchar_t* filePath)
+{
+	renderer->setCameraCubeMap(renderer->getDefaultCamera(), filePath);
 }
 
 void CoreEngine::Update()
@@ -171,7 +199,13 @@ GameObject*	CoreEngine::Torus()
 	return CreateGameObject("Models\\Torus.obj");
 }
 
-//#MyChanges
+GameObject* CoreEngine::Plane(float width, int vertexPerWidth, float depth, int vertexPerDepth)
+{
+	GameObject* plane = CreateGameObject();
+	plane->mesh = renderer->CreatePlaneMesh(width, vertexPerWidth, depth, vertexPerDepth);
+	return plane;
+}
+
 // Returns a Terrain Game Object. Heightmap must be loaded afterwards.
 GameObject* CoreEngine::Terrain(float width, int vertexPerWidth, float depth, int vertexPerDepth)
 {
@@ -224,6 +258,13 @@ Material* CoreEngine::DiffuseNormalMaterial()
 	return diffuseNormalMaterial;
 }
 
+Material* CoreEngine::DiffuseFluidMaterial()
+{
+	Material* diffuseMaterial = CreateMaterial(L"DiffuseFluidVertexShader.cso", L"DiffuseFluidPixelShader.cso");
+	diffuseMaterial->SetSampler("omniSampler");
+	return diffuseMaterial;
+}
+
 Material* CoreEngine::CreateMaterial(LPCWSTR vertexShaderFile, LPCWSTR pixelShaderFile)
 {
 	return renderer->CreateMaterial(vertexShaderFile, pixelShaderFile);
@@ -231,9 +272,7 @@ Material* CoreEngine::CreateMaterial(LPCWSTR vertexShaderFile, LPCWSTR pixelShad
 
 Material* CoreEngine::loadHeightMap(const wchar_t* filename)
 {
-	//Implement loading the HeightMap File here.
 	Material* HeightMap = nullptr;
-
 	HeightMap = CreateMaterial(L"TerrainVertexShader.cso", L"TerrainPixelShader.cso");
 	HeightMap->SetSampler("omniSampler");
 	HeightMap->SetResource(filename, "heightMap");
