@@ -50,12 +50,16 @@ struct PixelInputType
 // Vertex Shader
 ////////////////////////////////////////////////////
 //Change this from PixelInputType to VStoGS
-PixelInputType main(VSInput input)
+VStoGS main(VSInput input)
 {
-	PixelInputType output;
+	VStoGS output;
+
+	output.position = input.position;
+	output.color = input.color;
+	output.size = input.size;
 
 	// Change the position vector to be 4 units for proper matrix calculations.
-	matrix clip = mul(mul(worldMatrix, viewMatrix), projectionMatrix);
+	/*matrix clip = mul(mul(worldMatrix, viewMatrix), projectionMatrix);
 	// Calculate the position of the vertex against the world, view, and projection matrices.
 	output.position = mul(float4(input.position, 1), clip);
 
@@ -68,7 +72,7 @@ PixelInputType main(VSInput input)
 	output.age = input.age;
 
 	// Store the texture coordinates for the pixel shader.
-	output.uv = input.uv;
+	output.uv = input.uv;*/
 
 	return output;
 }

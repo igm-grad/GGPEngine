@@ -34,7 +34,7 @@ struct GStoPS
 /////////////////////////////
 // Pixel Shader
 /////////////////////////////
-float4 main(PixelInputType input) : SV_TARGET
+float4 main(GStoPS input) : SV_TARGET
 {
 	float4 textureColor;
 	float4 finalColor;
