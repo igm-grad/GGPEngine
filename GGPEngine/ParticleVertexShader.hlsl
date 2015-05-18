@@ -11,11 +11,12 @@ cbuffer MatrixBuffer
 	matrix projectionMatrix;
 };
 
+
 //////////////
 // TYPEDEFS //
 //////////////
 
-struct VertexInputType
+struct VSInput
 {
 	float3	position	:SV_POSITION;
 	float4	color		:COLOR;
@@ -24,6 +25,15 @@ struct VertexInputType
 	float	age			:TEXCOORD2;
 	float2	uv			:TEXCOORD3;
 };
+
+
+struct VStoGS
+{
+	float3	position	: POSITION;
+	float4	color		: COLOR;
+	float	size		: TEXCOORD1;
+};
+
 
 struct PixelInputType
 {
@@ -35,10 +45,12 @@ struct PixelInputType
 	float2	uv			:TEXCOORD3;
 };
 
-////////////////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////
 // Vertex Shader
-////////////////////////////////////////////////////////////////////////////////
-PixelInputType main(VertexInputType input)
+////////////////////////////////////////////////////
+//Change this from PixelInputType to VStoGS
+PixelInputType main(VSInput input)
 {
 	PixelInputType output;
 

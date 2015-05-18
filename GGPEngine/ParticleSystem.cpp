@@ -9,8 +9,8 @@ ParticleSystem::ParticleSystem(RenderEngine* renderer, Material* mat) : mTexArra
 	e = renderer;
 	material = mat;
 
-	SetVertexShader(e->device, e->deviceContext, L"ParticleVertexShader.cso");
-	SetPixelShader(e->device, e->deviceContext, L"ParticlePixelShader.cso");
+	//SetVertexShader(e->device, e->deviceContext, L"ParticleVertexShader.cso");
+	//SetPixelShader(e->device, e->deviceContext, L"ParticlePixelShader.cso");
 
 	mFirstRun = true;
 	mGameTime = 0.0f;
@@ -19,7 +19,7 @@ ParticleSystem::ParticleSystem(RenderEngine* renderer, Material* mat) : mTexArra
 
 	m_particlesPerSecond = 5;
 
-	mMaxParticles = 50;
+	mMaxParticles = 500;
 
 	mEyePosW = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	mEmitPosW = XMFLOAT3(0.0f, 0.0f, 0.0f);
@@ -74,8 +74,8 @@ void ParticleSystem::SetEmitDir(const XMFLOAT3& emitDirW)
 }
 #pragma endregion
 
-#pragma region Setting Vertex & Pixel Shaders
-void ParticleSystem::SetVertexShader(ID3D11Device* device, ID3D11DeviceContext* deviceContext, LPCWSTR vertexShaderFile)
+#pragma region [Deprecated by switching to Material] Setting Vertex & Pixel Shaders
+/*void ParticleSystem::SetVertexShader(ID3D11Device* device, ID3D11DeviceContext* deviceContext, LPCWSTR vertexShaderFile)
 {
 	//simpleVS = new SimpleVertexShader(device, deviceContext);
 	//simpleVS->LoadShaderFile(vertexShaderFile);
@@ -96,6 +96,9 @@ void ParticleSystem::SetPixelShader(SimplePixelShader* simplePixelShader)
 {
 	//simplePS = simplePixelShader;
 }
+
+
+*/
 #pragma endregion
 
 void ParticleSystem::Init(ID3D11Device* device, /*ParticleEffect* fx,*/ ID3D11ShaderResourceView* texArraySRV,

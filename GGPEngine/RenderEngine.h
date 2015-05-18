@@ -65,6 +65,7 @@ protected:
 	//#MyChanges
 	Mesh*									CreatePlaneMesh(float width, int vertexPerWidth, float depth, int vertexPerDepth);
 	Material*								CreateMaterial(LPCWSTR vertexShaderFile, LPCWSTR pixelShaderFile);
+	Material*								CreateMaterial(LPCWSTR vertexShaderFile, LPCWSTR pixelShaderFile, LPCWSTR geometryShaderFile);
 
 	DirectionalLight*						CreateDirectionalLight();
 	PointLight*								CreatePointLight();

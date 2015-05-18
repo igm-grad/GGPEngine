@@ -588,6 +588,11 @@ Material* RenderEngine::CreateMaterial(LPCWSTR vertexShaderFile, LPCWSTR pixelSh
 	return new Material(device, deviceContext, vertexShaderFile, pixelShaderFile);
 }
 
+Material* RenderEngine::CreateMaterial(LPCWSTR vertexShaderFile, LPCWSTR pixelShaderFile, LPCWSTR geometryShaderFile)
+{
+	return new Material(device, deviceContext, vertexShaderFile, pixelShaderFile, geometryShaderFile);
+}
+
 DirectionalLight* RenderEngine::CreateDirectionalLight()
 {
 	directionLights.push_back(DirectionalLight());

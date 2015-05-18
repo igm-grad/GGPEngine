@@ -67,6 +67,7 @@ public:
 	void				CreateCubemap(const wchar_t* filePath);									
 	
 	Material*			CreateMaterial(LPCWSTR vertexShaderFile, LPCWSTR pixelShaderFile);
+	Material*			CreateMaterial(LPCWSTR vertexShaderFile, LPCWSTR pixelShaderFile, LPCWSTR geometryShaderFile);
 
 	Material*		loadHeightMap(/*const char* filename*/);
 	void				AddParticleSystem(GameObject* targetObject, ParticleSystem* addedPartSystem);

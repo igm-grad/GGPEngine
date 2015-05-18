@@ -33,8 +33,10 @@ protected:
 	ID3D11Device*										device;
 	SimpleVertexShader*									sVertexShader;
 	SimplePixelShader*									sPixelShader;
+	SimpleGeometryShader*								sGeometryShader;
 
 	Material(ID3D11Device* device, ID3D11DeviceContext* deviceContext, LPCWSTR vertexShaderFile, LPCWSTR pixelShaderFile);
+	Material(ID3D11Device* device, ID3D11DeviceContext* deviceContext, LPCWSTR vertexShaderFile, LPCWSTR pixelShaderFile, LPCWSTR geometryShaderFile);
 	Material();
 
 	void SetVertexShader(ID3D11Device* device, ID3D11DeviceContext* deviceContext, LPCWSTR vertexShaderFile);
@@ -43,6 +45,8 @@ protected:
 	void SetPixelShader(SimplePixelShader* simplePixelShader);
 	void UpdatePixelShaderResources();
 	void UpdatePixelShaderSamplers();
+	void SetGeometryShader(ID3D11Device* device, ID3D11DeviceContext* deviceContext, LPCWSTR geometryShaderFile);
+	void SetGeometryShader(SimpleGeometryShader* simpleGeometryShader);
 
 	friend class UI;
 	friend class RenderEngine;

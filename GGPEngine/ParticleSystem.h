@@ -50,10 +50,12 @@ public:
 	void SetEmitPos(const XMFLOAT3& emitPosW);
 	void SetEmitDir(const XMFLOAT3& emitDirW);
 
-	void SetVertexShader(ID3D11Device* device, ID3D11DeviceContext* deviceContext, LPCWSTR vertexShaderFile);
-	void SetVertexShader(SimpleVertexShader* simpleVertexShader);
-	void SetPixelShader(ID3D11Device* device, ID3D11DeviceContext* deviceContext, LPCWSTR pixelShaderFile);
-	void SetPixelShader(SimplePixelShader* simplePixelShader);
+	//void SetVertexShader(ID3D11Device* device, ID3D11DeviceContext* deviceContext, LPCWSTR vertexShaderFile);
+	//void SetVertexShader(SimpleVertexShader* simpleVertexShader);
+	//void SetPixelShader(ID3D11Device* device, ID3D11DeviceContext* deviceContext, LPCWSTR pixelShaderFile);
+	//void SetPixelShader(SimplePixelShader* simplePixelShader);
+	//void SetGeometryShader(ID3D11Device* device, ID3D11DeviceContext* deviceContext, LPCWSTR geometryShaderFile);
+	//void SetGeometryShader(SimpleGeometryShader* simpleGeometryShader);
 
 	void Init(ID3D11Device* device,
 		ID3D11ShaderResourceView* texArraySRV,

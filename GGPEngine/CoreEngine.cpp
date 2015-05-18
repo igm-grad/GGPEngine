@@ -264,7 +264,7 @@ Material* CoreEngine::DiffuseNormalMaterial()
 
 Material* CoreEngine::ParticleMaterial()
 {
-	Material* particleMaterial = CreateMaterial(L"ParticleVertexShader.cso", L"ParticlePixelShader.cso");
+	Material* particleMaterial = CreateMaterial(L"ParticleVertexShader.cso", L"ParticlePixelShader.cso", L"ParticleGeometryShader.cso");
 	particleMaterial->SetSampler("omniSampler");
 	return particleMaterial;
 }
@@ -279,6 +279,11 @@ Material* CoreEngine::DiffuseFluidMaterial()
 Material* CoreEngine::CreateMaterial(LPCWSTR vertexShaderFile, LPCWSTR pixelShaderFile)
 {
 	return renderer->CreateMaterial(vertexShaderFile, pixelShaderFile);
+}
+
+Material* CoreEngine::CreateMaterial(LPCWSTR vertexShaderFile, LPCWSTR pixelShaderFile, LPCWSTR geometryShaderFile)
+{
+	return renderer->CreateMaterial(vertexShaderFile, pixelShaderFile, geometryShaderFile);
 }
 
 void CoreEngine::AddParticleSystem(GameObject* targetObject, ParticleSystem* addedPartSystem)
