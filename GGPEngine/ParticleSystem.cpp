@@ -17,9 +17,9 @@ ParticleSystem::ParticleSystem(RenderEngine* renderer, Material* mat) : mTexArra
 	mTimeStep = 0.0f;
 	mAge = 0.0f;
 
-	m_particlesPerSecond = 5;
+	m_particlesPerSecond = 2;
 
-	mMaxParticles = 500;
+	mMaxParticles = 50;
 
 	mEyePosW = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	mEmitPosW = XMFLOAT3(0.0f, 0.0f, 0.0f);

@@ -14,7 +14,7 @@ SamplerState	omniSampler		: register(s0);
 // TYPEDEFS //
 //////////////
 
-struct PixelInputType
+/*struct PixelInputType
 {
 	float4	position	:SV_POSITION;
 	float4	color		:COLOR;
@@ -22,13 +22,13 @@ struct PixelInputType
 	float3	velocity	:TEXCOORD1;
 	float	age			:TEXCOORD2;
 	float2	uv			:TEXCOORD3;
-};
+};*/
 
 struct GStoPS
 {
 	float4 position		: SV_POSITION;
 	float4 color		: COLOR;
-	float2 uv			: TEXCOORD0;
+	//float2 uv			: TEXCOORD0;
 };
 
 /////////////////////////////
@@ -43,7 +43,7 @@ float4 main(GStoPS input) : SV_TARGET
 	return input.color;
 
 	// Sample the pixel color from the texture using the sampler at this texture coordinate location.
-	textureColor = particleTexture.Sample(omniSampler, input.uv);
+	//textureColor = particleTexture.Sample(omniSampler, input.uv);
 
 	// Combine the texture color and the particle color to get the final color result.
 	//finalColor = textureColor * input.color;

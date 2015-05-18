@@ -31,9 +31,9 @@ void main(point VStoGS input[1], inout TriangleStream<GStoPS> outStream)
 
 	// Offsets for smaller triangles
 	float4 offsets[3];
-	offsets[0] = float4(0, +0.1f, -0.1f, 0);
-	offsets[1] = float4(+0.1f, -0.1f, -0.1f, 0);
-	offsets[2] = float4(-0.1f, -0.1f, -0.1f, 0);
+	offsets[0] = float4(0, +0.5f, -0.5f, 0);
+	offsets[1] = float4(+0.5f, -0.5f, -0.5f, 0);
+	offsets[2] = float4(-0.5f, -0.5f, -0.5f, 0);
 
 	// Calculate world view proj matrix
 	matrix wvp = mul(mul(world, view), projection);

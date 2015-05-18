@@ -385,11 +385,15 @@ void RenderEngine::DrawParticleSystems(ParticleSystem** particleSystems, int par
 		particleSystems[i]->material->sVertexShader->SetMatrix4x4("viewMatrix", defaultCamera->view);
 		particleSystems[i]->material->sVertexShader->SetMatrix4x4("projectionMatrix", defaultCamera->projection);
 
-		particleSystems[i]->material->sVertexShader->SetShader();
+		particleSystems[i]->material->sGeometryShader->SetMatrix4x4("world", m1);
+		particleSystems[i]->material->sGeometryShader->SetMatrix4x4("view", defaultCamera->view);
+		particleSystems[i]->material->sGeometryShader->SetMatrix4x4("projection", defaultCamera->projection);
 
+		particleSystems[i]->material->sVertexShader->SetShader();
 		// TODO: set pixel shader props
 		particleSystems[i]->material->sPixelShader->SetShader();
-	
+		particleSystems[i]->material->sGeometryShader->SetShader();
+		
 		// Render the triangle.
 		deviceContext->Draw(particleSystems[i]->particles.size(), 0);
 		//deviceContext->DrawIndexed(particleSystems[i]->particles.size(), 0, 0);

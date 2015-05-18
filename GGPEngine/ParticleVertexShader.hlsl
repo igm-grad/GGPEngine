@@ -23,7 +23,6 @@ struct VSInput
 	float3	size		:TEXCOORD0;
 	float3	velocity	:TEXCOORD1;
 	float	age			:TEXCOORD2;
-	float2	uv			:TEXCOORD3;
 };
 
 
@@ -35,7 +34,7 @@ struct VStoGS
 };
 
 
-struct PixelInputType
+/*struct PixelInputType
 {
 	float4	position	:SV_POSITION;
 	float4	color		:COLOR;
@@ -43,7 +42,7 @@ struct PixelInputType
 	float3	velocity	:TEXCOORD1;
 	float	age			:TEXCOORD2;
 	float2	uv			:TEXCOORD3;
-};
+};*/
 
 
 ////////////////////////////////////////////////////
