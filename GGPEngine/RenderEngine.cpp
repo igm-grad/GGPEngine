@@ -613,7 +613,7 @@ GameObject** RenderEngine::CullGameObjectsFromCamera(Camera* camera, GameObject*
 
 	// Game Objects which will be whithin horizontal and vertical FOV
 	GameObject** RenderList = nullptr;
-	RenderList = new GameObject*[culledListcount+1];							// The additional +1 is to draw the skyBox
+	RenderList = new GameObject*[culledListcount];							// The additional +1 is to draw the skyBox
 	int renderlistCount = 0;
 
 	float* renderDistFromCamera = new float[culledListcount];			
