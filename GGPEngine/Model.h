@@ -21,11 +21,10 @@ struct Weight
 
 class Model
 {
-private:
+public:
 	std::vector<Mesh*> meshes;
 	std::vector<Joint*> joints;
 
-public:
 	Model();
 	~Model();
 };
