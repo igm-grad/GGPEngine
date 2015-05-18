@@ -46,10 +46,17 @@ RenderEngine::~RenderEngine()
 	ReleaseMacro(swapChain);
 	ReleaseMacro(depthStencilBuffer);
 
+	ReleaseMacro(rasterizerState);
+	ReleaseMacro(DSLessEqual);
+	ReleaseMacro(blendState);
+
 	// Restore default device settings
 	if (deviceContext) {
 		deviceContext->ClearState();
 	}
+
+	delete ui;
+	delete defaultCamera;
 
 	// Release the context and finally the device
 	ReleaseMacro(deviceContext);
@@ -65,6 +72,8 @@ bool RenderEngine::Initialize()
 	if (!InitDirect3D()) {
 		return false;
 	}
+
+	return true;
 }
 
 
@@ -208,7 +217,8 @@ void RenderEngine::DrawScene(GameObject** gameObjects, int gameObjectsCount, dou
 
 	drawSkyBoxes();
 
-	//Setting the rasterizer mode back to default.			
+	//Setting the rasterizer mode back to default.		
+	ReleaseMacro(rasterizerState);
 	device->CreateRasterizerState(&defaultrasterizerDesc, &rasterizerState);
 	deviceContext->RSSetState(rasterizerState);
 
@@ -237,6 +247,7 @@ void RenderEngine::DrawScene(GameObject** gameObjects, int gameObjectsCount, dou
 		D3D11_COLOR_WRITE_ENABLE_ALL
 	};
 
+	ReleaseMacro(blendState);
 	device->CreateBlendState(&blendDesc, &blendState);
 
 	deviceContext->OMSetBlendState(blendState, nullptr, ~0);
@@ -273,6 +284,7 @@ void RenderEngine::DrawScene(GameObject** gameObjects, int gameObjectsCount, dou
 		renderList[i]->material->sVertexShader->SetMatrix4x4("world", world);
 		renderList[i]->material->sVertexShader->SetMatrix4x4("view", defaultCamera->view);
 		renderList[i]->material->sVertexShader->SetMatrix4x4("projection", defaultCamera->projection);
+		renderList[i]->material->sVertexShader->SetData("time", &renderList[i]->material->time, sizeof(double));
 		renderList[i]->material->sVertexShader->SetShader();
 
 		// TO DO: This is gross. Less branching would be optimal since lights are the same for every object currently.
@@ -289,6 +301,8 @@ void RenderEngine::DrawScene(GameObject** gameObjects, int gameObjectsCount, dou
 		}
 		renderList[i]->material->sPixelShader->SetFloat3("eyePosition", defaultCamera->transform->position);
 		renderList[i]->material->sPixelShader->SetFloat("specularExponent", renderList[i]->material->specularExponent);
+		renderList[i]->material->sPixelShader->SetData("time", &renderList[i]->material->time, sizeof(double));
+
 		renderList[i]->material->UpdatePixelShaderResources();
 		renderList[i]->material->UpdatePixelShaderSamplers();
 		renderList[i]->material->sPixelShader->SetShader();
@@ -332,6 +346,7 @@ void RenderEngine::drawSkyBoxes()
 	rastDesc.CullMode = D3D11_CULL_BACK;
 	rastDesc.FrontCounterClockwise = true;
 	rastDesc.FillMode = D3D11_FILL_SOLID;
+	ReleaseMacro(rasterizerState);
 	device->CreateRasterizerState(&rastDesc, &rasterizerState);
 	deviceContext->RSSetState(rasterizerState);
 
@@ -342,6 +357,7 @@ void RenderEngine::drawSkyBoxes()
 	dssDesc.DepthEnable = true;
 	dssDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
 	dssDesc.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
+	ReleaseMacro(DSLessEqual);
 	device->CreateDepthStencilState(&dssDesc, &DSLessEqual);
 
 	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -423,6 +439,90 @@ void RenderEngine::drawSkyBoxes()
 Mesh* RenderEngine::CreateMesh(const char* filename)
 {
 	return new Mesh(filename, device);
+}
+
+//#MyChanges
+// Creates a plane mesh given a width and a depth. Vertex desity must be set by setting how many vertexes per width and depth must be used.
+// Minimum number of vertex per axis is 2, otherwise no triangles can be drawn.
+Mesh* RenderEngine::CreatePlaneMesh(float width, int vertexPerWidth, float depth, int vertexPerDepth)
+{
+	// Test for minimum number of vertex
+	if (vertexPerWidth < 2) vertexPerWidth = 2;
+	if (vertexPerDepth < 2) vertexPerDepth = 2;
+	
+	std::vector<Vertex> verts;           // Verts we're assembling
+	std::vector<UINT> indices;           // Indices of these verts
+
+	// The distance between vertexes in a given axis:
+	float widthStep = width / vertexPerWidth;
+	float depthStep = depth / vertexPerDepth;
+
+	float planeWidthDesloc = width / 2;
+	float planeDepthDesloc = depth / 2;
+
+		// Clear both vectors. Not necesasry, but a good practice.
+	verts.clear();
+	indices.clear();
+
+	Vertex CurVertex;
+	UINT IndicesIndex = 0;
+		
+	// Loop though the columns (z-axis)
+	for (float k = 0; k < vertexPerDepth -1; k++)
+	{
+		// Loop though the lines (x-axis)
+		for (float i = 0; i < vertexPerWidth -1; i++) // May need to change to vertexperwidth.
+		{	// Creates a quad. Using two triangles
+			// Vertices Position = (vertex position) - (plane dislocation)
+			
+			//Top Triangle
+			// #1
+			CurVertex.Position			= XMFLOAT3(i*widthStep - planeWidthDesloc,			0,	k*depthStep - planeDepthDesloc);
+			CurVertex.Normal			= XMFLOAT3(0, 1, 0);
+			CurVertex.UV				= XMFLOAT2((float)(i / vertexPerWidth - 1), (float)(k / vertexPerDepth - 1));
+			verts.push_back(CurVertex);
+			indices.push_back(IndicesIndex++);
+				
+			// #2
+			CurVertex.Position			= XMFLOAT3(i*widthStep - planeWidthDesloc,			0,	(k + 1)*depthStep - planeDepthDesloc);
+			CurVertex.Normal			= XMFLOAT3(0, 1, 0);
+			CurVertex.UV = XMFLOAT2((float)(i / vertexPerWidth - 1), (float)((k + 1) / vertexPerDepth - 1));
+			verts.push_back(CurVertex);
+			indices.push_back(IndicesIndex++);
+
+			// #3
+			CurVertex.Position			= XMFLOAT3((i + 1)*widthStep - planeWidthDesloc,	0,	k*depthStep - planeDepthDesloc);
+			CurVertex.Normal			= XMFLOAT3(0, 1, 0);
+			CurVertex.UV = XMFLOAT2((float)((i + 1) / vertexPerWidth - 1), (float)(k / vertexPerDepth - 1));
+			verts.push_back(CurVertex);
+			indices.push_back(IndicesIndex++);
+
+			//Bottom Triangle
+			// #1
+			CurVertex.Position			= XMFLOAT3((i+1)*widthStep - planeWidthDesloc,		0,	k*depthStep - planeDepthDesloc);
+			CurVertex.Normal			= XMFLOAT3(0, 1, 0);
+			CurVertex.UV = XMFLOAT2((float)((i + 1) / vertexPerWidth - 1), (float)(k / vertexPerDepth - 1));
+			verts.push_back(CurVertex);
+			indices.push_back(IndicesIndex++);
+
+			// #2
+			CurVertex.Position			= XMFLOAT3(i*widthStep - planeWidthDesloc,			0,	(k + 1)*depthStep - planeDepthDesloc);
+			CurVertex.Normal			= XMFLOAT3(0, 1, 0);
+			CurVertex.UV = XMFLOAT2((float)(i / vertexPerWidth - 1), (float)((k + 1) / vertexPerDepth - 1));
+			verts.push_back(CurVertex);
+			indices.push_back(IndicesIndex++);
+
+			// #3
+			CurVertex.Position			= XMFLOAT3((i + 1)*widthStep - planeWidthDesloc,	0,	(k + 1)*depthStep - (planeDepthDesloc));
+			CurVertex.Normal			= XMFLOAT3(0, 1, 0);
+			CurVertex.UV = XMFLOAT2((float)((i + 1) / vertexPerWidth - 1), (float)((k + 1) / vertexPerDepth - 1));
+			verts.push_back(CurVertex);
+			indices.push_back(IndicesIndex++);				
+		}
+	}
+
+	Mesh* returnMesh = new Mesh(&verts[0], verts.size(), &indices[0], indices.size(), device);
+	return returnMesh;
 }
 
 Material* RenderEngine::CreateMaterial(LPCWSTR vertexShaderFile, LPCWSTR pixelShaderFile)

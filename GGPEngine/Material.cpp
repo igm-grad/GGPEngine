@@ -4,8 +4,10 @@
 #include <WICTextureLoader.h>
 #include <DDSTextureLoader.h>
 
-
 #define GetCurrentDir _getcwd
+
+#define ReleaseMacro(x) { if(x){ x->Release(); x = 0; } }
+
 
 using namespace DirectX;
 
@@ -24,8 +26,16 @@ Material::Material()
 
 Material::~Material()
 {
-	deviceContext->Release();
-	device->Release();
+	for (std::map<const char*, ID3D11ShaderResourceView*>::iterator iter = resourceMap.begin(); iter != resourceMap.end(); iter++)
+	{
+		ReleaseMacro(iter->second);
+	}
+
+	for (std::map<const char*, ID3D11SamplerState*>::iterator iter = samplerMap.begin(); iter != samplerMap.end(); iter++)
+	{
+		ReleaseMacro(iter->second);
+	}
+
 	delete sVertexShader;
 	delete sPixelShader;
 }
@@ -54,9 +64,7 @@ void Material::SetPixelShader(SimplePixelShader* simplePixelShader)
 
 void Material::SetResource(const wchar_t* filename, const char* name)
 {
-	if (resourceMap.find(name) != resourceMap.end()) {
-		resourceMap[name]->Release();
-	}
+	ReleaseMacro(resourceMap[name]);
 
 	ID3D11ShaderResourceView* shaderResourceView;
 
@@ -66,9 +74,7 @@ void Material::SetResource(const wchar_t* filename, const char* name)
 
 void Material::SetResource(ID3D11Resource* resource, const char* name)
 {
-	if (resourceMap.find(name) != resourceMap.end()) {
-		resourceMap[name]->Release();
-	}
+	ReleaseMacro(resourceMap[name]);
 
 	ID3D11ShaderResourceView* shaderResourceView;
 
@@ -79,9 +85,7 @@ void Material::SetResource(ID3D11Resource* resource, const char* name)
 // TO load DDS files as sky Boxes
 void Material::SetTextureCubeResource(const wchar_t* filename, const char* name)
 {
-	if (resourceMap.find(name) != resourceMap.end()) {
-		resourceMap[name]->Release();
-	}
+	ReleaseMacro(resourceMap[name]);
 
 	ID3D11ShaderResourceView* shaderResourceView;
 	//filename to be changed later
@@ -92,9 +96,7 @@ void Material::SetTextureCubeResource(const wchar_t* filename, const char* name)
 
 void Material::SetClampSampler(const char* name)
 {
-	if (samplerMap.find(name) != samplerMap.end()) {
-		samplerMap[name]->Release();
-	}
+	ReleaseMacro(samplerMap[name]); 
 
 	// TO DO: Instantiating a basic sampler until we determine abstraction for D3D11_SAMPLER_DESC
 	ID3D11SamplerState* sampler;
@@ -109,13 +111,20 @@ void Material::SetClampSampler(const char* name)
 	samplerMap[name] = sampler;
 }
 
+void Material::SetVSFloat(float data, const char* name)
+{
+	sVertexShader->SetFloat(name, data);
+}
+
+void Material::SetPSFloat(float data, const char* name)
+{
+	sPixelShader->SetFloat(name, data);
+}
 
 void Material::SetSampler(const char* name)
 {
-	if (samplerMap.find(name) != samplerMap.end()) {
-		samplerMap[name]->Release();
-	}
-
+	ReleaseMacro(samplerMap[name]);
+	
 	// TO DO: Instantiating a basic sampler until we determine abstraction for D3D11_SAMPLER_DESC
 	ID3D11SamplerState* sampler;
 	D3D11_SAMPLER_DESC samplerDescription;
