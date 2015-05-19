@@ -4,7 +4,7 @@
 #include "dxerr.h"
 #include <string>
 #include <assert.h>
-#include "Material.h"
+#include "Model.h"
 #include <DirectXMath.h>
 #include <vector>
 #include "GameObject.h"
@@ -57,8 +57,8 @@ protected:
 	void CalculateFrameStats(float totalTime);
 	void UpdateScene(GameObject** gameObjects, int gameObjectsCount, double deltaTime);
 	void DrawScene(GameObject** gameObjects, int gameObjectsCount, double deltaTime);
-	
-	Mesh*									CreateMesh(const char* filename);
+
+	Model*									CreateModel(const char* filename);
 	//#MyChanges
 	Mesh*									CreatePlaneMesh(float width, int vertexPerWidth, float depth, int vertexPerDepth);
 	Material*								CreateMaterial(LPCWSTR vertexShaderFile, LPCWSTR pixelShaderFile);
@@ -91,6 +91,7 @@ private:
 	bool wmMouseButtonDownHook(WPARAM wParam, LPARAM lParam, MouseButton btn);
 	bool wmMouseButtonUpHook(WPARAM wParam, LPARAM lParam, MouseButton btn);
 	void drawSkyBoxes();
+	void AnimateModel(Model* model, float deltaTime, int animation);
 
 	// Game and window state tracking
 	bool      minimized;
