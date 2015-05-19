@@ -22,6 +22,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Demo02_Fluid", "Demo02_Flui
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Demo09_SkyBox", "Demo09_SkyBox\Demo09_SkyBox.vcxproj", "{C4530E58-5B10-47B1-B10B-04430755BE3E}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Demo06_Terrain", "Demo06_Terrain\Demo06_Terrain.vcxproj", "{CAA29588-D68E-4550-8570-2FF7C62D4201}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -130,6 +132,18 @@ Global
 		{C4530E58-5B10-47B1-B10B-04430755BE3E}.Release|Win32.ActiveCfg = Release|Win32
 		{C4530E58-5B10-47B1-B10B-04430755BE3E}.Release|Win32.Build.0 = Release|Win32
 		{C4530E58-5B10-47B1-B10B-04430755BE3E}.Release|x64.ActiveCfg = Release|Win32
+		{CAA29588-D68E-4550-8570-2FF7C62D4201}.Debug|Any CPU.ActiveCfg = Debug|Win32
+		{CAA29588-D68E-4550-8570-2FF7C62D4201}.Debug|Mixed Platforms.ActiveCfg = Debug|Win32
+		{CAA29588-D68E-4550-8570-2FF7C62D4201}.Debug|Mixed Platforms.Build.0 = Debug|Win32
+		{CAA29588-D68E-4550-8570-2FF7C62D4201}.Debug|Win32.ActiveCfg = Debug|Win32
+		{CAA29588-D68E-4550-8570-2FF7C62D4201}.Debug|Win32.Build.0 = Debug|Win32
+		{CAA29588-D68E-4550-8570-2FF7C62D4201}.Debug|x64.ActiveCfg = Debug|Win32
+		{CAA29588-D68E-4550-8570-2FF7C62D4201}.Release|Any CPU.ActiveCfg = Release|Win32
+		{CAA29588-D68E-4550-8570-2FF7C62D4201}.Release|Mixed Platforms.ActiveCfg = Release|Win32
+		{CAA29588-D68E-4550-8570-2FF7C62D4201}.Release|Mixed Platforms.Build.0 = Release|Win32
+		{CAA29588-D68E-4550-8570-2FF7C62D4201}.Release|Win32.ActiveCfg = Release|Win32
+		{CAA29588-D68E-4550-8570-2FF7C62D4201}.Release|Win32.Build.0 = Release|Win32
+		{CAA29588-D68E-4550-8570-2FF7C62D4201}.Release|x64.ActiveCfg = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
