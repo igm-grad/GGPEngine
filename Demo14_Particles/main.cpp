@@ -47,7 +47,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 	ParticleSystem* Rain = engine->CreateParticleSystemThenAdd(rainGameObject, "Rain");
 	*/
 
-	engine->InitializeParticleSystem(mats[2]);
+	engine->CreateParticleSystem(mats[2], 50);
 
 	time_t startPoint = time(NULL);
 		

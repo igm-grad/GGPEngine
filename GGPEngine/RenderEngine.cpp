@@ -339,8 +339,13 @@ void RenderEngine::DrawScene(GameObject** gameObjects, int gameObjectsCount, dou
 			0);
 	}
 
-	UpdateParticleSystems(&partSys, 1, deltaTime);
-	DrawParticleSystems(&partSys, 1, deltaTime);
+	//UpdateParticleSystems(&partSys, 1, deltaTime);
+	//DrawParticleSystems(&partSys, 1, deltaTime);
+	if (particleSystems.size() > 0)
+	{
+		UpdateParticleSystems(&particleSystems[0], 1, deltaTime);
+		DrawParticleSystems(&particleSystems[0], 1, deltaTime);
+	}
 
 	if (ui) {
 		ui->Update(); // Maybe now as frequently?
@@ -372,6 +377,8 @@ void RenderEngine::DrawParticleSystems(ParticleSystem** particleSystems, int par
 	size_t stride = sizeof(ParticleVertex);
 
 	Transform w = Transform();
+	w.movementSpeed = -1;
+	w.MoveForward();
 	XMMATRIX m = w.getWorldTransform();
 	XMFLOAT4X4 m1;
 	XMStoreFloat4x4(&m1, m);
@@ -615,11 +622,11 @@ SpotLight*	RenderEngine::CreateSpotLight()
 	return &spotLights.back();
 }
 
-ParticleSystem*	RenderEngine::CreateParticleSystem(const char* attributes, UINT maxParticles)
+ParticleSystem*	RenderEngine::CreateParticleSystem(Material* mat, UINT maxParticles)
 {
-	ParticleSystem* partSys = new ParticleSystem(this, NULL);
+	ParticleSystem* partSys = new ParticleSystem(this, mat);
 	partSys->Init(device, NULL, NULL, maxParticles);
-
+	particleSystems.push_back(partSys);
 
 	return partSys;
 }

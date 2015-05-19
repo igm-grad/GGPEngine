@@ -70,9 +70,7 @@ public:
 	Material*			CreateMaterial(LPCWSTR vertexShaderFile, LPCWSTR pixelShaderFile, LPCWSTR geometryShaderFile);
 
 	Material*		loadHeightMap(/*const char* filename*/);
-	void				AddParticleSystem(GameObject* targetObject, ParticleSystem* addedPartSystem);
-	ParticleSystem*		CreateParticleSystem(string attributes, UINT maxParticles = 15);
-	ParticleSystem*		CreateParticleSystemThenAdd(GameObject* targetObject, string attributes, UINT maxParticles = 15);
+	ParticleSystem*		CreateParticleSystem(Material* particleMat, UINT maxParticles = 50);
 	
 	DirectionalLight*	CreateDirectionalLight(XMFLOAT4& ambientColor, XMFLOAT4& diffuseColor, XMFLOAT3& direction);
 	PointLight*			CreatePointLight(XMFLOAT4& ambientColor, XMFLOAT4& diffuseColor, XMFLOAT3& position, float radius);
@@ -82,7 +80,7 @@ public:
 	Behavior*			CreateBehavior();
 
 	bool InitializeUI(const char* url);
-	bool InitializeParticleSystem(Material* particleMat);
+	ParticleSystem* InitializeParticleSystem(Material* particleMat);
 	bool UIExecuteJavascript(std::string javascript);
 	bool UIRegisterJavascriptFunction(std::string functionName, JSFunctionCallback functionPointer);
 	void EnableDebugLines();

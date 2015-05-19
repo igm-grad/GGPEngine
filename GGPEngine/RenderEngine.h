@@ -75,7 +75,7 @@ protected:
 	Camera*									getDefaultCamera();
 	void									setCameraCubeMap(Camera* camera, const wchar_t* filename);
 
-	ParticleSystem*							CreateParticleSystem(const char* attributes, UINT maxParticles);
+	ParticleSystem*							CreateParticleSystem(Material* mat, UINT maxParticles);
 
 	GameObject**							CullGameObjectsFromCamera(Camera* camera, GameObject** list, int listCount);
 	GameObject**							sortList(GameObject** RenderList, int renderlistCount, float* renderDistFromCamera);
@@ -137,6 +137,8 @@ private:
 
 	Camera* defaultCamera;
 	std::vector<Camera> cameras;
+
+	std::vector<ParticleSystem*>	particleSystems;
 
 	// temp solution
 	int renderListCount;

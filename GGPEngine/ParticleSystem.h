@@ -35,6 +35,7 @@ public:
 	ParticleSystem(RenderEngine* renderer, Material* mat);
 	~ParticleSystem();
 
+	Transform*					transform;
 	Material*					material;
 	ID3D11Buffer*				mVertexBuffer;
 	ID3D11Buffer*				mIndexBuffer;

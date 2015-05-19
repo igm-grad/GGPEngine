@@ -69,10 +69,6 @@ bool CoreEngine::InitializeUI(const char* url) {
 	return renderer->InitUI(url);
 }
 
-bool CoreEngine::InitializeParticleSystem(Material* particleMat) {
-	return renderer->InitPartSys(particleMat);
-}
-
 bool CoreEngine::UIExecuteJavascript(std::string javascript) {
 	return renderer->UIExecuteJavascript(javascript);
 }
@@ -286,37 +282,15 @@ Material* CoreEngine::CreateMaterial(LPCWSTR vertexShaderFile, LPCWSTR pixelShad
 	return renderer->CreateMaterial(vertexShaderFile, pixelShaderFile, geometryShaderFile);
 }
 
-void CoreEngine::AddParticleSystem(GameObject* targetObject, ParticleSystem* addedPartSystem)
+ParticleSystem* CoreEngine::CreateParticleSystem(Material* particleMat, UINT maxParticles)
 {
-	//Temporary:
-	//Replace target's particle system
-	//targetObject->particleSystem = addedPartSystem;
-
-
-	//Future:
-	//Look at Target's Effects.
-	//Add the particle system to Target's Effects Systems.
-}
-
-ParticleSystem* CoreEngine::CreateParticleSystem(string attributes, UINT maxParticles)
-{
-	ParticleSystem* partSys = renderer->CreateParticleSystem("", maxParticles);
-
-
-
+	ParticleSystem* partSys = renderer->CreateParticleSystem(particleMat, maxParticles);
 	return partSys;
 }
 
-ParticleSystem* CoreEngine::CreateParticleSystemThenAdd(GameObject* targetObject, string attributes, UINT maxParticles)
-{
-	//Create the particle system using the other call.
-	ParticleSystem* partSys = CreateParticleSystem("", maxParticles);
-
-	AddParticleSystem(targetObject, partSys);
-
-	return partSys;
+ParticleSystem* CoreEngine::InitializeParticleSystem(Material* particleMat) {
+	return renderer->CreateParticleSystem(particleMat, 50);
 }
-
 
 Material* CoreEngine::loadHeightMap(/*const char* filename*/)
 {
@@ -327,7 +301,6 @@ Material* CoreEngine::loadHeightMap(/*const char* filename*/)
 	HeightMap->SetSampler("omniSampler");
 	return HeightMap;
 }
-
 
 DirectionalLight* CoreEngine::CreateDirectionalLight(XMFLOAT4& ambientColor, XMFLOAT4& diffuseColor, XMFLOAT3& direction)
 {
