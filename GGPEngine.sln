@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.31101.0
+VisualStudioVersion = 12.0.30501.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GGPEngine", "GGPEngine\GGPEngine.vcxproj", "{596D301E-50B2-4205-A1A6-B04C2D4732A3}"
 EndProject
@@ -88,6 +88,7 @@ Global
 		{73D568C0-B767-468E-B01E-3D754B216839}.Release|x64.ActiveCfg = Release|Win32
 		{D768EE39-8D86-4531-A1F0-334BF6B1726F}.Debug|Any CPU.ActiveCfg = Debug|Win32
 		{D768EE39-8D86-4531-A1F0-334BF6B1726F}.Debug|Mixed Platforms.ActiveCfg = Debug|Win32
+		{D768EE39-8D86-4531-A1F0-334BF6B1726F}.Debug|Mixed Platforms.Build.0 = Debug|Win32
 		{D768EE39-8D86-4531-A1F0-334BF6B1726F}.Debug|Win32.ActiveCfg = Debug|Win32
 		{D768EE39-8D86-4531-A1F0-334BF6B1726F}.Debug|Win32.Build.0 = Debug|Win32
 		{D768EE39-8D86-4531-A1F0-334BF6B1726F}.Debug|x64.ActiveCfg = Debug|Win32

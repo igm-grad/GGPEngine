@@ -1,5 +1,17 @@
 #include "MeshLoader.h"
+#include "Mesh.h"
+#include "Vertex.h"
+#include <vector>
+#include <d3d11.h>
+#include <fstream>
 #include <sstream>
+
+#ifdef _WINDLL
+#include <fbxsdk.h>
+#else
+class FbxNode;
+#endif
+
 
 MeshLoader::MeshLoader()
 {
@@ -10,47 +22,18 @@ MeshLoader::~MeshLoader()
 {
 }
 
-struct Joint
-{
-	std::wstring name;
-	int parentID;
-
-	XMFLOAT3 pos;
-	XMFLOAT4 orientation;
-};
-
-struct Weight
-{
-	int jointID;
-	float bias;
-	XMFLOAT3 pos;
-};
-
-struct ModelSubset
-{
-	int texArrayIndex;
-	int numTriangles;
-
-	std::vector<Vertex> vertices;
-	std::vector<DWORD> indices;
-	std::vector<Weight> weights;
-
-	std::vector<XMFLOAT3> positions;
-
-	ID3D11Buffer* vertBuff;
-	ID3D11Buffer* indexBuff;
-};
-
 //	Loads .OBJ files. 
 //	Parameters:
 //		filepath: Location of the File
 //		verts	: vector of type (Vertex) Objects
 //		indices	: vector of type (unsigned int) 
-bool MeshLoader::loadOBJfile(const char* filePath, std::vector<Vertex>& verts, std::vector<UINT>& indices)
+bool MeshLoader::loadOBJfile(const char* filePath, Model* model)
 {
+	Mesh* m = new Mesh();
+
 	//clear the vertex and indices array
-	verts.clear();
-	indices.clear();
+	m->vertices.clear();
+	m->indices.clear();
 
 	// File input object
 	std::ifstream obj(filePath); // <-- Replace filename with your parameter
@@ -142,24 +125,28 @@ bool MeshLoader::loadOBJfile(const char* filePath, std::vector<Vertex>& verts, s
 			v3.Normal = normals[i[8] - 1];
 
 			// Add the verts to the vector
-			verts.push_back(v1);
-			verts.push_back(v2);
-			verts.push_back(v3);
+			m->vertices.push_back(v1);
+			m->vertices.push_back(v2);
+			m->vertices.push_back(v3);
 
 			// Add three more indices
-			indices.push_back(triangleCounter++);
-			indices.push_back(triangleCounter++);
-			indices.push_back(triangleCounter++);
+			m->indices.push_back(triangleCounter++);
+			m->indices.push_back(triangleCounter++);
+			m->indices.push_back(triangleCounter++);
 		}
 	}
 
 	// Close
 	obj.close();
 
+	model->meshes.push_back(m);
+
 	return true;
 }
-bool MeshLoader::loadFBXfile(const char* filePath, std::vector<Vertex>& verts, std::vector<UINT>& indices)
+bool MeshLoader::loadFBXfile(const char* filePath, Model* model)
 {
+	Mesh* m = new Mesh();
+
 	static uint16_t index = 0;
 	FbxManager *fbxManager = FbxManager::Create();
 
@@ -256,23 +243,22 @@ bool MeshLoader::loadFBXfile(const char* filePath, std::vector<Vertex>& verts, s
 					vertex.UV.x = UV.mData[0];
 					vertex.UV.y = UV.mData[1];
 
-					verts.push_back(vertex);
-					indices.push_back(index++);
+					m->vertices.push_back(vertex);
+					m->indices.push_back(index++);
 				}
 			}
 		}
 
 	}
 
+	model->meshes.push_back(m);
+
 	return true;
 }
 
-bool MeshLoader::loadMD5MeshFile(const char* filePath, std::vector<Vertex>& verts, std::vector<UINT>& indices)
+//Based on http://braynzarsoft.net/index.php?p=D3D11MD51
+bool MeshLoader::loadMD5MeshFile(const char* filePath, Model * model)
 {
-	int numJoints, numSubsets;
-	std::vector<Joint> joints;
-	std::vector<ModelSubset> subsets;
-
 	std::wifstream fileIn(filePath);				// Open file
 
 	std::wstring checkString;						// Stores the next string from our file
@@ -295,11 +281,11 @@ bool MeshLoader::loadMD5MeshFile(const char* filePath, std::vector<Vertex>& vert
 			}
 			else if (checkString == L"numJoints")
 			{
-				fileIn >> numJoints;		// Store number of joints
+				fileIn >> model->numJoints;		// Store number of joints
 			}
 			else if (checkString == L"numMeshes")
 			{
-				fileIn >> numSubsets;		// Store number of meshes or subsets which we will call them
+				fileIn >> model->numSubsets;		// Store number of meshes or subsets which we will call them
 			}
 			else if (checkString == L"joints")
 			{
@@ -307,7 +293,7 @@ bool MeshLoader::loadMD5MeshFile(const char* filePath, std::vector<Vertex>& vert
 
 				fileIn >> checkString;				// Skip the "{"
 
-				for (int i = 0; i < numJoints; i++)
+				for (int i = 0; i < model->numJoints; i++)
 				{
 					fileIn >> tempJoint.name;		// Store joints name
 					// Sometimes the names might contain spaces. If that is the case, we need to continue
@@ -361,14 +347,14 @@ bool MeshLoader::loadMD5MeshFile(const char* filePath, std::vector<Vertex>& vert
 
 					std::getline(fileIn, checkString);		// Skip rest of this line
 
-					joints.push_back(tempJoint);	// Store the joint into this models joint vector
+					model->joints.push_back(tempJoint);	// Store the joint into this models joint vector
 				}
 
 				fileIn >> checkString;					// Skip the "}"
 			}
 			else if (checkString == L"mesh")
 			{
-				ModelSubset subset;
+				Mesh* subset = new Mesh();
 				int numVerts, numTris, numWeights;
 
 				fileIn >> checkString;					// Skip the "{"
@@ -408,25 +394,25 @@ bool MeshLoader::loadMD5MeshFile(const char* filePath, std::vector<Vertex>& vert
 
 						//check if this texture has already been loaded
 						bool alreadyLoaded = false;
-						for (int i = 0; i < texFileNameArray.size(); ++i)
-						{
-							if (fileNamePath == texFileNameArray[i])
-							{
+						//for (int i = 0; i < texFileNameArray.size(); ++i)
+						//{
+							//if (fileNamePath == texFileNameArray[i])
+							//{
 								alreadyLoaded = true;
-								subset.texArrayIndex = i;
-							}
-						}
+								//subset->texArrayIndex = 0;
+							//}
+						//}
 
 						//if the texture is not already loaded, load it now
 						if (!alreadyLoaded)
 						{
-							ID3D11ShaderResourceView* tempMeshSRV;
+							/*ID3D11ShaderResourceView* tempMeshSRV;
 							hr = D3DX11CreateShaderResourceViewFromFile(d3d11Device, fileNamePath.c_str(),
 								NULL, NULL, &tempMeshSRV, NULL);
 							if (SUCCEEDED(hr))
 							{
 								texFileNameArray.push_back(fileNamePath.c_str());
-								subset.texArrayIndex = shaderResourceViewArray.size();
+								subset->texArrayIndex = shaderResourceViewArray.size();
 								shaderResourceViewArray.push_back(tempMeshSRV);
 							}
 							else
@@ -434,7 +420,7 @@ bool MeshLoader::loadMD5MeshFile(const char* filePath, std::vector<Vertex>& vert
 								MessageBox(0, fileNamePath.c_str(),		//display message
 									L"Could Not Open:", MB_OK);
 								return false;
-							}
+							}*/
 						}
 
 						std::getline(fileIn, checkString);				// Skip rest of this line*/
@@ -453,8 +439,8 @@ bool MeshLoader::loadMD5MeshFile(const char* filePath, std::vector<Vertex>& vert
 								>> checkString
 								>> checkString;
 
-							fileIn >> tempVert.texCoord.x				// Store tex coords
-								>> tempVert.texCoord.y;
+							fileIn >> tempVert.UV.x				// Store tex coords
+								>> tempVert.UV.y;
 
 							fileIn >> checkString;						// Skip ")"
 
@@ -464,13 +450,13 @@ bool MeshLoader::loadMD5MeshFile(const char* filePath, std::vector<Vertex>& vert
 
 							std::getline(fileIn, checkString);			// Skip rest of this line
 
-							subset.vertices.push_back(tempVert);		// Push back this vertex into subsets vertex vector
+							subset->vertices.push_back(tempVert);		// Push back this vertex into subsets vertex vector
 						}
 					}
 					else if (checkString == L"numtris")
 					{
 						fileIn >> numTris;
-						subset.numTriangles = numTris;
+						subset->numTriangles = numTris;
 
 						std::getline(fileIn, checkString);				// Skip rest of this line
 
@@ -483,7 +469,7 @@ bool MeshLoader::loadMD5MeshFile(const char* filePath, std::vector<Vertex>& vert
 							for (int k = 0; k < 3; k++)					// Store the 3 indices
 							{
 								fileIn >> tempIndex;
-								subset.indices.push_back(tempIndex);
+								subset->indices.push_back(tempIndex);
 							}
 
 							std::getline(fileIn, checkString);			// Skip rest of this line
@@ -512,7 +498,7 @@ bool MeshLoader::loadMD5MeshFile(const char* filePath, std::vector<Vertex>& vert
 
 							std::getline(fileIn, checkString);			// Skip rest of this line
 
-							subset.weights.push_back(tempWeight);		// Push back tempWeight into subsets Weight array
+							subset->weights.push_back(tempWeight);		// Push back tempWeight into subsets Weight array
 						}
 
 					}
@@ -523,16 +509,16 @@ bool MeshLoader::loadMD5MeshFile(const char* filePath, std::vector<Vertex>& vert
 				}
 
 				//*** find each vertex's position using the joints and weights ***//
-				for (int i = 0; i < subset.vertices.size(); ++i)
+				for (int i = 0; i < subset->vertices.size(); ++i)
 				{
-					Vertex tempVert = subset.vertices[i];
-					tempVert.pos = XMFLOAT3(0, 0, 0);	// Make sure the vertex's pos is cleared first
+					Vertex tempVert = subset->vertices[i];
+					tempVert.Position = XMFLOAT3(0, 0, 0);	// Make sure the vertex's pos is cleared first
 
 					// Sum up the joints and weights information to get vertex's position
 					for (int j = 0; j < tempVert.WeightCount; ++j)
 					{
-						Weight tempWeight = subset.weights[tempVert.StartWeight + j];
-						Joint tempJoint = MD5Model.joints[tempWeight.jointID];
+						Weight tempWeight = subset->weights[tempVert.StartWeight + j];
+						Joint tempJoint = model->joints[tempWeight.jointID];
 
 						// Convert joint orientation and weight pos to vectors for easier computation
 						// When converting a 3d vector to a quaternion, you should put 0 for "w", and
@@ -551,9 +537,9 @@ bool MeshLoader::loadMD5MeshFile(const char* filePath, std::vector<Vertex>& vert
 
 						// Now move the verices position from joint space (0,0,0) to the joints position in world space, taking the weights bias into account
 						// The weight bias is used because multiple weights might have an effect on the vertices final position. Each weight is attached to one joint.
-						tempVert.pos.x += (tempJoint.pos.x + rotatedPoint.x) * tempWeight.bias;
-						tempVert.pos.y += (tempJoint.pos.y + rotatedPoint.y) * tempWeight.bias;
-						tempVert.pos.z += (tempJoint.pos.z + rotatedPoint.z) * tempWeight.bias;
+						tempVert.Position.x += (tempJoint.pos.x + rotatedPoint.x) * tempWeight.bias;
+						tempVert.Position.y += (tempJoint.pos.y + rotatedPoint.y) * tempWeight.bias;
+						tempVert.Position.z += (tempJoint.pos.z + rotatedPoint.z) * tempWeight.bias;
 
 						// Basically what has happened above, is we have taken the weights position relative to the joints position
 						// we then rotate the weights position (so that the weight is actually being rotated around (0, 0, 0) in world space) using
@@ -564,15 +550,15 @@ bool MeshLoader::loadMD5MeshFile(const char* filePath, std::vector<Vertex>& vert
 						// must add up to 1.
 					}
 
-					subset.positions.push_back(tempVert.pos);			// Store the vertices position in the position vector instead of straight into the vertex vector
+					subset->positions.push_back(tempVert.Position);			// Store the vertices position in the position vector instead of straight into the vertex vector
 					// since we can use the positions vector for certain things like collision detection or picking
 					// without having to work with the entire vertex structure.
 				}
 
 				// Put the positions into the vertices for this subset
-				for (int i = 0; i < subset.vertices.size(); i++)
+				for (int i = 0; i < subset->vertices.size(); i++)
 				{
-					subset.vertices[i].pos = subset.positions[i];
+					subset->vertices[i].Position = subset->positions[i];
 				}
 
 				//*** Calculate vertex normals using normal averaging ***///
@@ -589,18 +575,18 @@ bool MeshLoader::loadMD5MeshFile(const char* filePath, std::vector<Vertex>& vert
 				XMVECTOR edge2 = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
 
 				//Compute face normals
-				for (int i = 0; i < subset.numTriangles; ++i)
+				for (int i = 0; i < subset->numTriangles; ++i)
 				{
 					//Get the vector describing one edge of our triangle (edge 0,2)
-					vecX = subset.vertices[subset.indices[(i * 3)]].pos.x - subset.vertices[subset.indices[(i * 3) + 2]].pos.x;
-					vecY = subset.vertices[subset.indices[(i * 3)]].pos.y - subset.vertices[subset.indices[(i * 3) + 2]].pos.y;
-					vecZ = subset.vertices[subset.indices[(i * 3)]].pos.z - subset.vertices[subset.indices[(i * 3) + 2]].pos.z;
+					vecX = subset->vertices[subset->indices[(i * 3)]].Position.x - subset->vertices[subset->indices[(i * 3) + 2]].Position.x;
+					vecY = subset->vertices[subset->indices[(i * 3)]].Position.y - subset->vertices[subset->indices[(i * 3) + 2]].Position.y;
+					vecZ = subset->vertices[subset->indices[(i * 3)]].Position.z - subset->vertices[subset->indices[(i * 3) + 2]].Position.z;
 					edge1 = XMVectorSet(vecX, vecY, vecZ, 0.0f);	//Create our first edge
 
 					//Get the vector describing another edge of our triangle (edge 2,1)
-					vecX = subset.vertices[subset.indices[(i * 3) + 2]].pos.x - subset.vertices[subset.indices[(i * 3) + 1]].pos.x;
-					vecY = subset.vertices[subset.indices[(i * 3) + 2]].pos.y - subset.vertices[subset.indices[(i * 3) + 1]].pos.y;
-					vecZ = subset.vertices[subset.indices[(i * 3) + 2]].pos.z - subset.vertices[subset.indices[(i * 3) + 1]].pos.z;
+					vecX = subset->vertices[subset->indices[(i * 3) + 2]].Position.x - subset->vertices[subset->indices[(i * 3) + 1]].Position.x;
+					vecY = subset->vertices[subset->indices[(i * 3) + 2]].Position.y - subset->vertices[subset->indices[(i * 3) + 1]].Position.y;
+					vecZ = subset->vertices[subset->indices[(i * 3) + 2]].Position.z - subset->vertices[subset->indices[(i * 3) + 1]].Position.z;
 					edge2 = XMVectorSet(vecX, vecY, vecZ, 0.0f);	//Create our second edge
 
 					//Cross multiply the two edge vectors to get the un-normalized face normal
@@ -615,14 +601,14 @@ bool MeshLoader::loadMD5MeshFile(const char* filePath, std::vector<Vertex>& vert
 				float tX, tY, tZ;	//temp axis variables
 
 				//Go through each vertex
-				for (int i = 0; i < subset.vertices.size(); ++i)
+				for (int i = 0; i < subset->vertices.size(); ++i)
 				{
 					//Check which triangles use this vertex
-					for (int j = 0; j < subset.numTriangles; ++j)
+					for (int j = 0; j < subset->numTriangles; ++j)
 					{
-						if (subset.indices[j * 3] == i ||
-							subset.indices[(j * 3) + 1] == i ||
-							subset.indices[(j * 3) + 2] == i)
+						if (subset->indices[j * 3] == i ||
+							subset->indices[(j * 3) + 1] == i ||
+							subset->indices[(j * 3) + 2] == i)
 						{
 							tX = XMVectorGetX(normalSum) + tempNormal[j].x;
 							tY = XMVectorGetY(normalSum) + tempNormal[j].y;
@@ -641,82 +627,297 @@ bool MeshLoader::loadMD5MeshFile(const char* filePath, std::vector<Vertex>& vert
 					normalSum = XMVector3Normalize(normalSum);
 
 					//Store the normal and tangent in our current vertex
-					subset.vertices[i].normal.x = -XMVectorGetX(normalSum);
-					subset.vertices[i].normal.y = -XMVectorGetY(normalSum);
-					subset.vertices[i].normal.z = -XMVectorGetZ(normalSum);
+					subset->vertices[i].Normal.x = -XMVectorGetX(normalSum);
+					subset->vertices[i].Normal.y = -XMVectorGetY(normalSum);
+					subset->vertices[i].Normal.z = -XMVectorGetZ(normalSum);
 
 					//Clear normalSum, facesUsing for next vertex
 					normalSum = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
 					facesUsing = 0;
 				}
 
-				// Create index buffer
-				D3D11_BUFFER_DESC indexBufferDesc;
-				ZeroMemory(&indexBufferDesc, sizeof(indexBufferDesc));
-
-				indexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-				indexBufferDesc.ByteWidth = sizeof(DWORD) * subset.numTriangles * 3;
-				indexBufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
-				indexBufferDesc.CPUAccessFlags = 0;
-				indexBufferDesc.MiscFlags = 0;
-
-				D3D11_SUBRESOURCE_DATA iinitData;
-
-				iinitData.pSysMem = &subset.indices[0];
-				d3d11Device->CreateBuffer(&indexBufferDesc, &iinitData, &subset.indexBuff);
-
-				//Create Vertex Buffer
-				D3D11_BUFFER_DESC vertexBufferDesc;
-				ZeroMemory(&vertexBufferDesc, sizeof(vertexBufferDesc));
-
-				vertexBufferDesc.Usage = D3D11_USAGE_DYNAMIC;							// We will be updating this buffer, so we must set as dynamic
-				vertexBufferDesc.ByteWidth = sizeof(Vertex) * subset.vertices.size();
-				vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-				vertexBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;				// Give CPU power to write to buffer
-				vertexBufferDesc.MiscFlags = 0;
-
-				D3D11_SUBRESOURCE_DATA vertexBufferData;
-
-				ZeroMemory(&vertexBufferData, sizeof(vertexBufferData));
-				vertexBufferData.pSysMem = &subset.vertices[0];
-				hr = d3d11Device->CreateBuffer(&vertexBufferDesc, &vertexBufferData, &subset.vertBuff);
-
 				// Push back the temp subset into the models subset vector
-				MD5Model.subsets.push_back(subset);
+				model->meshes.push_back(subset);
 			}
 		}
 	}
 	else
 	{
-		SwapChain->SetFullscreenState(false, NULL);	// Make sure we are out of fullscreen
-
-		// create message
-		std::wstring message = L"Could not open: ";
-		message += filename;
-
-		MessageBox(0, message.c_str(),	// display message
-			L"Error", MB_OK);
-
 		return false;
 	}
 
 	return true;
 }
 
-bool MeshLoader::loadModel(const char* filePath, std::vector<Vertex>& verts, std::vector<UINT>& indices)
+bool MeshLoader::loadModel(const char* filePath, Model* model)
 {
 	std::string FileLoc = filePath;
 	char ch = FileLoc.back();
 
 	//Check the last character of the file location to determine the type of File
 	if (ch == 'j')	
-		return loadOBJfile(filePath, verts, indices);					// OBJ File
+		return loadOBJfile(filePath, model);					// OBJ File
 
 	if (ch == 'x')
-		return loadFBXfile(filePath, verts, indices);					// FBX File
+		return loadFBXfile(filePath, model);					// FBX File
 
 	if (ch == 'h')
-		return loadFBXfile(filePath, verts, indices);					// MD5 File
+		return loadMD5MeshFile(filePath, model);					// MD5 File
 
 	return false;														// If the model is is some other Type, Bail. Don't load anything. 
+}
+
+//Based on http://braynzarsoft.net/index.php?p=D3D11MD51
+bool MeshLoader::loadMD5AnimFile(const char* filePath, Model * model)
+{
+	ModelAnimation tempAnim;						// Temp animation to later store in our model's animation array
+
+	std::wifstream fileIn(filePath);		// Open file
+
+	std::wstring checkString;						// Stores the next string from our file
+
+	if (fileIn)										// Check if the file was opened
+	{
+		while (fileIn)								// Loop until the end of the file is reached
+		{
+			fileIn >> checkString;					// Get next string from file
+
+			if (checkString == L"MD5Version")		// Get MD5 version (this function supports version 10)
+			{
+				fileIn >> checkString;
+				/*MessageBox(0, checkString.c_str(),	//display message
+				L"MD5Version", MB_OK);*/
+			}
+			else if (checkString == L"commandline")
+			{
+				std::getline(fileIn, checkString);	// Ignore the rest of this line
+			}
+			else if (checkString == L"numFrames")
+			{
+				fileIn >> tempAnim.numFrames;				// Store number of frames in this animation
+			}
+			else if (checkString == L"numJoints")
+			{
+				fileIn >> tempAnim.numJoints;				// Store number of joints (must match .md5mesh)
+			}
+			else if (checkString == L"frameRate")
+			{
+				fileIn >> tempAnim.frameRate;				// Store animation's frame rate (frames per second)
+			}
+			else if (checkString == L"numAnimatedComponents")
+			{
+				fileIn >> tempAnim.numAnimatedComponents;	// Number of components in each frame section
+			}
+			else if (checkString == L"hierarchy")
+			{
+				fileIn >> checkString;				// Skip opening bracket "{"
+
+				for (int i = 0; i < tempAnim.numJoints; i++)	// Load in each joint
+				{
+					AnimJointInfo tempJoint;
+
+					fileIn >> tempJoint.name;		// Get joints name
+					// Sometimes the names might contain spaces. If that is the case, we need to continue
+					// to read the name until we get to the closing " (quotation marks)
+					if (tempJoint.name[tempJoint.name.size() - 1] != '"')
+					{
+						wchar_t checkChar;
+						bool jointNameFound = false;
+						while (!jointNameFound)
+						{
+							checkChar = fileIn.get();
+
+							if (checkChar == '"')
+								jointNameFound = true;
+
+							tempJoint.name += checkChar;
+						}
+					}
+
+					// Remove the quotation marks from joints name
+					tempJoint.name.erase(0, 1);
+					tempJoint.name.erase(tempJoint.name.size() - 1, 1);
+
+					fileIn >> tempJoint.parentID;			// Get joints parent ID
+					fileIn >> tempJoint.flags;				// Get flags
+					fileIn >> tempJoint.startIndex;			// Get joints start index
+
+					// Make sure the joint exists in the model, and the parent ID's match up
+					// because the bind pose (md5mesh) joint hierarchy and the animations (md5anim)
+					// joint hierarchy must match up
+					bool jointMatchFound = false;
+					for (int k = 0; k < model->numJoints; k++)
+					{
+						if (model->joints[k].name == tempJoint.name)
+						{
+							if (model->joints[k].parentID == tempJoint.parentID)
+							{
+								jointMatchFound = true;
+								tempAnim.jointInfo.push_back(tempJoint);
+							}
+						}
+					}
+					if (!jointMatchFound)					// If the skeleton system does not match up, return false
+						return false;						// You might want to add an error message here
+
+					std::getline(fileIn, checkString);		// Skip rest of this line
+				}
+			}
+			else if (checkString == L"bounds")			// Load in the AABB for each animation
+			{
+				fileIn >> checkString;						// Skip opening bracket "{"
+
+				for (int i = 0; i < tempAnim.numFrames; i++)
+				{
+					BoundingBox tempBB;
+
+					fileIn >> checkString;					// Skip "("
+					fileIn >> tempBB.min.x >> tempBB.min.z >> tempBB.min.y;
+					fileIn >> checkString >> checkString;	// Skip ") ("
+					fileIn >> tempBB.max.x >> tempBB.max.z >> tempBB.max.y;
+					fileIn >> checkString;					// Skip ")"
+
+					tempAnim.frameBounds.push_back(tempBB);
+				}
+			}
+			else if (checkString == L"baseframe")			// This is the default position for the animation
+			{												// All frames will build their skeletons off this
+				fileIn >> checkString;						// Skip opening bracket "{"
+
+				for (int i = 0; i < tempAnim.numJoints; i++)
+				{
+					Joint tempBFJ;
+
+					fileIn >> checkString;						// Skip "("
+					fileIn >> tempBFJ.pos.x >> tempBFJ.pos.z >> tempBFJ.pos.y;
+					fileIn >> checkString >> checkString;		// Skip ") ("
+					fileIn >> tempBFJ.orientation.x >> tempBFJ.orientation.z >> tempBFJ.orientation.y;
+					fileIn >> checkString;						// Skip ")"
+
+					tempAnim.baseFrameJoints.push_back(tempBFJ);
+				}
+			}
+			else if (checkString == L"frame")		// Load in each frames skeleton (the parts of each joint that changed from the base frame)
+			{
+				FrameData tempFrame;
+
+				fileIn >> tempFrame.frameID;		// Get the frame ID
+
+				fileIn >> checkString;				// Skip opening bracket "{"
+
+				for (int i = 0; i < tempAnim.numAnimatedComponents; i++)
+				{
+					float tempData;
+					fileIn >> tempData;				// Get the data
+
+					tempFrame.frameData.push_back(tempData);
+				}
+
+				tempAnim.frameData.push_back(tempFrame);
+
+				///*** build the frame skeleton ***///
+				std::vector<Joint> tempSkeleton;
+
+				for (int i = 0; i < tempAnim.jointInfo.size(); i++)
+				{
+					int k = 0;						// Keep track of position in frameData array
+
+					// Start the frames joint with the base frame's joint
+					Joint tempFrameJoint = tempAnim.baseFrameJoints[i];
+
+					tempFrameJoint.parentID = tempAnim.jointInfo[i].parentID;
+
+					// Notice how I have been flipping y and z. this is because some modeling programs such as
+					// 3ds max (which is what I use) use a right handed coordinate system. Because of this, we
+					// need to flip the y and z axes. If your having problems loading some models, it's possible
+					// the model was created in a left hand coordinate system. in that case, just reflip all the
+					// y and z axes in our md5 mesh and anim loader.
+					if (tempAnim.jointInfo[i].flags & 1)		// pos.x	( 000001 )
+						tempFrameJoint.pos.x = tempFrame.frameData[tempAnim.jointInfo[i].startIndex + k++];
+
+					if (tempAnim.jointInfo[i].flags & 2)		// pos.y	( 000010 )
+						tempFrameJoint.pos.z = tempFrame.frameData[tempAnim.jointInfo[i].startIndex + k++];
+
+					if (tempAnim.jointInfo[i].flags & 4)		// pos.z	( 000100 )
+						tempFrameJoint.pos.y = tempFrame.frameData[tempAnim.jointInfo[i].startIndex + k++];
+
+					if (tempAnim.jointInfo[i].flags & 8)		// orientation.x	( 001000 )
+						tempFrameJoint.orientation.x = tempFrame.frameData[tempAnim.jointInfo[i].startIndex + k++];
+
+					if (tempAnim.jointInfo[i].flags & 16)	// orientation.y	( 010000 )
+						tempFrameJoint.orientation.z = tempFrame.frameData[tempAnim.jointInfo[i].startIndex + k++];
+
+					if (tempAnim.jointInfo[i].flags & 32)	// orientation.z	( 100000 )
+						tempFrameJoint.orientation.y = tempFrame.frameData[tempAnim.jointInfo[i].startIndex + k++];
+
+
+					// Compute the quaternions w
+					float t = 1.0f - (tempFrameJoint.orientation.x * tempFrameJoint.orientation.x)
+						- (tempFrameJoint.orientation.y * tempFrameJoint.orientation.y)
+						- (tempFrameJoint.orientation.z * tempFrameJoint.orientation.z);
+					if (t < 0.0f)
+					{
+						tempFrameJoint.orientation.w = 0.0f;
+					}
+					else
+					{
+						tempFrameJoint.orientation.w = -sqrtf(t);
+					}
+
+					// Now, if the upper arm of your skeleton moves, you need to also move the lower part of your arm, and then the hands, and then finally the fingers (possibly weapon or tool too)
+					// This is where joint hierarchy comes in. We start at the top of the hierarchy, and move down to each joints child, rotating and translating them based on their parents rotation
+					// and translation. We can assume that by the time we get to the child, the parent has already been rotated and transformed based of it's parent. We can assume this because
+					// the child should never come before the parent in the files we loaded in.
+					if (tempFrameJoint.parentID >= 0)
+					{
+						Joint parentJoint = tempSkeleton[tempFrameJoint.parentID];
+
+						// Turn the XMFLOAT3 and 4's into vectors for easier computation
+						XMVECTOR parentJointOrientation = XMVectorSet(parentJoint.orientation.x, parentJoint.orientation.y, parentJoint.orientation.z, parentJoint.orientation.w);
+						XMVECTOR tempJointPos = XMVectorSet(tempFrameJoint.pos.x, tempFrameJoint.pos.y, tempFrameJoint.pos.z, 0.0f);
+						XMVECTOR parentOrientationConjugate = XMVectorSet(-parentJoint.orientation.x, -parentJoint.orientation.y, -parentJoint.orientation.z, parentJoint.orientation.w);
+
+						// Calculate current joints position relative to its parents position
+						XMFLOAT3 rotatedPos;
+						XMStoreFloat3(&rotatedPos, XMQuaternionMultiply(XMQuaternionMultiply(parentJointOrientation, tempJointPos), parentOrientationConjugate));
+
+						// Translate the joint to model space by adding the parent joint's pos to it
+						tempFrameJoint.pos.x = rotatedPos.x + parentJoint.pos.x;
+						tempFrameJoint.pos.y = rotatedPos.y + parentJoint.pos.y;
+						tempFrameJoint.pos.z = rotatedPos.z + parentJoint.pos.z;
+
+						// Currently the joint is oriented in its parent joints space, we now need to orient it in
+						// model space by multiplying the two orientations together (parentOrientation * childOrientation) <- In that order
+						XMVECTOR tempJointOrient = XMVectorSet(tempFrameJoint.orientation.x, tempFrameJoint.orientation.y, tempFrameJoint.orientation.z, tempFrameJoint.orientation.w);
+						tempJointOrient = XMQuaternionMultiply(parentJointOrientation, tempJointOrient);
+
+						// Normalize the orienation quaternion
+						tempJointOrient = XMQuaternionNormalize(tempJointOrient);
+
+						XMStoreFloat4(&tempFrameJoint.orientation, tempJointOrient);
+					}
+
+					// Store the joint into our temporary frame skeleton
+					tempSkeleton.push_back(tempFrameJoint);
+				}
+
+				// Push back our newly created frame skeleton into the animation's frameSkeleton array
+				tempAnim.frameSkeleton.push_back(tempSkeleton);
+
+				fileIn >> checkString;				// Skip closing bracket "}"
+			}
+		}
+
+		// Calculate and store some usefull animation data
+		tempAnim.frameTime = 1.0f / tempAnim.frameRate;						// Set the time per frame
+		tempAnim.totalAnimTime = tempAnim.numFrames * tempAnim.frameTime;	// Set the total time the animation takes
+		tempAnim.currAnimTime = 0.0f;										// Set the current time to zero
+
+		model->animations.push_back(tempAnim);							// Push back the animation into our model object
+	}
+	else	// If the file was not loaded
+	{
+		return false;
+	}
+	return true;
 }

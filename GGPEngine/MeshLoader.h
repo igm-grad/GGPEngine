@@ -1,14 +1,6 @@
 #pragma once
-#include "Vertex.h"
-#include <vector>
-#include <d3d11.h>
-#include <fstream>
-
-#ifdef _WINDLL
-#include <fbxsdk.h>
-#else
-class FbxNode;
-#endif
+#pragma warning( disable: 4251 )
+#include "Model.h"
 
 class MeshLoader
 {
@@ -17,12 +9,14 @@ public:
 	~MeshLoader();
 	
 	//The Interface through which the dev can load a model
-	bool loadModel(const char* filePath, std::vector<Vertex>& verts, std::vector<UINT>& indices);
+	bool loadModel(const char* filePath, Model* model);
+
+	bool loadMD5AnimFile(const char* filePath, Model* model);
 
 private:
-	bool loadOBJfile	(const char* filePath, std::vector<Vertex>& verts, std::vector<UINT>& indices);			// to load OBJ model
-	bool loadFBXfile	(const char* filePath, std::vector<Vertex>& verts, std::vector<UINT>& indices);			// to load FBX model
-	bool loadMD5MeshFile(const char* filePath, std::vector<Vertex>& verts, std::vector<UINT>& indices);			// to load MD5mesh model
+	bool loadOBJfile	(const char* filePath, Model* model);			// to load OBJ model
+	bool loadFBXfile	(const char* filePath, Model* model);			// to load FBX model
+	bool loadMD5MeshFile(const char* filePath, Model* model);			// to load MD5mesh model
 
 };
 
