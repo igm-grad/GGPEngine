@@ -106,7 +106,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 	mats[2] = diffuseNormalMaterial;
 
 	GameObject* gameObject = engine->CreateGameObject();
-	gameObject->transform = new Transform();
 	gameObject->material = mats[MATERIAL_INDEX];
 	gameObject->mesh = meshes[MESH_INDEX];
 
