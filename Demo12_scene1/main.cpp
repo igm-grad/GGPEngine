@@ -53,11 +53,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 
 	GameObject* torus = engine->Torus();
 	Material* torusMaterial = engine->DiffuseMaterial();
-	torusMaterial->SetResource(L"Textures/OrangeWhite.png", "diffuseTexture");
+	torusMaterial->SetResource(L"Textures/OrangeWhite.jpg", "diffuseTexture");
 	torus->material = /*engine->BasicMaterial();*/torusMaterial;
 	torus->transform->position.z = -1.5f;
 	torus->transform->position.y = -1.0f;
-	torus->transform->RotatePitch(-300.0f);
+	torus->transform->RotatePitch(-400.0f);
 
 	// Loop until we get a quit message from the engine
 	while (!engine->exitRequested())
