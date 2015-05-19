@@ -54,7 +54,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 	engine->Initialize();
 
 	// Creates Plane Object:
-	GameObject* gameObject = engine->Terrain(50, 1024, 50, 1024);
+	GameObject* gameObject = engine->Terrain(50, 256, 50, 256);
 	
 	SpotLight* SptLght = engine->CreateSpotLight(XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f),	// Color
 		XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f), // Difuse Coloer
@@ -94,5 +94,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 	while (!engine->exitRequested())
 	{
 		engine->Update();
+
 	}
+	delete engine;
 }
