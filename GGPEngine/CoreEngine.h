@@ -68,9 +68,9 @@ public:
 	void				CreateCubemap(const wchar_t* filePath);									
 	
 	Material*			CreateMaterial(LPCWSTR vertexShaderFile, LPCWSTR pixelShaderFile);
-
-
-	Material*		loadHeightMap(/*const char* filename*/);
+	
+	// Load HeightMap from a file.
+	Material*			loadHeightMap(const wchar_t* filename);
 
 	DirectionalLight*	CreateDirectionalLight(XMFLOAT4& ambientColor, XMFLOAT4& diffuseColor, XMFLOAT3& direction);
 	PointLight*			CreatePointLight(XMFLOAT4& ambientColor, XMFLOAT4& diffuseColor, XMFLOAT3& position, float radius);

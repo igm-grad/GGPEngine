@@ -43,6 +43,8 @@ protected:
 	void SetPixelShader(SimplePixelShader* simplePixelShader);
 	void UpdatePixelShaderResources();
 	void UpdatePixelShaderSamplers();
+	void UpdateVertexShaderResources();
+	void UpdateVertexShaderSamplers();
 
 	friend class UI;
 	friend class RenderEngine;

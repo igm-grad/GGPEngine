@@ -409,6 +409,8 @@ void RenderEngine::DrawScene(GameObject** gameObjects, int gameObjectsCount, dou
 		renderList[i]->material->sVertexShader->SetMatrix4x4("world", world);
 		renderList[i]->material->sVertexShader->SetMatrix4x4("view", defaultCamera->view);
 		renderList[i]->material->sVertexShader->SetMatrix4x4("projection", defaultCamera->projection);
+		renderList[i]->material->UpdateVertexShaderResources();
+		renderList[i]->material->UpdateVertexShaderSamplers();
 		renderList[i]->material->sVertexShader->SetData("time", &renderList[i]->material->time, sizeof(double));
 		renderList[i]->material->sVertexShader->SetShader();
 
