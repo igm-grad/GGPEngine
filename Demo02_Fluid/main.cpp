@@ -93,4 +93,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 	{
 		engine->Update();
 	}
+
+	delete engine;
 }

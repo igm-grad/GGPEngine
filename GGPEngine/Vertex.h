@@ -1,4 +1,5 @@
 #pragma once
+#pragma warning( disable: 4251 )
 #include <DirectXMath.h>
 
 #ifdef _WINDLL
@@ -17,4 +18,9 @@ struct Vertex
 	XMFLOAT3 Position;
 	XMFLOAT3 Normal;
 	XMFLOAT2 UV;
+
+	// For animations
+	// Will not be sent to shader
+	int StartWeight;
+	int WeightCount;
 };

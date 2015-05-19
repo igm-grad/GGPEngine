@@ -42,6 +42,7 @@ SamplerState	omniSampler		: register(s0);
 Texture2D		diffuseTexture	: register(t0);
 Texture2D		normalTexture	: register(t1);
 
+
 cbuffer			lights			: register (b0)
 {
 	DirectionalLight	directionalLights[DIRECTIONAL_LIGHT_COUNT];
