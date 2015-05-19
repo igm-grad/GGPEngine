@@ -11,27 +11,6 @@ Mesh::Mesh(Vertex* vertices, int vertexCount, UINT* indices, int indexCount, ID3
 	SetIndexBuffer(indices, indexCount, device);
 }
 
-Mesh::Mesh(const char* filename, ID3D11Device* device)
-{
-	std::vector<Vertex> verts;           // Verts we're assembling
-	std::vector<UINT> indices;           // Indices of these verts
-
-	MeshLoader meshLoader;
-	std::string filePath = filename;
-	if (!meshLoader.loadModel(filename, verts, indices))
-	{
-		return;							// If for some reason the mesh does not load, Bail out.
-	}
-	
-	// - At this point, "verts" is a vector of Vertex structs, and can be used
-	//    directly to create a vertex buffer:  &verts[0] is the first vert
-	// - The vector "indices" is similar. It's a vector of unsigned ints and
-	//    can be used directly for the index buffer: &indices[0] is the first int
-	// - "triangleCounter" is BOTH the number of vertices and the number of indices
-	SetVertexBuffer(&verts[0], verts.size(), device);
-	SetIndexBuffer(&indices[0], indices.size(), device);
-}
-
 Mesh::Mesh() : indexCount(0)
 {
 
@@ -46,10 +25,10 @@ Mesh::~Mesh()
 void Mesh::SetVertexBuffer(Vertex* vertices, int vertexCount, ID3D11Device* device)
 {
 	D3D11_BUFFER_DESC vbd;
-	vbd.Usage = D3D11_USAGE_IMMUTABLE;
+	vbd.Usage = D3D11_USAGE_DYNAMIC;
 	vbd.ByteWidth = sizeof(Vertex) * vertexCount;
 	vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	vbd.CPUAccessFlags = 0;
+	vbd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 	vbd.MiscFlags = 0;
 	vbd.StructureByteStride = 0;
 

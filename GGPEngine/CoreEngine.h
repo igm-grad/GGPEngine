@@ -28,7 +28,7 @@ public:
 	InputManager*				input;
 	GameTimer					timer;
 	bool						gamePaused;
-	std::unordered_map <std::string, Mesh*> meshIndex;
+	std::unordered_map <std::string, Model*> modelIndex;
 
 	std::vector<GameObject*>	gameObjects;
 	std::vector<Behavior>		behaviors;
@@ -53,7 +53,9 @@ public:
 
 	GameObject*		Terrain(float width, int vertexPerWidth, float depth, int vertexPerDepth);
 
-	Mesh*			CreateMesh(const char* filename);
+	Model*			CreateModel(const char* filename);
+
+	bool			LoadAnimation(GameObject* go, const char* filename);
 	
 	Material*       BasicMaterial();
 	Material*		DiffuseMaterial();
