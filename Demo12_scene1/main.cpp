@@ -53,12 +53,15 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 	GameObject* sphere = engine->Sphere();
 	sphere->transform->position = XMFLOAT3(3.0f, 3.0f, 0.0f);
 	Material* sphereMaterial = engine->DiffuseMaterial();
+	sphereMaterial->specularExponent = 8.0f;
+
 	sphereMaterial->SetResource(L"Textures/SunMaterial.jpg", "diffuseTexture");
 	sphere->material = /*engine->BasicMaterial();*/ sphereMaterial;
 
 	GameObject* torus = engine->Torus();
 	Material* torusMaterial = engine->DiffuseMaterial();
 	torusMaterial->SetResource(L"Textures/OrangeWhite.jpg", "diffuseTexture");
+	torusMaterial->specularExponent = 8.0f;
 	torus->material = /*engine->BasicMaterial();*/torusMaterial;
 	torus->transform->position.z = -1.5f;
 	torus->transform->position.y = -1.0f;
