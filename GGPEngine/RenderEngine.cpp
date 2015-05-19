@@ -4,6 +4,9 @@
 #include <sstream>
 #include <cmath>
 #include <algorithm>
+#include "Model.h"
+#include "Mesh.h"
+#include "Vertex.h"
 
 RenderEngine::RenderEngine(HINSTANCE hInstance, WNDPROC MainWndProc) :
 	hAppInst(hInstance),
@@ -204,6 +207,128 @@ void RenderEngine::UpdateScene(GameObject** gameObjects, int gameObjectsCount, d
 		if (gameObjects[i]->behavior) {
 			gameObjects[i]->behavior->renderCallback(*gameObjects[i], deltaTime);
 		}
+		if (gameObjects[i]->model->animations.size() > 0)
+			AnimateModel(gameObjects[i]->model, deltaTime, 0);
+	}
+}
+
+//Based on http://braynzarsoft.net/index.php?p=D3D11MD51
+void RenderEngine::AnimateModel(Model* model, float deltaTime, int animation)
+{
+	model->animations[animation].currAnimTime += deltaTime;			// Update the current animation time
+
+	if (model->animations[animation].currAnimTime > model->animations[animation].totalAnimTime)
+		model->animations[animation].currAnimTime = 0.0f;
+
+	// Which frame are we on
+	float currentFrame = model->animations[animation].currAnimTime * model->animations[animation].frameRate;
+	int frame0 = floorf(currentFrame);
+	int frame1 = frame0 + 1;
+
+	// Make sure we don't go over the number of frames	
+	if (frame0 == model->animations[animation].numFrames - 1)
+		frame1 = 0;
+
+	float interpolation = currentFrame - frame0;	// Get the remainder (in time) between frame0 and frame1 to use as interpolation factor
+
+	std::vector<Joint> interpolatedSkeleton;		// Create a frame skeleton to store the interpolated skeletons in
+
+	// Compute the interpolated skeleton
+	for (int i = 0; i < model->animations[animation].numJoints; i++)
+	{
+		Joint tempJoint;
+		Joint joint0 = model->animations[animation].frameSkeleton[frame0][i];		// Get the i'th joint of frame0's skeleton
+		Joint joint1 = model->animations[animation].frameSkeleton[frame1][i];		// Get the i'th joint of frame1's skeleton
+
+		tempJoint.parentID = joint0.parentID;											// Set the tempJoints parent id
+
+		// Turn the two quaternions into XMVECTORs for easy computations
+		XMVECTOR joint0Orient = XMVectorSet(joint0.orientation.x, joint0.orientation.y, joint0.orientation.z, joint0.orientation.w);
+		XMVECTOR joint1Orient = XMVectorSet(joint1.orientation.x, joint1.orientation.y, joint1.orientation.z, joint1.orientation.w);
+
+		// Interpolate positions
+		tempJoint.pos.x = joint0.pos.x + (interpolation * (joint1.pos.x - joint0.pos.x));
+		tempJoint.pos.y = joint0.pos.y + (interpolation * (joint1.pos.y - joint0.pos.y));
+		tempJoint.pos.z = joint0.pos.z + (interpolation * (joint1.pos.z - joint0.pos.z));
+
+		// Interpolate orientations using spherical interpolation (Slerp)
+		XMStoreFloat4(&tempJoint.orientation, XMQuaternionSlerp(joint0Orient, joint1Orient, interpolation));
+
+		interpolatedSkeleton.push_back(tempJoint);		// Push the joint back into our interpolated skeleton
+	}
+
+	for (int k = 0; k < model->numSubsets; k++)
+	{
+		Mesh* m;
+		for (int i = 0; i < model->meshes[k]->vertices.size(); ++i)
+		{
+			Vertex tempVert = model->meshes[k]->vertices[i];
+			tempVert.Position = XMFLOAT3(0, 0, 0);	// Make sure the vertex's pos is cleared first
+			tempVert.Normal = XMFLOAT3(0, 0, 0);	// Clear vertices normal
+
+			// Sum up the joints and weights information to get vertex's position and normal
+			for (int j = 0; j < tempVert.WeightCount; ++j)
+			{
+				Weight tempWeight = model->meshes[k]->weights[tempVert.StartWeight + j];
+				Joint tempJoint = interpolatedSkeleton[tempWeight.jointID];
+
+				// Convert joint orientation and weight pos to vectors for easier computation
+				XMVECTOR tempJointOrientation = XMVectorSet(tempJoint.orientation.x, tempJoint.orientation.y, tempJoint.orientation.z, tempJoint.orientation.w);
+				XMVECTOR tempWeightPos = XMVectorSet(tempWeight.pos.x, tempWeight.pos.y, tempWeight.pos.z, 0.0f);
+
+				// We will need to use the conjugate of the joint orientation quaternion
+				XMVECTOR tempJointOrientationConjugate = XMQuaternionInverse(tempJointOrientation);
+
+				// Calculate vertex position (in joint space, eg. rotate the point around (0,0,0)) for this weight using the joint orientation quaternion and its conjugate
+				// We can rotate a point using a quaternion with the equation "rotatedPoint = quaternion * point * quaternionConjugate"
+				XMFLOAT3 rotatedPoint;
+				XMStoreFloat3(&rotatedPoint, XMQuaternionMultiply(XMQuaternionMultiply(tempJointOrientation, tempWeightPos), tempJointOrientationConjugate));
+
+				// Now move the verices position from joint space (0,0,0) to the joints position in world space, taking the weights bias into account
+				tempVert.Position.x += (tempJoint.pos.x + rotatedPoint.x) * tempWeight.bias;
+				tempVert.Position.y += (tempJoint.pos.y + rotatedPoint.y) * tempWeight.bias;
+				tempVert.Position.z += (tempJoint.pos.z + rotatedPoint.z) * tempWeight.bias;
+
+				// Compute the normals for this frames skeleton using the weight normals from before
+				// We can comput the normals the same way we compute the vertices position, only we don't have to translate them (just rotate)
+				XMVECTOR tempWeightNormal = XMVectorSet(tempWeight.normal.x, tempWeight.normal.y, tempWeight.normal.z, 0.0f);
+
+				// Rotate the normal
+				XMStoreFloat3(&rotatedPoint, XMQuaternionMultiply(XMQuaternionMultiply(tempJointOrientation, tempWeightNormal), tempJointOrientationConjugate));
+
+				// Add to vertices normal and ake weight bias into account
+				tempVert.Normal.x -= rotatedPoint.x * tempWeight.bias;
+				tempVert.Normal.y -= rotatedPoint.y * tempWeight.bias;
+				tempVert.Normal.z -= rotatedPoint.z * tempWeight.bias;
+			}
+
+			model->meshes[k]->positions[i] = tempVert.Position;				// Store the vertices position in the position vector instead of straight into the vertex vector
+			model->meshes[k]->vertices[i].Normal = tempVert.Normal;		// Store the vertices normal
+			XMStoreFloat3(&model->meshes[k]->vertices[i].Normal, XMVector3Normalize(XMLoadFloat3(&model->meshes[k]->vertices[i].Normal)));
+		}
+
+		// Put the positions into the vertices for this subset
+		for (int i = 0; i < model->meshes[k]->vertices.size(); i++)
+		{
+			model->meshes[k]->vertices[i].Position = model->meshes[k]->positions[i];
+		}
+
+		// Update the subsets vertex buffer
+		// First lock the buffer
+		D3D11_MAPPED_SUBRESOURCE mappedVertBuff;
+		HRESULT hr = deviceContext->Map(model->meshes[k]->vertexBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedVertBuff);
+
+		// Copy the data into the vertex buffer.
+		memcpy(mappedVertBuff.pData, &model->meshes[k]->vertices[0], (sizeof(Vertex) * model->meshes[k]->vertices.size()));
+
+		deviceContext->Unmap(model->meshes[k]->vertexBuffer, 0);
+
+		// The line below is another way to update a buffer. You will use this when you want to update a buffer less
+		// than once per frame, since the GPU reads will be faster (the buffer was created as a DEFAULT buffer instead
+		// of a DYNAMIC buffer), and the CPU writes will be slower. You can try both methods to find out which one is faster
+		// for you. if you want to use the line below, you will have to create the buffer with D3D11_USAGE_DEFAULT instead
+		// of D3D11_USAGE_DYNAMIC
+		//d3d11DevCon->UpdateSubresource( model->meshes[k]->vertBuff, 0, NULL, &model->meshes[k]->vertices[0], 0, 0 );
 	}
 }
 
@@ -284,6 +409,8 @@ void RenderEngine::DrawScene(GameObject** gameObjects, int gameObjectsCount, dou
 		renderList[i]->material->sVertexShader->SetMatrix4x4("world", world);
 		renderList[i]->material->sVertexShader->SetMatrix4x4("view", defaultCamera->view);
 		renderList[i]->material->sVertexShader->SetMatrix4x4("projection", defaultCamera->projection);
+		renderList[i]->material->UpdateVertexShaderResources();
+		renderList[i]->material->UpdateVertexShaderSamplers();
 		renderList[i]->material->sVertexShader->SetData("time", &renderList[i]->material->time, sizeof(double));
 		renderList[i]->material->sVertexShader->SetShader();
 
@@ -307,23 +434,25 @@ void RenderEngine::DrawScene(GameObject** gameObjects, int gameObjectsCount, dou
 		renderList[i]->material->UpdatePixelShaderSamplers();
 		renderList[i]->material->sPixelShader->SetShader();
 
-		// Set buffers in the input assembler
-		//  - This should be done PER OBJECT you intend to draw, as each object could
-		//    potentially have different geometry (and therefore different buffers!)
-		//  - You must have both a vertex and index buffer set to draw
-		UINT stride = sizeof(Vertex);
-		UINT offset = 0;
-		deviceContext->IASetVertexBuffers(0, 1, renderList[i]->mesh->GetVertexBuffer(), &stride, &offset);
-		deviceContext->IASetIndexBuffer(renderList[i]->mesh->GetIndexBuffer(), DXGI_FORMAT_R32_UINT, 0);
+		for (int m = 0; m < renderList[i]->model->meshes.size(); m++) {
+			// Set buffers in the input assembler
+			//  - This should be done PER OBJECT you intend to draw, as each object could
+			//    potentially have different geometry (and therefore different buffers!)
+			//  - You must have both a vertex and index buffer set to draw
+			UINT stride = sizeof(Vertex);
+			UINT offset = 0;
+			deviceContext->IASetVertexBuffers(0, 1, renderList[i]->model->meshes[m]->GetVertexBuffer(), &stride, &offset);
+			deviceContext->IASetIndexBuffer(renderList[i]->model->meshes[m]->GetIndexBuffer(), DXGI_FORMAT_R32_UINT, 0);
 
 
-		// Finally do the actual drawing
-		//  - This should be done PER OBJECT you index to draw
-		//  - This will use all of the currently set DirectX stuff (shaders, buffers, etc)
-		deviceContext->DrawIndexed(
-			renderList[i]->mesh->indexCount,	// The number of indices we're using in this draw
-			0,
-			0);
+			// Finally do the actual drawing
+			//  - This should be done PER OBJECT you index to draw
+			//  - This will use all of the currently set DirectX stuff (shaders, buffers, etc)
+			deviceContext->DrawIndexed(
+				renderList[i]->model->meshes[m]->indexCount,	// The number of indices we're using in this draw
+				0,
+				0);
+		}
 	}
 
 	if (ui) {
@@ -384,15 +513,15 @@ void RenderEngine::drawSkyBoxes()
 		//  - You must have both a vertex and index buffer set to draw
 		UINT stride = sizeof(Vertex);
 		UINT offset = 0;
-		deviceContext->IASetVertexBuffers(0, 1, defaultCamera->CubeMap->mesh->GetVertexBuffer(), &stride, &offset);
-		deviceContext->IASetIndexBuffer(defaultCamera->CubeMap->mesh->GetIndexBuffer(), DXGI_FORMAT_R32_UINT, 0);
+		deviceContext->IASetVertexBuffers(0, 1, defaultCamera->CubeMap->model->meshes[0]->GetVertexBuffer(), &stride, &offset);
+		deviceContext->IASetIndexBuffer(defaultCamera->CubeMap->model->meshes[0]->GetIndexBuffer(), DXGI_FORMAT_R32_UINT, 0);
 
 
 		// Finally do the actual drawing
 		//  - This should be done PER OBJECT you index to draw
 		//  - This will use all of the currently set DirectX stuff (shaders, buffers, etc)
 		deviceContext->DrawIndexed(
-			defaultCamera->CubeMap->mesh->indexCount,	// The number of indices we're using in this draw
+			defaultCamera->CubeMap->model->meshes[0]->indexCount,	// The number of indices we're using in this draw
 			0,
 			0);
 
@@ -422,23 +551,23 @@ void RenderEngine::drawSkyBoxes()
 		//  - You must have both a vertex and index buffer set to draw
 		UINT stride = sizeof(Vertex);
 		UINT offset = 0;
-		deviceContext->IASetVertexBuffers(0, 1, (*it).CubeMap->mesh->GetVertexBuffer(), &stride, &offset);
-		deviceContext->IASetIndexBuffer((*it).CubeMap->mesh->GetIndexBuffer(), DXGI_FORMAT_R32_UINT, 0);
+		deviceContext->IASetVertexBuffers(0, 1, (*it).CubeMap->model->meshes[0]->GetVertexBuffer(), &stride, &offset);
+		deviceContext->IASetIndexBuffer((*it).CubeMap->model->meshes[0]->GetIndexBuffer(), DXGI_FORMAT_R32_UINT, 0);
 
 
 		// Finally do the actual drawing
 		//  - This should be done PER OBJECT you index to draw
 		//  - This will use all of the currently set DirectX stuff (shaders, buffers, etc)
 		deviceContext->DrawIndexed(
-			(*it).CubeMap->mesh->indexCount,	// The number of indices we're using in this draw
+			(*it).CubeMap->model->meshes[0]->indexCount,	// The number of indices we're using in this draw
 			0,
 			0);
 	}
 }
 
-Mesh* RenderEngine::CreateMesh(const char* filename)
+Model* RenderEngine::CreateModel(const char* filename)
 {
-	return new Mesh(filename, device);
+	return new Model(filename, device);
 }
 
 //#MyChanges
@@ -556,8 +685,8 @@ Camera* RenderEngine::CreateCamera()
 
 void RenderEngine::setCameraCubeMap(Camera* camera, const wchar_t* filename)
 {
-	Mesh* mesh = CreateMesh("Models\\cube.obj");
-	GameObject* cube = new GameObject(mesh);
+	Model* model = CreateModel("Models\\cube.obj");
+	GameObject* cube = new GameObject(model);
 
 	Material* cubeMapTex = CreateMaterial(L"SkyBoxVertexShader.cso", L"SkyBoxPixelShader.cso");
 	cubeMapTex->SetTextureCubeResource(filename, "skyBoxTexture");

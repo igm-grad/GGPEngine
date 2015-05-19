@@ -1,4 +1,5 @@
 #include "CoreEngine.h"
+#include "MeshLoader.h"
 
 #pragma region Global Window Callback
 namespace
@@ -137,7 +138,7 @@ void CoreEngine::Update()
 			physics->Update(timer.TotalTime());
 
 			//renderer->CalculateFrameStats(timer.TotalTime());
-			renderer->UpdateScene(&gameObjects[0], gameObjects.size(), timer.TotalTime());
+			renderer->UpdateScene(&gameObjects[0], gameObjects.size(), timer.DeltaTime());
 			renderer->DrawScene(&gameObjects[0], gameObjects.size(), timer.TotalTime());
 
 			// Flush the InputManager at the end of every frame
@@ -151,10 +152,18 @@ bool CoreEngine::exitRequested()
 	return msg.message == WM_QUIT;
 }
 
+bool CoreEngine::LoadAnimation(GameObject* go, const char* filename)
+{
+	MeshLoader meshLoader;
+	std::string filePath = filename;
+
+	return meshLoader.loadMD5AnimFile(filename, go->model);
+}
+
 GameObject* CoreEngine::CreateGameObject()
 {
-	Mesh* mesh = NULL;
-	GameObject* obj = new GameObject(mesh);
+	Model* model = new Model();
+	GameObject* obj = new GameObject(model);
 	obj->transform = new Transform();
 	gameObjects.push_back(obj);
 	return obj;
@@ -162,8 +171,8 @@ GameObject* CoreEngine::CreateGameObject()
 
 GameObject* CoreEngine::CreateGameObject(const char* filename)
 {
-	Mesh* mesh = CreateMesh(filename);
-	GameObject* obj = new GameObject(mesh);
+	Model* model = CreateModel(filename);
+	GameObject* obj = new GameObject(model);
 	obj->transform = new Transform();
 	gameObjects.push_back(obj);
 	return obj;
@@ -202,7 +211,8 @@ GameObject*	CoreEngine::Torus()
 GameObject* CoreEngine::Plane(float width, int vertexPerWidth, float depth, int vertexPerDepth)
 {
 	GameObject* plane = CreateGameObject();
-	plane->mesh = renderer->CreatePlaneMesh(width, vertexPerWidth, depth, vertexPerDepth);
+	Mesh* m = renderer->CreatePlaneMesh(width, vertexPerWidth, depth, vertexPerDepth);
+	plane->model->meshes.push_back(m);
 	return plane;
 }
 
@@ -216,20 +226,20 @@ GameObject* CoreEngine::Terrain(float width, int vertexPerWidth, float depth, in
 	Mesh* planeMesh = renderer->CreatePlaneMesh(width, vertexPerWidth, depth, vertexPerDepth);
 
 	// Add mesh to Return GameObject
-	returnObject->mesh = planeMesh;
-
+	returnObject->model->meshes.push_back(planeMesh);
+	
 	return returnObject;
 }
 
-Mesh* CoreEngine::CreateMesh(const char* filename)
+Model* CoreEngine::CreateModel(const char* filename)
 {
-	std::unordered_map<std::string, Mesh*>::iterator it = meshIndex.find(filename);
-	Mesh* meshObj;
-	if (it == meshIndex.end())
+	std::unordered_map<std::string, Model*>::iterator it = modelIndex.find(filename);
+	Model* meshObj;
+	if (it == modelIndex.end())
 	{
 		// The mesh was not found in the meshIndex i.e It has not been loaded already
-		meshObj = renderer->CreateMesh(filename);
-		meshIndex.insert({ filename, meshObj });
+		meshObj = renderer->CreateModel(filename);
+		modelIndex.insert({ filename, meshObj });
 	}
 	else
 	{
@@ -270,13 +280,12 @@ Material* CoreEngine::CreateMaterial(LPCWSTR vertexShaderFile, LPCWSTR pixelShad
 	return renderer->CreateMaterial(vertexShaderFile, pixelShaderFile);
 }
 
-Material* CoreEngine::loadHeightMap(/*const char* filename*/)
+Material* CoreEngine::loadHeightMap(const wchar_t* filename)
 {
-	//Implement loading the HeightMap File here.
 	Material* HeightMap = nullptr;
-
 	HeightMap = CreateMaterial(L"TerrainVertexShader.cso", L"TerrainPixelShader.cso");
 	HeightMap->SetSampler("omniSampler");
+	HeightMap->SetResource(filename, "heightMap");
 	return HeightMap;
 }
 

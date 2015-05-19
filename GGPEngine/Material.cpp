@@ -154,3 +154,18 @@ void Material::UpdatePixelShaderSamplers()
 	}
 }
 
+void Material::UpdateVertexShaderResources()
+{
+	for (std::map<const char*, ID3D11ShaderResourceView*>::iterator iter = resourceMap.begin(); iter != resourceMap.end(); iter++)
+	{
+		sVertexShader->SetShaderResourceView(iter->first, iter->second);
+	}
+}
+
+void Material::UpdateVertexShaderSamplers()
+{
+	for (std::map<const char*, ID3D11SamplerState*>::iterator iter = samplerMap.begin(); iter != samplerMap.end(); iter++)
+	{
+		sVertexShader->SetSamplerState(iter->first, iter->second);
+	}
+}
