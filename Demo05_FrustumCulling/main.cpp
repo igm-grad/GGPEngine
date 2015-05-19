@@ -23,7 +23,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 	gameObject1->transform->movementSpeed = 0.001f;
 
 	//Set a .html file ad overlayer UI
-	engine->InitializeUI("file:///./UI/main.html");
+	engine->InitializeUI("file:///./UI/test.html");
 	engine->EnableDebugLines();
 
 	// Loop until we get a quit message from the engine
