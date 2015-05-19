@@ -6,9 +6,14 @@
 float amplitude = 0.0f;
 float frequency = 0.0f;
 
-void renderCallback(GameObject& plane, double secondsElapsed)
+void renderCallbackPlane(GameObject& plane, double secondsElapsed)
 {
 	plane.material->time += 1.f;
+}
+
+void renderCallbackTorus(GameObject& torus, double secondsElapsed)
+{
+	torus.material->time += 1.f;
 }
 
 #pragma region Win32 Entry Point (WinMain)
@@ -38,7 +43,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 
 
 	plane->behavior = engine->CreateBehavior();
-	plane->behavior->renderCallback = renderCallback;
+	plane->behavior->renderCallback = renderCallbackPlane;
 
 	float tempAmplitude = 2.0f;
 	float tempFrequency = 0.001f;
@@ -58,6 +63,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 	torus->transform->position.z = -1.5f;
 	torus->transform->position.y = -1.0f;
 	torus->transform->RotatePitch(-400.0f);
+	/*torus->behavior = engine->CreateBehavior();
+	torus->behavior->renderCallback = renderCallbackTorus;
+	torus->material->SetVSFloat(tempAmplitude, "amplitude");
+	torus->material->SetVSFloat(tempFrequency, "frequency");*/
 
 	// Loop until we get a quit message from the engine
 	while (!engine->exitRequested())
