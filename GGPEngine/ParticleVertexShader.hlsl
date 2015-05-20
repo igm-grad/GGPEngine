@@ -18,17 +18,18 @@ cbuffer MatrixBuffer
 
 struct VSInput
 {
-	float3	position	:SV_POSITION;
+	float3	position	:POSITION;
 	float4	color		:COLOR;
 	float3	size		:TEXCOORD0;
 	float3	velocity	:TEXCOORD1;
-	float	age			:TEXCOORD2;
+	float3	acceleration:TEXCOORD2;
+	float	age			:TEXCOORD3;
 };
 
 
 struct VStoGS
 {
-	float3	position	: POSITION;
+	float4	position	: SV_POSITION;
 	float4	color		: COLOR;
 	float	size		: TEXCOORD1;
 };
@@ -53,7 +54,7 @@ VStoGS main(VSInput input)
 {
 	VStoGS output;
 
-	output.position = input.position;
+	output.position = float4(input.position, 1.0f);
 	output.color = input.color;
 	output.size = input.size;
 
