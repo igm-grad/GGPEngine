@@ -45,6 +45,7 @@ Material::~Material()
 
 	delete sVertexShader;
 	delete sPixelShader;
+	delete sGeometryShader;
 }
 
 void Material::SetVertexShader(ID3D11Device* device, ID3D11DeviceContext* deviceContext, LPCWSTR vertexShaderFile)

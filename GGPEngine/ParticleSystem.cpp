@@ -40,7 +40,7 @@ ParticleSystem::~ParticleSystem()
 	mVertexBuffer->Release();
 	mIndexBuffer->Release();
 	delete(transform);
-	delete(material);
+	//delete(material);
 
 	//delete simpleVS;
 	//delete simplePS;
@@ -248,7 +248,7 @@ void ParticleSystem::EmitParticles(float dt)
 		// Now generate the randomized particle properties.
 		positionX = (((float)rand() - (float)rand()) / RAND_MAX) * 1;//m_particleDeviationX;
 		positionY = (((float)rand() - (float)rand()) / RAND_MAX) * 1;//m_particleDeviationY;
-		positionZ = 0;//(((float)rand() - (float)rand()) / RAND_MAX) * 5;//m_particleDeviationZ;
+		positionZ = (((float)rand() - (float)rand()) / RAND_MAX) * 5;//m_particleDeviationZ;
 
 		velX = m_particleVelocity + (((float)rand() - (float)rand()) / RAND_MAX) * 0.5f;
 		velY = m_particleVelocity + (((float)rand() - (float)rand()) / RAND_MAX) * 0.5f;

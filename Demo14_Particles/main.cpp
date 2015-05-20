@@ -22,12 +22,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 
 	GameObject* ball = engine->Sphere();
 	ball->material = engine->BasicMaterial();
-	ball->transform->position = { 0, 0, 5 };
-	ball->transform->scale = {8,8,8};
+	ball->transform->position = { 0, 0, 25 };
+	ball->transform->scale = {10,10,10};
 
 	#pragma region Define materials
 	Material* particleMaterial = engine->ParticleMaterial();
-	//particleMaterial->SetResource(L"Textures/whitePuff00.PNG", "particleTexture");
+	//particleMaterial->SetResource(L"Textures/whitePuff00b.JPG", "particleTexture");
 	particleMaterial->SetResource(L"Textures/DiffuseTexture2.JPG", "particleTexture");
 	particleMaterial->specularExponent = 128.f;
 
@@ -49,4 +49,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 	{
 		engine->Update();
 	}
+
+	delete engine;
 }

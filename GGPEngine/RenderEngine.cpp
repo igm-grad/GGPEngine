@@ -50,6 +50,12 @@ RenderEngine::~RenderEngine()
 	ReleaseMacro(rasterizerState);
 	ReleaseMacro(DSLessEqual);
 	ReleaseMacro(blendState);
+	ReleaseMacro(additiveBlendState);
+
+	for (int i = 0; i < particleSystems.size(); i++)
+	{
+		delete particleSystems[i];
+	}
 
 	// Restore default device settings
 	if (deviceContext) {
@@ -361,14 +367,34 @@ void RenderEngine::DrawScene(GameObject** gameObjects, int gameObjectsCount, dou
 
 void RenderEngine::DrawParticleSystems(ParticleSystem** particleSystems, int particleSystemCount, double deltaTime)
 {
+	D3D11_BLEND_DESC blendDesc;
+
+	blendDesc.AlphaToCoverageEnable = false;
+	blendDesc.IndependentBlendEnable = false;
+	blendDesc.RenderTarget[0] = {
+		true,
+		D3D11_BLEND_SRC_ALPHA,
+		D3D11_BLEND_INV_SRC_ALPHA,
+		D3D11_BLEND_OP_ADD,
+		D3D11_BLEND_ONE,
+		D3D11_BLEND_ZERO,
+		D3D11_BLEND_OP_ADD,
+		D3D11_COLOR_WRITE_ENABLE_ALL
+	};
+
+	//blendDesc.RenderTarget[0].DestBlend = D3D10_BLEND_OP_ADD;
+
+	ReleaseMacro(additiveBlendState);
+	device->CreateBlendState(&blendDesc, &additiveBlendState);
+
 	float blendFactor[4];
 
-	blendFactor[0] = 0.0f;
-	blendFactor[1] = 0.0f;
-	blendFactor[2] = 0.0f;
-	blendFactor[3] = 0.0f;
+	blendFactor[0] = 0.3f;
+	blendFactor[1] = 0.3f;
+	blendFactor[2] = 0.3f;
+	blendFactor[3] = 0.3f;
 
-	deviceContext->OMSetBlendState(blendState, blendFactor, 0xffffffff);
+	deviceContext->OMSetBlendState(additiveBlendState, blendFactor, 0xffffffff);
 
 	// Set the type of primitive that should be rendered from this vertex buffer.
 	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);

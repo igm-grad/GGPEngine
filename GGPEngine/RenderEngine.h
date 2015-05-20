@@ -125,6 +125,9 @@ private:
 	//Blend for UI
 	ID3D11BlendState* blendState;
 
+	//Additive Blending for particles
+	ID3D11BlendState* additiveBlendState;
+
 	// Derived class can set these in derived constructor to customize starting values.
 	std::wstring windowCaption;
 	int windowWidth;

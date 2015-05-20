@@ -39,13 +39,13 @@ CoreEngine::CoreEngine(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine
 
 CoreEngine::~CoreEngine()
 {
-	/*
+	
 	//Useful for debugging COM trash left behind
-	ID3D11Debug* DebugDevice;
-	HRESULT Result = renderer->device->QueryInterface(__uuidof(ID3D11Debug), (void**)&DebugDevice);
-	DebugDevice->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL);
-	ReleaseMacro(DebugDevice);
-	*/
+	//ID3D11Debug* DebugDevice;
+	//HRESULT Result = renderer->device->QueryInterface(__uuidof(ID3D11Debug), (void**)&DebugDevice);
+	//DebugDevice->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL);
+	//ReleaseMacro(DebugDevice);
+	
 
 	for (unsigned int i = 0; i < gameObjects.size(); i++)
 		delete gameObjects[i];
