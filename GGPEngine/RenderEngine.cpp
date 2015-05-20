@@ -77,12 +77,10 @@ bool RenderEngine::Initialize()
 	return true;
 }
 
-
 Camera*	RenderEngine::getDefaultCamera()
 {
 	return	defaultCamera;
 }
-
 
 #pragma region Window Resizing Public
 
@@ -377,13 +375,16 @@ void RenderEngine::DrawParticleSystems(ParticleSystem** particleSystems, int par
 	size_t stride = sizeof(ParticleVertex);
 
 	Transform w = Transform();
-	w.movementSpeed = -1;
-	w.MoveForward();
+	//w.movementSpeed = -1500;
+	//w.MoveForward();
 	XMMATRIX m = w.getWorldTransform();
 	XMFLOAT4X4 m1;
 	XMStoreFloat4x4(&m1, m);
 
-	for (int i = 0; i < particleSystemCount; i++) {
+	for (int i = 0; i < particleSystemCount; i++) 
+	{
+		//w = *particleSystems[i]->transform;
+		//m = w.getWorldTransform();
 		deviceContext->IASetVertexBuffers(0, 1, &particleSystems[i]->mVertexBuffer, &stride, &offset);
 		//deviceContext->IASetIndexBuffer(particleSystems[i]->mIndexBuffer, DXGI_FORMAT_R32_UINT, 0);
 		

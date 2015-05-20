@@ -12,18 +12,22 @@ ParticleSystem::ParticleSystem(RenderEngine* renderer, Material* mat) : mTexArra
 	//SetVertexShader(e->device, e->deviceContext, L"ParticleVertexShader.cso");
 	//SetPixelShader(e->device, e->deviceContext, L"ParticlePixelShader.cso");
 
+	//Transform t = Transform();
+	//transform->position = { 0, 0, 3 };
+	//t.position = XMFLOAT3(0, 0, 0);
+	//t.rotation = XMFLOAT3(0, 0, 0);
+	//t.scale = XMFLOAT3(1, 1, 1);
+	//t.movementSpeed = -.05f;
+	//transform = &t;
+
 	mFirstRun = true;
 	mGameTime = 0.0f;
 	mTimeStep = 0.0f;
 	mAge = 0.0f;
 
-	m_particlesPerSecond = 2;
+	m_particlesPerSecond = 125;
 
-	mMaxParticles = 50;
-
-	mEyePosW = XMFLOAT3(0.0f, 0.0f, 0.0f);
-	mEmitPosW = XMFLOAT3(0.0f, 0.0f, 0.0f);
-	mEmitDirW = XMFLOAT3(0.0f, 1.0f, 0.0f);
+	mMaxParticles = 500;
 	
 	mVertexBuffer = 0;
 	mIndexBuffer = 0;
@@ -59,32 +63,11 @@ float ParticleSystem::GetAge()const
 	return mAge;
 }
 
-#pragma region Set Eye & Emit Pos/Dir
-void ParticleSystem::SetEyePos(const XMFLOAT3& eyePosW)
-{
-	mEyePosW = eyePosW;
-}
-
-void ParticleSystem::SetEmitPos(const XMFLOAT3& emitPosW)
-{
-	mEmitPosW = emitPosW;
-}
-
-void ParticleSystem::SetEmitDir(const XMFLOAT3& emitDirW)
-{
-	mEmitDirW = emitDirW;
-}
-#pragma endregion
-
 void ParticleSystem::Init(ID3D11Device* device, ID3D11ShaderResourceView* texArraySRV,
 	ID3D11ShaderResourceView* randomTexSRV, UINT maxParticles)
 {
-	//InitializeParticleSystem();
-
 	mTexArraySRV = texArraySRV;
 	mRandomTexSRV = randomTexSRV;
-
-	//BuildVB(device);
 }
 
 bool ParticleSystem::InitializeBuffers(ID3D11Device* device)
@@ -168,6 +151,8 @@ void ParticleSystem::Update(float dt, float gameTime)
 	mGameTime = gameTime;
 	mTimeStep = dt;
 
+	//transform->MoveForward();
+
 	mAge += dt;
 
 	KillParticles();
@@ -178,12 +163,12 @@ void ParticleSystem::Update(float dt, float gameTime)
 	int i;
 	for (i = 0; i < particles.size(); i++)
 	{
-		particles[i].age -= 1 / dt;
+		particles[i].age -= 1 * dt;
 		//particles[i].position.y = particles[i].position.y - (0.0001f);
 
-		particles[i].position.x = particles[i].position.x + particles[i].velocity.x / dt;
-		particles[i].position.y = particles[i].position.y + particles[i].velocity.y / dt;
-		particles[i].position.z = particles[i].position.z + particles[i].velocity.z / dt;
+		particles[i].position.x = particles[i].position.x + particles[i].velocity.x * dt;
+		particles[i].position.y = particles[i].position.y + particles[i].velocity.y * dt;
+		particles[i].position.z = particles[i].position.z + particles[i].velocity.z * dt;
 	}
 
 	UpdateBuffers(e->deviceContext);
@@ -228,13 +213,13 @@ void ParticleSystem::EmitParticles(float dt)
 	float positionX, positionY, positionZ, velX, velY, velZ, red, green, blue, alpha;
 
 	// Increment the frame time.
-	mAccumulatedTime += 1 / dt;
+	mAccumulatedTime += dt;
 
 	// Set emit particle to false for now.
 	emitParticle = false;
 
 	// Check if it is time to emit a new particle or not.
-	if (mAccumulatedTime > (.10f / m_particlesPerSecond))
+	if (mAccumulatedTime > (1 / (m_particlesPerSecond)))
 	{
 		mAccumulatedTime = 0.0f;
 
@@ -265,7 +250,7 @@ void ParticleSystem::EmitParticles(float dt)
 		red = ((float)rand()) / RAND_MAX;
 		green = ((float)rand()) / RAND_MAX;
 		blue = ((float)rand()) / RAND_MAX;
-		alpha = 1.0f;// ((float)rand()) / RAND_MAX;
+		alpha = 0.4f;// ((float)rand()) / RAND_MAX;
 
 		// Now since the particles need to be rendered from back to front for blending we have to sort the particle array.
 		// We will sort using Z depth so we need to find where in the list the particle should be inserted.

@@ -137,8 +137,8 @@ void CoreEngine::Update()
 			physics->Update(timer.TotalTime());
 
 			//renderer->CalculateFrameStats(timer.TotalTime());
-			renderer->UpdateScene(&gameObjects[0], gameObjects.size(), timer.TotalTime());
-			renderer->DrawScene(&gameObjects[0], gameObjects.size(), timer.TotalTime());
+			renderer->UpdateScene(&gameObjects[0], gameObjects.size(), timer.DeltaTime());
+			renderer->DrawScene(&gameObjects[0], gameObjects.size(), timer.DeltaTime());
 
 			// Flush the InputManager at the end of every frame
 			input->Flush();
