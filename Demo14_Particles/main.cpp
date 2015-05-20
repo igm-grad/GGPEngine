@@ -27,6 +27,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 
 	#pragma region Define materials
 	Material* particleMaterial = engine->ParticleMaterial();
+	//particleMaterial->SetResource(L"Textures/whitePuff00.PNG", "particleTexture");
 	particleMaterial->SetResource(L"Textures/DiffuseTexture2.JPG", "particleTexture");
 	particleMaterial->specularExponent = 128.f;
 
