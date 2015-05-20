@@ -74,7 +74,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 
 	GameObject* plane = engine->Plane(100.f, 100.f, 100.f, 100.f);
 	plane->transform->position.y = -2.f;
-	plane->transform->position.z = 50.f;
+	plane->transform->position.z = 10.f;
 	plane->transform->RotatePitch(-90.f);
 	plane->transform->scale.x = 2.0f;
 
@@ -85,7 +85,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 	boy->transform->scale.x = 0.03f;
 	boy->transform->scale.y = 0.03f;
 	boy->transform->scale.z = 0.03f;
-	boy->transform->position.z = -1.5f;
+	boy->transform->position.z = -0.5f;
 	boy->transform->position.y = -1.4f;
 
 	Material* diffuseMaterial2 = engine->DiffuseFluidMaterial();
@@ -129,7 +129,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 	torusMaterial->SetResource(L"Textures/OrangeWhite.jpg", "diffuseTexture");
 	torusMaterial->specularExponent = 0.0f;
 	torus->material = /*engine->BasicMaterial();*/torusMaterial;
-	torus->transform->position.z = -1.5f;
+	torus->transform->position.z = -0.5f;
 	torus->transform->position.y = -1.0f;
 	torus->transform->RotatePitch(-400.0f);
 
