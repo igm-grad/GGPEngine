@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>jQuery UI Progressbar - Default functionality</title>
+    <link rel="stylesheet" href="http://code.jquery.com/ui/1.11.2/themes/smoothness/jquery-ui.css">
+    <script src="http://code.jquery.com/jquery-1.10.2.js"></script>
+    <script src="http://code.jquery.com/ui/1.11.2/jquery-ui.js"></script>
+    <link rel="stylesheet" href="jquery-ui.css">
+    <style>
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+        }
+
+        #wrapper {
+            min-height: 100%;
+            position: relative;
+        }
+
+        #content {
+            padding: 10px;
+            padding-bottom: 80px; /* Height of the footer element */
+        }
+
+        #footer {
+            width: 100%;
+            height: 80px;
+            position: absolute;
+            bottom: 0;
+            left: 0;
+        }
+		
+		button {
+			width: 120px;
+			height: 60px;
+		}
+        .left {
+            width: 100%;
+            text-align: left;
+			display: inline-block;
+        }
+		.right {
+            width: 100%;
+            text-align: right;
+			display: inline-block;
+        }
+    </style>
+    <script language="javascript">
+        $(function () {
+            $("#buttonup").button();
+			$("#buttondown").button();
+			$("#buttonforward").button();
+			$("#buttonback").button();
+        })
+        
+    </script>
+</head>
+<body style="background-color: transparent; min-height: 100%; margin: 0; padding: 0;">
+    <div id="wrapper" style="position:relative; min-height: 100%;">
+        <div class="center" style="padding-top: 10px;">
+			<div class="left">
+                <button id="buttonup" onclick="javascript:app.moveup(1)">
+                    Move<br />Up
+                </button>
+				<button id="buttondown" onclick="javascript:app.movedown(1)">
+                    Move Down
+                </button>
+            </div>
+			<br /><br />
+			<div class="left">
+                <button id="buttonback" onclick="javascript:app.moveback(1)">
+                    Move Back
+                </button>
+				<button id="buttonforward" onclick="javascript:app.movefoward(1)">
+                    Move Forward
+                </button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
