@@ -273,6 +273,7 @@ void RenderEngine::DrawScene(GameObject** gameObjects, int gameObjectsCount, dou
 	// For now use default Camera
 	renderList = CullGameObjectsFromCamera(defaultCamera, gameObjects, gameObjectsCount);
 
+	//Turn the geometry shader off to avoid maintaining previously created geometry for future frames.
 	deviceContext->GSSetShader(0, 0, 0);
 
 	//if (defaultCamera->CubeMap != nullptr)
