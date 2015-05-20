@@ -332,6 +332,11 @@ Camera* CoreEngine::CreateCamera(XMFLOAT3& position, XMFLOAT3& rotation, XMFLOAT
 	return camera;
 }
 
+Camera* CoreEngine::GetDefaultCamera()
+{
+	return renderer->getDefaultCamera();
+}
+
 Behavior* CoreEngine::CreateBehavior()
 {
 	behaviors.push_back(Behavior());
