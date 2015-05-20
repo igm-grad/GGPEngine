@@ -62,7 +62,7 @@ void main(point VStoGS input[1], inout TriangleStream<GStoPS> outStream)
 		output.color = input[0].color;
 
 		//output.uv.x = ((offsets[i].x + .1f) * .5f, (offsets[i].y + .1f) * .5f);
-		output.uv = offsets[i].xy;
+		output.uv = (offsets[i].xy + 1.0f) / 2.0f;
 		
 		// End append
 		outStream.Append(output);

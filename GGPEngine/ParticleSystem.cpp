@@ -25,7 +25,7 @@ ParticleSystem::ParticleSystem(RenderEngine* renderer, Material* mat) : mTexArra
 	mTimeStep = 0.0f;
 	mAge = 0.1f;
 
-	m_particlesPerSecond = 1;
+	m_particlesPerSecond = 10;
 
 	mMaxParticles = 50;
 	
@@ -202,7 +202,7 @@ void ParticleSystem::UpdateBuffers(ID3D11DeviceContext* deviceContext)
 		result = deviceContext->Map(mVertexBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 		if (FAILED(result))
 		{
-			printf("fuck\n");
+			printf("Failure\n");
 		}
 
 		// Get a pointer to the data in the vertex buffer.
@@ -271,7 +271,7 @@ void ParticleSystem::EmitParticles(float dt)
 		newParticle.color = XMFLOAT4(red, green, blue, alpha);
 		newParticle.velocity = XMFLOAT3(velX, velY, velZ);
 		newParticle.acceleration = XMFLOAT3(accelX, accelY, accelZ);
-		newParticle.age = 10.0f;
+		newParticle.age = 5.0f;
 		newParticle.size = XMFLOAT3(1.0f, 1.0f, 1.0f);
 
 		//Push it into the vector of particles (which is handed to the GPU)
