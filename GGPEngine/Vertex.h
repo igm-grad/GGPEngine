@@ -26,5 +26,6 @@ struct ParticleVertex
 	XMFLOAT4	color;
 	XMFLOAT3	size;
 	XMFLOAT3	velocity;
+	XMFLOAT3	acceleration;
 	float		age;
 };

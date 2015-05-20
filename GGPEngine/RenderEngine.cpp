@@ -221,7 +221,7 @@ void RenderEngine::DrawScene(GameObject** gameObjects, int gameObjectsCount, dou
 {
 	// Background color (Cornflower Blue in this case) for clearing
 	//const float color[4] = { 0.4f, 0.6f, 0.75f, 0.0f };
-	const float color[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+	const float color[4] = { 0.8f, 0.8f, 0.8f, 1.0f };
 
 	//Clear the renderTarget Buffer
 	deviceContext->ClearRenderTargetView(renderTargetView, color);
@@ -370,7 +370,7 @@ void RenderEngine::DrawParticleSystems(ParticleSystem** particleSystems, int par
 
 	// Set the type of primitive that should be rendered from this vertex buffer.
 	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
-
+	
 	UINT offset = 0;
 	size_t stride = sizeof(ParticleVertex);
 
@@ -380,7 +380,7 @@ void RenderEngine::DrawParticleSystems(ParticleSystem** particleSystems, int par
 	XMMATRIX m = w.getWorldTransform();
 	XMFLOAT4X4 m1;
 	XMStoreFloat4x4(&m1, m);
-
+	
 	for (int i = 0; i < particleSystemCount; i++) 
 	{
 		//w = *particleSystems[i]->transform;
@@ -397,14 +397,20 @@ void RenderEngine::DrawParticleSystems(ParticleSystem** particleSystems, int par
 		particleSystems[i]->material->sGeometryShader->SetMatrix4x4("view", defaultCamera->view);
 		particleSystems[i]->material->sGeometryShader->SetMatrix4x4("projection", defaultCamera->projection);
 
+		//We don't appear to need this for UVs to work on particles.
+		//particleSystems[i]->material->UpdatePixelShaderResources();
+		//particleSystems[i]->material->UpdatePixelShaderSamplers();
+
 		particleSystems[i]->material->sVertexShader->SetShader();
-		// TODO: set pixel shader props
 		particleSystems[i]->material->sPixelShader->SetShader();
 		particleSystems[i]->material->sGeometryShader->SetShader();
 		
 		// Render the triangle.
 		deviceContext->Draw(particleSystems[i]->particles.size(), 0);
 		//deviceContext->DrawIndexed(particleSystems[i]->particles.size(), 0, 0);
+
+		//Trying to unset the geometry shader doesn't appear to work.
+		//particleSystems[i]->material->sGeometryShader->SetShader(NULL);
 	}
 }
 

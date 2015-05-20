@@ -10,7 +10,7 @@ int health = 80;
 CoreEngine * engine;
 
 Material** mats;
-int MATERIAL_COUNT = 3;
+int MATERIAL_COUNT = 1;
 int MATERIAL_INDEX = 0;
 
 // Win32 Entry Point
@@ -20,34 +20,26 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 	engine = new CoreEngine(hInstance, prevInstance, cmdLine, showCmd);
 	engine->Initialize();
 
+	//GameObject* ball = engine->Sphere();
+	//ball->material = engine->BasicMaterial();
+	//ball->transform->position = { 0, 0, 5 };
+	//ball->transform->scale = {8,8,8};
+
 	#pragma region Define materials
-	Material* debugMaterial = engine->BasicMaterial();
-
-	Material* diffuseMaterial = engine->DiffuseMaterial();
-	diffuseMaterial->SetResource(L"Textures/DiffuseTexture1.JPG", "diffuseTexture");
-	diffuseMaterial->specularExponent = 128.f;
-
 	Material* particleMaterial = engine->ParticleMaterial();
-	particleMaterial->SetResource(L"Textures/DiffuseTexture2.JPG", "diffuseTexture");
+	particleMaterial->SetResource(L"Textures/DiffuseTexture2.JPG", "particleTexture");
+	particleMaterial->specularExponent = 128.f;
 
 	mats = new Material*[MATERIAL_COUNT];
-	mats[0] = debugMaterial;
-	mats[1] = diffuseMaterial;
-	mats[2] = particleMaterial;
+	mats[0] = particleMaterial;
 	#pragma endregion
 
 	GameObject* gameObject = engine->CreateGameObject("Models\\Lego.obj");
 	//gameObject->material = engine->BasicMaterial();
 	gameObject->material = mats[MATERIAL_INDEX];
-	gameObject->transform->position.y = -20000;
+	gameObject->transform->position.y = 0;
 
-	/*GameObject* rainGameObject = engine->CreateGameObject();
-
-	//Create the ParticleSystem & add it to the target game object.
-	ParticleSystem* Rain = engine->CreateParticleSystemThenAdd(rainGameObject, "Rain");
-	*/
-
-	engine->CreateParticleSystem(mats[2], 50);
+	engine->CreateParticleSystem(mats[0], 50);
 
 	time_t startPoint = time(NULL);
 		
