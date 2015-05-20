@@ -20,10 +20,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 	engine = new CoreEngine(hInstance, prevInstance, cmdLine, showCmd);
 	engine->Initialize();
 
-	//GameObject* ball = engine->Sphere();
-	//ball->material = engine->BasicMaterial();
-	//ball->transform->position = { 0, 0, 5 };
-	//ball->transform->scale = {8,8,8};
+	GameObject* ball = engine->Sphere();
+	ball->material = engine->BasicMaterial();
+	ball->transform->position = { 0, 0, 5 };
+	ball->transform->scale = {8,8,8};
 
 	#pragma region Define materials
 	Material* particleMaterial = engine->ParticleMaterial();
