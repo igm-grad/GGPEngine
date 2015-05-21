@@ -12,7 +12,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 	CoreEngine * engine = new CoreEngine(hInstance, prevInstance, cmdLine, showCmd);
 	engine->Initialize();
 
-	GameObject* gameObject1 = engine->Sphere();
+	GameObject* gameObject1 = engine->Cone();
 	gameObject1->material = engine->BasicMaterial();
 	gameObject1->transform->position = XMFLOAT3(0.0f, 0.0f, 10.0f);
 	gameObject1->transform->movementSpeed = 0.001f;
@@ -23,7 +23,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 	gameObject1->transform->movementSpeed = 0.001f;
 
 	//Set a .html file ad overlayer UI
-	engine->InitializeUI("file:///./UI/main.html");
+	engine->InitializeUI("file:///./UI/test.html");
 	engine->EnableDebugLines();
 
 	// Loop until we get a quit message from the engine

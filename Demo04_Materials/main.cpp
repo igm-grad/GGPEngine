@@ -2,9 +2,9 @@
 #include <stdlib.h>
 #include <Windows.h>
 
-Mesh** meshes;
-int MESH_COUNT = 5;
-int MESH_INDEX = 0;
+Model** models;
+int MODEL_COUNT = 5;
+int MODEL_INDEX = 0;
 
 Material** mats;
 int MATERIAL_COUNT = 3;
@@ -24,14 +24,14 @@ void keyDownLeftCallback(GameObject& gameObject)
 
 void keyDownUpCallback(GameObject& gameObject)
 {
-	MESH_INDEX = min(MESH_INDEX + 1, MESH_COUNT - 1);
-	gameObject.mesh = meshes[MESH_INDEX];
+	MODEL_INDEX = min(MODEL_INDEX + 1, MODEL_COUNT - 1);
+	gameObject.model = models[MODEL_INDEX];
 }
 
 void keyDownDownCallback(GameObject& gameObject)
 {
-	MESH_INDEX = max(MESH_INDEX - 1, 0);
-	gameObject.mesh = meshes[MESH_INDEX];
+	MODEL_INDEX = max(MODEL_INDEX - 1, 0);
+	gameObject.model = models[MODEL_INDEX];
 }
 
 void keyWCallback(GameObject& gameObject)
@@ -77,17 +77,17 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 	CoreEngine * engine = new CoreEngine(hInstance, prevInstance, cmdLine, showCmd);
 	engine->Initialize();
 
-	Mesh* cube = engine->CreateMesh("Models\\Cube.obj");
-	Mesh* sphere = engine->CreateMesh("Models\\Sphere.obj");
-	Mesh* helix = engine->CreateMesh("Models\\Helix.obj");
-	Mesh* cylinder = engine->CreateMesh("Models\\Cylinder.obj");
-	Mesh* torus = engine->CreateMesh("Models\\Torus.obj");
-	meshes = new Mesh*[MESH_COUNT];
-	meshes[0] = cube;
-	meshes[1] = sphere;
-	meshes[2] = helix;
-	meshes[3] = cylinder;
-	meshes[4] = torus;
+	Model* cube = engine->CreateModel("Models\\Cube.obj");
+	Model* sphere = engine->CreateModel("Models\\Sphere.obj");
+	Model* helix = engine->CreateModel("Models\\Helix.obj");
+	Model* cylinder = engine->CreateModel("Models\\Cylinder.obj");
+	Model* torus = engine->CreateModel("Models\\Torus.obj");
+	models = new Model*[MODEL_COUNT];
+	models[0] = cube;
+	models[1] = sphere;
+	models[2] = helix;
+	models[3] = cylinder;
+	models[4] = torus;
 
 	Material* debugMaterial = engine->BasicMaterial();
 
@@ -108,7 +108,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 	GameObject* gameObject = engine->CreateGameObject();
 	gameObject->transform = new Transform();
 	gameObject->material = mats[MATERIAL_INDEX];
-	gameObject->mesh = meshes[MESH_INDEX];
+	gameObject->model = models[MODEL_INDEX];
 
 	gameObject->behavior = engine->CreateBehavior();
 	gameObject->behavior->SetCallbackForKeyDown(keyDownRightCallback, KEYCODE_RIGHT);
@@ -123,8 +123,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 	gameObject->behavior->SetCallbackForKey(keyYCallback, KEYCODE_Y);
 	gameObject->behavior->SetCallbackForKey(keyZCallback, KEYCODE_Z);
 
-	//DirectionalLight* directionalLight = engine->CreateDirectionalLight(DirectX::XMFLOAT4(0.01f, 0.01f, 0.01f, 1.0f), DirectX::XMFLOAT4(0.2f, 0.2f, 0.2f, 1.0f), DirectX::XMFLOAT3(1.f, -1.f, 1.f));
-	//PointLight *pointLight = engine->CreatePointLight(DirectX::XMFLOAT4(0.01f, 0.01f, 0.01f, 1.0f), DirectX::XMFLOAT4(0.2f, 0.2f, 0.2f, 1.0f), DirectX::XMFLOAT3(0.f, 5.f, -5.f), 15.0f);
+	DirectionalLight* directionalLight = engine->CreateDirectionalLight(DirectX::XMFLOAT4(0.01f, 0.01f, 0.01f, 1.0f), DirectX::XMFLOAT4(0.2f, 0.2f, 0.2f, 1.0f), DirectX::XMFLOAT3(1.f, -1.f, 1.f));
+	PointLight *pointLight = engine->CreatePointLight(DirectX::XMFLOAT4(0.01f, 0.01f, 0.01f, 1.0f), DirectX::XMFLOAT4(0.2f, 0.2f, 0.2f, 1.0f), DirectX::XMFLOAT3(0.f, 5.f, -5.f), 15.0f);
 	SpotLight* spotLight = engine->CreateSpotLight(DirectX::XMFLOAT4(0.01f, 0.01f, 0.01f, 1.0f), DirectX::XMFLOAT4(0.2f, 0.2f, 0.2f, 1.0f), DirectX::XMFLOAT3(0.0, 1.0f, 1.0), DirectX::XMFLOAT3(0.0f, -5.0f, -5.0f), 30.0f, 10.f);
 	
 	// Loop until we get a quit message from the engine

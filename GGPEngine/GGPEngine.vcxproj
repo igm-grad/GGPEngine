@@ -99,6 +99,7 @@ xcopy /y "$(SolutionDir)libs\awesomium\1.7.5.0\build\bin\awesomium_process.exe" 
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="ParticleSystem.h" />
     <ClInclude Include="MeshLoader.h" />
+    <ClInclude Include="Model.h" />
     <ClInclude Include="PhysicsEngine.h" />
     <ClInclude Include="RenderEngine.h" />
     <ClInclude Include="RigidBody.h" />
@@ -121,6 +122,7 @@ xcopy /y "$(SolutionDir)libs\awesomium\1.7.5.0\build\bin\awesomium_process.exe" 
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="MeshLoader.cpp" />
     <ClCompile Include="ParticleSystem.cpp" />
+    <ClCompile Include="Model.cpp" />
     <ClCompile Include="PhysicsEngine.cpp" />
     <ClCompile Include="RenderEngine.cpp" />
     <ClCompile Include="RigidBody.cpp" />
@@ -197,7 +199,7 @@ xcopy /y "$(SolutionDir)libs\awesomium\1.7.5.0\build\bin\awesomium_process.exe" 
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
     </FxCompile>
-    <FxCompile Include="TerrainlVertexShader.hlsl">
+    <FxCompile Include="TerrainVertexShader.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
     </FxCompile>
     <FxCompile Include="TerrainPixelShader.hlsl">

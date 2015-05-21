@@ -47,6 +47,8 @@ protected:
 	void UpdatePixelShaderSamplers();
 	void SetGeometryShader(ID3D11Device* device, ID3D11DeviceContext* deviceContext, LPCWSTR geometryShaderFile);
 	void SetGeometryShader(SimpleGeometryShader* simpleGeometryShader);
+	void UpdateVertexShaderResources();
+	void UpdateVertexShaderSamplers();
 
 	friend class UI;
 	friend class RenderEngine;
