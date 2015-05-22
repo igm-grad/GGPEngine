@@ -1,7 +1,11 @@
 #pragma once
+#pragma warning( disable: 4251 )
 #include <DirectXMath.h>
-#include "Mesh.h"
+#include "Model.h"
 #include "Material.h"
+#include "Effects.h"
+#include "Transform.h"
+#include "Behavior.h"
 
 #ifdef _WINDLL
 #define GPPEngineAPI   __declspec( dllexport )
@@ -11,28 +15,21 @@
 
 using namespace DirectX;
 
+class ParticleSystem; //Forward declaration
+
 class  GameObject
 {
 public:
 
-	XMFLOAT4	rotation;
-	XMFLOAT3	position;
-	XMFLOAT3	scale;
-	Mesh*		mesh;
+	UINT32		id;
+	Transform*	transform;
+	Model*		model;
 	Material*	material;
+	Behavior*	behavior;
+	//ParticleSystem* particleSystem;
 
-	GameObject(Mesh* mesh) : mesh(mesh), position({ 0.0f, 0.0f, 0.0f }), rotation({ 0.0f, 0.0f, 0.0f, 1.0f }), scale({ 1.0f, 1.0f, 1.0f }) {};
+	GameObject(Model* model) : model(model) {};
 	GameObject() : GameObject(NULL) {};
-	~GameObject() { delete(mesh); delete(material); };
-
-	XMMATRIX getWorldTransform();
-	void translateForward(float distance);
-	void translateRight(float distance);
-	void translateUp(float distance);
-
-	void applyRotation(XMFLOAT3X3 rotation);
-	void rotateHeading(float angle);
-	void rotatePitch(float angle);
-	void rotateYaw(float angle);
+	~GameObject() { delete(model); delete(material); delete(transform); /*delete(behavior);*/ };
 };
 

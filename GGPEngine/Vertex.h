@@ -1,4 +1,5 @@
 #pragma once
+#pragma warning( disable: 4251 )
 #include <DirectXMath.h>
 
 #ifdef _WINDLL
@@ -13,7 +14,24 @@ using namespace DirectX;
 // Vertex struct for triangles
 struct Vertex
 {
+	XMFLOAT4 Tangent;
 	XMFLOAT3 Position;
 	XMFLOAT3 Normal;
 	XMFLOAT2 UV;
+
+	// For animations
+	// Will not be sent to shader
+	int StartWeight;
+	int WeightCount;
+};
+
+// Vertex struct for triangles
+struct ParticleVertex
+{
+	XMFLOAT3	position;
+	XMFLOAT4	color;
+	XMFLOAT3	size;
+	XMFLOAT3	velocity;
+	XMFLOAT3	acceleration;
+	float		age;
 };

@@ -1,4 +1,5 @@
 #include "CoreEngine.h"
+#include "MeshLoader.h"
 
 #pragma region Global Window Callback
 namespace
@@ -31,11 +32,28 @@ CoreEngine::CoreEngine(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine
 	gamePaused = false;
 	gCore = this;
 	msg = { { 0 } };
+
 }
 
+//#include <Initguid.h>
+//#include <DXGIDebug.h>
 
 CoreEngine::~CoreEngine()
 {
+	
+	//Useful for debugging COM trash left behind
+	//ID3D11Debug* DebugDevice;
+	//HRESULT Result = renderer->device->QueryInterface(__uuidof(ID3D11Debug), (void**)&DebugDevice);
+	//DebugDevice->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL);
+	//ReleaseMacro(DebugDevice);
+	
+
+	for (unsigned int i = 0; i < gameObjects.size(); i++)
+		delete gameObjects[i];
+	
+	delete renderer;
+	delete physics;
+	delete input;
 }
 
 bool CoreEngine::Initialize()
@@ -46,6 +64,33 @@ bool CoreEngine::Initialize()
 		return true;
 	}
 	return false;
+}
+
+bool CoreEngine::InitializeUI(const char* url) {
+	return renderer->InitUI(url);
+}
+
+bool CoreEngine::UIExecuteJavascript(std::string javascript) {
+	return renderer->UIExecuteJavascript(javascript);
+}
+
+bool CoreEngine::UIRegisterJavascriptFunction(std::string functionName, JSFunctionCallback functionPointer) {
+	return renderer->UIRegisterJavascriptFunction(functionName, functionPointer);
+}
+
+void CoreEngine::EnableDebugLines() {
+	renderer->isDebugging = true;
+}
+
+
+void CoreEngine::CreateCubemap(Camera* camera, const wchar_t* filePath)
+{
+	renderer->setCameraCubeMap(camera,filePath);
+}
+
+void CoreEngine::CreateCubemap(const wchar_t* filePath)
+{
+	renderer->setCameraCubeMap(renderer->getDefaultCamera(), filePath);
 }
 
 void CoreEngine::Update()
@@ -68,69 +113,33 @@ void CoreEngine::Update()
 		}
 		else
 		{
+			// This is ugly, but I'm a shitty programmer :(
+			for (GameObject* gameObject : gameObjects)
+			{
+				if (gameObject->behavior != NULL && gameObject->behavior->keyInputMap.size() != 0)
+				{
+					for (std::map<KeyCode, KeyCallback>::iterator iter = gameObject->behavior->keyInputMap.begin(); iter != gameObject->behavior->keyInputMap.end(); iter++)
+					{
+						if (input->GetKey(iter->first)) {
+							iter->second(*gameObject);
+						}
+					}
+
+					for (std::map<KeyCode, KeyDownCallback>::iterator iter = gameObject->behavior->keyDownInputMap.begin(); iter != gameObject->behavior->keyDownInputMap.end(); iter++)
+					{
+						if (input->GetKeyDown(iter->first)) {
+							iter->second(*gameObject);
+						}
+					}
+				}
+			}
+
 			// Standard game loop type stuff
 			physics->Update(timer.TotalTime());
 
-			// There must be a logics update method
-			// TODO: transfer this code to a gamoobject 
-			// component update method
-#pragma region Input tests
-			if (input->GetKey(KEYCODE_A)) {
-				auto go = gameObjects[0];
-				go->position.x += 0.001f;
-			}
-			if (input->GetKey(KEYCODE_B)) {
-				auto go = gameObjects[0];
-				go->position.x -= 0.001f;
-			}
-			if (input->GetKeyDown(KEYCODE_A)) {
-				OutputDebugStringA("KeyDown A\n");
-			}
-			if (input->GetKeyUp(KEYCODE_A)) {
-				OutputDebugStringA("KeyUp A\n");
-			}
-
-			if (input->GetMouseButtonDown(MOUSEBUTTON_LEFT))
-			{
-				OutputDebugStringA("mouse down left\n");
-			}
-
-			if (input->GetMouseButtonUp(MOUSEBUTTON_LEFT))
-			{
-				OutputDebugStringA("mouse up left\n");
-			}
-
-			if (input->GetMouseButtonDown(MOUSEBUTTON_RIGHT))
-			{
-				OutputDebugStringA("mouse down right\n");
-			}
-
-			if (input->GetMouseButtonUp(MOUSEBUTTON_RIGHT))
-			{
-				OutputDebugStringA("mouse up right\n");
-			}
-
-			if (input->GetMouseButtonDown(MOUSEBUTTON_MIDDLE))
-			{
-				OutputDebugStringA("mouse down middle\n");
-			}
-
-			if (input->GetMouseButtonUp(MOUSEBUTTON_MIDDLE))
-			{
-				OutputDebugStringA("mouse up middle\n");
-			}
-
-			int x = input->mousePosition.x;
-			int y = input->mousePosition.y;
-
-			char str[100];
-			sprintf_s(str, "X: %d, Y: %d\n", x, y);
-			OutputDebugStringA(str);
-
-#pragma endregion
-
 			//renderer->CalculateFrameStats(timer.TotalTime());
-			renderer->Update(timer.DeltaTime(), gameObjects);
+			renderer->UpdateScene(&gameObjects[0], gameObjects.size(), timer.DeltaTime());
+			renderer->DrawScene(&gameObjects[0], gameObjects.size(), timer.DeltaTime());
 
 			// Flush the InputManager at the end of every frame
 			input->Flush();
@@ -138,23 +147,33 @@ void CoreEngine::Update()
 	}
 }
 
-bool CoreEngine::exitRequested() 
+bool CoreEngine::exitRequested()
 {
 	return msg.message == WM_QUIT;
 }
 
+bool CoreEngine::LoadAnimation(GameObject* go, const char* filename)
+{
+	MeshLoader meshLoader;
+	std::string filePath = filename;
+
+	return meshLoader.loadMD5AnimFile(filename, go->model);
+}
+
 GameObject* CoreEngine::CreateGameObject()
 {
-	Mesh* mesh = NULL;
-	GameObject* obj = new GameObject(mesh);
+	Model* model = new Model();
+	GameObject* obj = new GameObject(model);
+	obj->transform = new Transform();
 	gameObjects.push_back(obj);
 	return obj;
 }
 
 GameObject* CoreEngine::CreateGameObject(const char* filename)
 {
-	Mesh* mesh = CreateMesh(filename);
-	GameObject* obj = new GameObject(mesh);
+	Model* model = CreateModel(filename);
+	GameObject* obj = new GameObject(model);
+	obj->transform = new Transform();
 	gameObjects.push_back(obj);
 	return obj;
 }
@@ -189,15 +208,38 @@ GameObject*	CoreEngine::Torus()
 	return CreateGameObject("Models\\Torus.obj");
 }
 
-Mesh* CoreEngine::CreateMesh(const char* filename)
+GameObject* CoreEngine::Plane(float width, int vertexPerWidth, float depth, int vertexPerDepth)
 {
-	std::unordered_map<std::string, Mesh*>::iterator it = meshIndex.find(filename);
-	Mesh* meshObj;
-	if (it == meshIndex.end())
+	GameObject* plane = CreateGameObject();
+	Mesh* m = renderer->CreatePlaneMesh(width, vertexPerWidth, depth, vertexPerDepth);
+	plane->model->meshes.push_back(m);
+	return plane;
+}
+
+// Returns a Terrain Game Object. Heightmap must be loaded afterwards.
+GameObject* CoreEngine::Terrain(float width, int vertexPerWidth, float depth, int vertexPerDepth)
+{
+	// Creates Game Object to return.
+	GameObject* returnObject = CreateGameObject();
+	
+	// Creates the Terrain Plane Mesh
+	Mesh* planeMesh = renderer->CreatePlaneMesh(width, vertexPerWidth, depth, vertexPerDepth);
+
+	// Add mesh to Return GameObject
+	returnObject->model->meshes.push_back(planeMesh);
+	
+	return returnObject;
+}
+
+Model* CoreEngine::CreateModel(const char* filename)
+{
+	std::unordered_map<std::string, Model*>::iterator it = modelIndex.find(filename);
+	Model* meshObj;
+	if (it == modelIndex.end())
 	{
 		// The mesh was not found in the meshIndex i.e It has not been loaded already
-		meshObj = renderer->CreateMesh(filename);
-		meshIndex.insert({ filename, meshObj });
+		meshObj = renderer->CreateModel(filename);
+		modelIndex.insert({ filename, meshObj });
 	}
 	else
 	{
@@ -209,12 +251,118 @@ Mesh* CoreEngine::CreateMesh(const char* filename)
 
 Material* CoreEngine::BasicMaterial()
 {
-	return CreateMaterial(L"VertexShader.cso", L"PixelShader.cso");
+	return CreateMaterial(L"DebugVertexShader.cso", L"DebugPixelShader.cso");
+}
+
+Material* CoreEngine::DiffuseMaterial()
+{
+	Material* diffuseMaterial = CreateMaterial(L"DiffuseVertexShader.cso", L"DiffusePixelShader.cso");
+	diffuseMaterial->SetSampler("diffuseSampler");
+	return diffuseMaterial;
+}
+
+Material* CoreEngine::DiffuseNormalMaterial()
+{
+	Material* diffuseNormalMaterial = CreateMaterial(L"DiffuseNormalVertexShader.cso", L"DiffuseNormalPixelShader.cso");
+	diffuseNormalMaterial->SetSampler("omniSampler");
+	return diffuseNormalMaterial;
+}
+
+Material* CoreEngine::ParticleMaterial()
+{
+	Material* particleMaterial = CreateMaterial(L"ParticleVertexShader.cso", L"ParticlePixelShader.cso", L"ParticleGeometryShader.cso");
+	particleMaterial->SetSampler("omniSampler");
+	return particleMaterial;
+}
+
+Material* CoreEngine::DiffuseFluidMaterial()
+{
+	Material* diffuseMaterial = CreateMaterial(L"DiffuseFluidVertexShader.cso", L"DiffuseFluidPixelShader.cso");
+	diffuseMaterial->SetSampler("omniSampler");
+	return diffuseMaterial;
 }
 
 Material* CoreEngine::CreateMaterial(LPCWSTR vertexShaderFile, LPCWSTR pixelShaderFile)
 {
 	return renderer->CreateMaterial(vertexShaderFile, pixelShaderFile);
+}
+
+Material* CoreEngine::CreateMaterial(LPCWSTR vertexShaderFile, LPCWSTR pixelShaderFile, LPCWSTR geometryShaderFile)
+{
+	return renderer->CreateMaterial(vertexShaderFile, pixelShaderFile, geometryShaderFile);
+}
+
+ParticleSystem* CoreEngine::CreateParticleSystem(Material* particleMat, UINT maxParticles)
+{
+	ParticleSystem* partSys = renderer->CreateParticleSystem(particleMat, maxParticles);
+	return partSys;
+}
+
+ParticleSystem* CoreEngine::InitializeParticleSystem(Material* particleMat) {
+	return renderer->CreateParticleSystem(particleMat, 50);
+}
+
+Material* CoreEngine::loadHeightMap(const wchar_t* filename)
+{
+	Material* HeightMap = nullptr;
+	HeightMap = CreateMaterial(L"TerrainVertexShader.cso", L"TerrainPixelShader.cso");
+	HeightMap->SetSampler("omniSampler");
+	HeightMap->SetResource(filename, "heightMap");
+	return HeightMap;
+}
+
+DirectionalLight* CoreEngine::CreateDirectionalLight(XMFLOAT4& ambientColor, XMFLOAT4& diffuseColor, XMFLOAT3& direction)
+{
+	DirectionalLight* directionalLight = renderer->CreateDirectionalLight();
+	directionalLight->ambientColor = ambientColor;
+	directionalLight->diffuseColor = diffuseColor;
+	directionalLight->direction = direction;
+	return directionalLight;
+}
+
+PointLight*	CoreEngine::CreatePointLight(XMFLOAT4& ambientColor, XMFLOAT4& diffuseColor, XMFLOAT3& position, float radius)
+{
+	PointLight* pointLight = renderer->CreatePointLight();
+	pointLight->ambientColor = ambientColor;
+	pointLight->diffuseColor = diffuseColor;
+	pointLight->position = position;
+	pointLight->radius = radius;
+	return pointLight;
+}
+
+SpotLight* CoreEngine::CreateSpotLight(XMFLOAT4& ambientColor, XMFLOAT4& diffuseColor, XMFLOAT3& direction, XMFLOAT3& position, float radius, float range)
+{
+	SpotLight* spotLight = renderer->CreateSpotLight();
+	spotLight->ambientColor = ambientColor;
+	spotLight->diffuseColor = diffuseColor;
+	spotLight->direction = direction;
+	spotLight->position = position;
+	spotLight->radius = radius;
+	spotLight->range = range;
+	return spotLight;
+}
+
+Camera* CoreEngine::CreateCamera(XMFLOAT3& position, XMFLOAT3& rotation, XMFLOAT3& forward, XMFLOAT3& up, float movementSpeed)
+{
+	Camera* camera = renderer->CreateCamera();
+	camera->transform = new Transform();
+	camera->transform->position = position;
+	camera->transform->rotation = rotation;
+	camera->transform->forward = forward;
+	camera->transform->up = up;
+	camera->transform->movementSpeed = movementSpeed;
+	return camera;
+}
+
+Camera* CoreEngine::GetDefaultCamera()
+{
+	return renderer->getDefaultCamera();
+}
+
+Behavior* CoreEngine::CreateBehavior()
+{
+	behaviors.push_back(Behavior());
+	return &behaviors.back();
 }
 
 #pragma region Windows Message Processing
@@ -278,30 +426,37 @@ LRESULT CoreEngine::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		return 0;
 
 	case WM_LBUTTONDOWN:
-		input->OnMouseDown(MOUSEBUTTON_LEFT, wParam, lParam);
+		if (!renderer->wmMouseButtonDownHook(wParam, lParam, MouseButton::MOUSEBUTTON_LEFT))
+			input->OnMouseDown(MOUSEBUTTON_LEFT, wParam, lParam);
 		return 0;
 	case WM_MBUTTONDOWN:
-		input->OnMouseDown(MOUSEBUTTON_MIDDLE, wParam, lParam);
+		if (!renderer->wmMouseButtonDownHook(wParam, lParam, MouseButton::MOUSEBUTTON_MIDDLE))
+			input->OnMouseDown(MOUSEBUTTON_MIDDLE, wParam, lParam);
 		return 0;
 	case WM_RBUTTONDOWN:
-		input->OnMouseDown(MOUSEBUTTON_RIGHT, wParam, lParam);
+		if (!renderer->wmMouseButtonDownHook(wParam, lParam, MouseButton::MOUSEBUTTON_RIGHT))
+			input->OnMouseDown(MOUSEBUTTON_RIGHT, wParam, lParam);
 		return 0;
 	case WM_XBUTTONDOWN:
 		input->OnMouseDown(MOUSEBUTTON_X, wParam, lParam);
 		return 0;
 	case WM_LBUTTONUP:
-		input->OnMouseUp(MOUSEBUTTON_LEFT, wParam, lParam);
+		if (!renderer->wmMouseButtonUpHook(wParam, lParam, MouseButton::MOUSEBUTTON_LEFT))
+			input->OnMouseUp(MOUSEBUTTON_LEFT, wParam, lParam);
 		return 0;
 	case WM_MBUTTONUP:
-		input->OnMouseUp(MOUSEBUTTON_MIDDLE, wParam, lParam);
+		if (!renderer->wmMouseButtonUpHook(wParam, lParam, MouseButton::MOUSEBUTTON_MIDDLE))
+			input->OnMouseUp(MOUSEBUTTON_MIDDLE, wParam, lParam);
 		return 0;
 	case WM_RBUTTONUP:
-		input->OnMouseUp(MOUSEBUTTON_RIGHT, wParam, lParam);
+		if (!renderer->wmMouseButtonUpHook(wParam, lParam, MouseButton::MOUSEBUTTON_RIGHT))
+			input->OnMouseUp(MOUSEBUTTON_RIGHT, wParam, lParam);
 		return 0;
 	case WM_XBUTTONUP:
 		input->OnMouseUp(MOUSEBUTTON_X, wParam, lParam);
 		return 0;
 	case WM_MOUSEMOVE:
+		renderer->wmMouseMoveHook(wParam, lParam);
 		input->OnMouseMove(wParam, lParam);
 		return 0;
 	case WM_KEYDOWN:
