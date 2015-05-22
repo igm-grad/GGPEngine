@@ -17,6 +17,13 @@ Material::Material(ID3D11Device* device, ID3D11DeviceContext* deviceContext, LPC
 	SetPixelShader(device, deviceContext, pixelShaderFile);
 }
 
+Material::Material(ID3D11Device* device, ID3D11DeviceContext* deviceContext, LPCWSTR vertexShaderFile, LPCWSTR pixelShaderFile, LPCWSTR geometryShaderFile) : device(device), deviceContext(deviceContext)
+{
+	SetVertexShader(device, deviceContext, vertexShaderFile);
+	SetPixelShader(device, deviceContext, pixelShaderFile);
+	SetGeometryShader(device, deviceContext, geometryShaderFile);
+}
+
 Material::Material()
 {
 	sVertexShader = __nullptr;
@@ -38,6 +45,7 @@ Material::~Material()
 
 	delete sVertexShader;
 	delete sPixelShader;
+	delete sGeometryShader;
 }
 
 void Material::SetVertexShader(ID3D11Device* device, ID3D11DeviceContext* deviceContext, LPCWSTR vertexShaderFile)
@@ -80,6 +88,17 @@ void Material::SetResource(ID3D11Resource* resource, const char* name)
 
 	device->CreateShaderResourceView(resource, nullptr, &shaderResourceView);
 	resourceMap[name] = shaderResourceView;
+}
+
+void Material::SetGeometryShader(ID3D11Device* device, ID3D11DeviceContext* deviceContext, LPCWSTR geometryShaderFile)
+{
+	sGeometryShader = new SimpleGeometryShader(device, deviceContext);
+	sGeometryShader->LoadShaderFile(geometryShaderFile);
+}
+
+void Material::SetGeometryShader(SimpleGeometryShader* simpleGeometryShader)
+{
+	sGeometryShader = simpleGeometryShader;
 }
 
 // TO load DDS files as sky Boxes

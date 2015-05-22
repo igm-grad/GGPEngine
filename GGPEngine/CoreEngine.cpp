@@ -40,13 +40,13 @@ CoreEngine::CoreEngine(HINSTANCE hInstance, HINSTANCE prevInstance, PSTR cmdLine
 
 CoreEngine::~CoreEngine()
 {
-	/*
+	
 	//Useful for debugging COM trash left behind
-	ID3D11Debug* DebugDevice;
-	HRESULT Result = renderer->device->QueryInterface(__uuidof(ID3D11Debug), (void**)&DebugDevice);
-	DebugDevice->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL);
-	ReleaseMacro(DebugDevice);
-	*/
+	//ID3D11Debug* DebugDevice;
+	//HRESULT Result = renderer->device->QueryInterface(__uuidof(ID3D11Debug), (void**)&DebugDevice);
+	//DebugDevice->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL);
+	//ReleaseMacro(DebugDevice);
+	
 
 	for (unsigned int i = 0; i < gameObjects.size(); i++)
 		delete gameObjects[i];
@@ -139,7 +139,7 @@ void CoreEngine::Update()
 
 			//renderer->CalculateFrameStats(timer.TotalTime());
 			renderer->UpdateScene(&gameObjects[0], gameObjects.size(), timer.DeltaTime());
-			renderer->DrawScene(&gameObjects[0], gameObjects.size(), timer.TotalTime());
+			renderer->DrawScene(&gameObjects[0], gameObjects.size(), timer.DeltaTime());
 
 			// Flush the InputManager at the end of every frame
 			input->Flush();
@@ -268,6 +268,13 @@ Material* CoreEngine::DiffuseNormalMaterial()
 	return diffuseNormalMaterial;
 }
 
+Material* CoreEngine::ParticleMaterial()
+{
+	Material* particleMaterial = CreateMaterial(L"ParticleVertexShader.cso", L"ParticlePixelShader.cso", L"ParticleGeometryShader.cso");
+	particleMaterial->SetSampler("omniSampler");
+	return particleMaterial;
+}
+
 Material* CoreEngine::DiffuseFluidMaterial()
 {
 	Material* diffuseMaterial = CreateMaterial(L"DiffuseFluidVertexShader.cso", L"DiffuseFluidPixelShader.cso");
@@ -278,6 +285,21 @@ Material* CoreEngine::DiffuseFluidMaterial()
 Material* CoreEngine::CreateMaterial(LPCWSTR vertexShaderFile, LPCWSTR pixelShaderFile)
 {
 	return renderer->CreateMaterial(vertexShaderFile, pixelShaderFile);
+}
+
+Material* CoreEngine::CreateMaterial(LPCWSTR vertexShaderFile, LPCWSTR pixelShaderFile, LPCWSTR geometryShaderFile)
+{
+	return renderer->CreateMaterial(vertexShaderFile, pixelShaderFile, geometryShaderFile);
+}
+
+ParticleSystem* CoreEngine::CreateParticleSystem(Material* particleMat, UINT maxParticles)
+{
+	ParticleSystem* partSys = renderer->CreateParticleSystem(particleMat, maxParticles);
+	return partSys;
+}
+
+ParticleSystem* CoreEngine::InitializeParticleSystem(Material* particleMat) {
+	return renderer->CreateParticleSystem(particleMat, 50);
 }
 
 Material* CoreEngine::loadHeightMap(const wchar_t* filename)

@@ -24,3 +24,14 @@ struct Vertex
 	int StartWeight;
 	int WeightCount;
 };
+
+// Vertex struct for triangles
+struct ParticleVertex
+{
+	XMFLOAT3	position;
+	XMFLOAT4	color;
+	XMFLOAT3	size;
+	XMFLOAT3	velocity;
+	XMFLOAT3	acceleration;
+	float		age;
+};

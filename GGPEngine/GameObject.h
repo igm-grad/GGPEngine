@@ -3,6 +3,7 @@
 #include <DirectXMath.h>
 #include "Model.h"
 #include "Material.h"
+#include "Effects.h"
 #include "Transform.h"
 #include "Behavior.h"
 
@@ -14,6 +15,8 @@
 
 using namespace DirectX;
 
+class ParticleSystem; //Forward declaration
+
 class  GameObject
 {
 public:
@@ -23,6 +26,7 @@ public:
 	Model*		model;
 	Material*	material;
 	Behavior*	behavior;
+	//ParticleSystem* particleSystem;
 
 	GameObject(Model* model) : model(model) {};
 	GameObject() : GameObject(NULL) {};

@@ -44,6 +44,7 @@
 using namespace DirectX;
 
 class UI; //Forward declaration
+class ParticleSystem; //Forward declaration
 typedef GPPEngineAPI void(*JSFunctionCallback)();
 
 class  RenderEngine
@@ -56,12 +57,17 @@ protected:
 	void OnResize();
 	void CalculateFrameStats(float totalTime);
 	void UpdateScene(GameObject** gameObjects, int gameObjectsCount, double deltaTime);
+	void UpdateParticleSystems(ParticleSystem** particleSystems, int particleSystemCount, double deltaTime);
 	void DrawScene(GameObject** gameObjects, int gameObjectsCount, double deltaTime);
+	void DrawParticleSystems(ParticleSystem** particleSystems, int particleSystemCount, double deltaTime);
+	
+	Mesh*									CreateMesh(const char* filename);
 
 	Model*									CreateModel(const char* filename);
 	//#MyChanges
 	Mesh*									CreatePlaneMesh(float width, int vertexPerWidth, float depth, int vertexPerDepth);
 	Material*								CreateMaterial(LPCWSTR vertexShaderFile, LPCWSTR pixelShaderFile);
+	Material*								CreateMaterial(LPCWSTR vertexShaderFile, LPCWSTR pixelShaderFile, LPCWSTR geometryShaderFile);
 
 	DirectionalLight*						CreateDirectionalLight();
 	PointLight*								CreatePointLight();
@@ -71,11 +77,14 @@ protected:
 	Camera*									getDefaultCamera();
 	void									setCameraCubeMap(Camera* camera, const wchar_t* filename);
 
+	ParticleSystem*							CreateParticleSystem(Material* mat, UINT maxParticles);
+
 	GameObject**							CullGameObjectsFromCamera(Camera* camera, GameObject** list, int listCount);
 	GameObject**							sortList(GameObject** RenderList, int renderlistCount, float* renderDistFromCamera);
 	float									getAngle(float ax, float ay, float bx, float by);
 
 	UI* ui;
+	ParticleSystem* partSys;
 	bool isDebugging;
 
 private:
@@ -119,6 +128,9 @@ private:
 	//Blend for UI
 	ID3D11BlendState* blendState;
 
+	//Additive Blending for particles
+	ID3D11BlendState* additiveBlendState;
+
 	// Derived class can set these in derived constructor to customize starting values.
 	std::wstring windowCaption;
 	int windowWidth;
@@ -132,18 +144,22 @@ private:
 	Camera* defaultCamera;
 	std::vector<Camera> cameras;
 
+	std::vector<ParticleSystem*>	particleSystems;
+
 	// temp solution
 	int renderListCount;
 
 	bool InitMainWindow();
 	bool InitDirect3D();
 
+	bool InitPartSys(Material* mat);
 	bool InitUI(const char* url);
 	bool UIExecuteJavascript(std::string javascript);
 	bool UIRegisterJavascriptFunction(std::string functionName, JSFunctionCallback functionPointer);
 	void RendererDebug(std::string str, int debugLine);
 
 	friend class UI;
+	friend class ParticleSystem;
 	friend class CoreEngine;
 };
 

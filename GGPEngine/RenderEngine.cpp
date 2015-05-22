@@ -1,5 +1,6 @@
 #include "RenderEngine.h"
 #include "UI.h"
+#include "ParticleSystem.h"
 #include <WindowsX.h>
 #include <sstream>
 #include <cmath>
@@ -52,6 +53,12 @@ RenderEngine::~RenderEngine()
 	ReleaseMacro(rasterizerState);
 	ReleaseMacro(DSLessEqual);
 	ReleaseMacro(blendState);
+	ReleaseMacro(additiveBlendState);
+
+	for (int i = 0; i < particleSystems.size(); i++)
+	{
+		delete particleSystems[i];
+	}
 
 	// Restore default device settings
 	if (deviceContext) {
@@ -79,12 +86,10 @@ bool RenderEngine::Initialize()
 	return true;
 }
 
-
 Camera*	RenderEngine::getDefaultCamera()
 {
 	return	defaultCamera;
 }
-
 
 #pragma region Window Resizing Public
 
@@ -332,10 +337,22 @@ void RenderEngine::AnimateModel(Model* model, float deltaTime, int animation)
 	}
 }
 
+void RenderEngine::UpdateParticleSystems(ParticleSystem** particleSystems, int particleSystemCount, double deltaTime)
+{
+	for (int i = 0; i < particleSystemCount; i++) 
+	{
+		if (particleSystems[i] != NULL) 
+		{
+			particleSystems[i]->Update(deltaTime, 0);
+		}
+	}
+}
+
 void RenderEngine::DrawScene(GameObject** gameObjects, int gameObjectsCount, double deltaTime)
 {
 	// Background color (Cornflower Blue in this case) for clearing
-	const float color[4] = { 0.4f, 0.6f, 0.75f, 0.0f };
+	//const float color[4] = { 0.4f, 0.6f, 0.75f, 0.0f };
+	const float color[4] = { 0.8f, 0.8f, 0.8f, 1.0f };
 
 	//Clear the renderTarget Buffer
 	deviceContext->ClearRenderTargetView(renderTargetView, color);
@@ -387,6 +404,8 @@ void RenderEngine::DrawScene(GameObject** gameObjects, int gameObjectsCount, dou
 	// For now use default Camera
 	renderList = CullGameObjectsFromCamera(defaultCamera, gameObjects, gameObjectsCount);
 
+	//Turn the geometry shader off to avoid maintaining previously created geometry for future frames.
+	deviceContext->GSSetShader(0, 0, 0);
 
 	//if (defaultCamera->CubeMap != nullptr)
 	//{
@@ -455,6 +474,14 @@ void RenderEngine::DrawScene(GameObject** gameObjects, int gameObjectsCount, dou
 		}
 	}
 
+	//UpdateParticleSystems(&partSys, 1, deltaTime);
+	//DrawParticleSystems(&partSys, 1, deltaTime);
+	if (particleSystems.size() > 0)
+	{
+		UpdateParticleSystems(&particleSystems[0], 1, deltaTime);
+		DrawParticleSystems(&particleSystems[0], 1, deltaTime);
+	}
+
 	if (ui) {
 		ui->Update(); // Maybe now as frequently?
 		ui->Draw();
@@ -465,6 +492,83 @@ void RenderEngine::DrawScene(GameObject** gameObjects, int gameObjectsCount, dou
 	//  - Do this EXACTLY once per frame
 	//  - Always at the end of the frame
 	HR(swapChain->Present(0, 0));
+}
+
+void RenderEngine::DrawParticleSystems(ParticleSystem** particleSystems, int particleSystemCount, double deltaTime)
+{
+	D3D11_BLEND_DESC blendDesc;
+
+	blendDesc.AlphaToCoverageEnable = false;
+	blendDesc.IndependentBlendEnable = false;
+	blendDesc.RenderTarget[0] = {
+		true,
+		D3D11_BLEND_SRC_ALPHA,
+		D3D11_BLEND_INV_SRC_ALPHA,
+		D3D11_BLEND_OP_ADD,
+		D3D11_BLEND_ONE,
+		D3D11_BLEND_ZERO,
+		D3D11_BLEND_OP_ADD,
+		D3D11_COLOR_WRITE_ENABLE_ALL
+	};
+
+	//blendDesc.RenderTarget[0].DestBlend = D3D10_BLEND_OP_ADD;
+
+	ReleaseMacro(additiveBlendState);
+	device->CreateBlendState(&blendDesc, &additiveBlendState);
+
+	float blendFactor[4];
+
+	blendFactor[0] = 0.3f;
+	blendFactor[1] = 0.3f;
+	blendFactor[2] = 0.3f;
+	blendFactor[3] = 0.3f;
+
+	deviceContext->OMSetBlendState(additiveBlendState, blendFactor, 0xffffffff);
+
+	// Set the type of primitive that should be rendered from this vertex buffer.
+	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
+	
+	UINT offset = 0;
+	size_t stride = sizeof(ParticleVertex);
+
+	Transform w = Transform();
+	//w.movementSpeed = -1500;
+	//w.MoveForward();
+	XMMATRIX m = w.getWorldTransform();
+	XMFLOAT4X4 m1;
+	XMStoreFloat4x4(&m1, m);
+	
+	for (int i = 0; i < particleSystemCount; i++) 
+	{
+		//w = *particleSystems[i]->transform;
+		//m = w.getWorldTransform();
+		deviceContext->IASetVertexBuffers(0, 1, &particleSystems[i]->mVertexBuffer, &stride, &offset);
+		//deviceContext->IASetIndexBuffer(particleSystems[i]->mIndexBuffer, DXGI_FORMAT_R32_UINT, 0);
+		
+		// TODO: set vertex shader props
+		particleSystems[i]->material->sVertexShader->SetMatrix4x4("worldMatrix", m1);
+		particleSystems[i]->material->sVertexShader->SetMatrix4x4("viewMatrix", defaultCamera->view);
+		particleSystems[i]->material->sVertexShader->SetMatrix4x4("projectionMatrix", defaultCamera->projection);
+
+		particleSystems[i]->material->sGeometryShader->SetMatrix4x4("world", m1);
+		particleSystems[i]->material->sGeometryShader->SetMatrix4x4("view", defaultCamera->view);
+		particleSystems[i]->material->sGeometryShader->SetMatrix4x4("projection", defaultCamera->projection);
+
+		//We don't appear to need this for UVs to work on particles.
+		//particleSystems[i]->material->UpdatePixelShaderResources();
+		//particleSystems[i]->material->UpdatePixelShaderSamplers();
+
+		particleSystems[i]->material->sVertexShader->SetShader();
+		particleSystems[i]->material->sPixelShader->SetShader();
+		particleSystems[i]->material->sGeometryShader->SetShader();
+		
+		// Render the triangle.
+		deviceContext->Draw(particleSystems[i]->particles.size(), 0);
+		//deviceContext->DrawIndexed(particleSystems[i]->particles.size(), 0, 0);
+
+		//Trying to unset the geometry shader doesn't appear to work.
+		//particleSystems[i]->material->sGeometryShader->SetShader(NULL);
+	}
 }
 
 void RenderEngine::drawSkyBoxes()
@@ -659,6 +763,11 @@ Material* RenderEngine::CreateMaterial(LPCWSTR vertexShaderFile, LPCWSTR pixelSh
 	return new Material(device, deviceContext, vertexShaderFile, pixelShaderFile);
 }
 
+Material* RenderEngine::CreateMaterial(LPCWSTR vertexShaderFile, LPCWSTR pixelShaderFile, LPCWSTR geometryShaderFile)
+{
+	return new Material(device, deviceContext, vertexShaderFile, pixelShaderFile, geometryShaderFile);
+}
+
 DirectionalLight* RenderEngine::CreateDirectionalLight()
 {
 	directionLights.push_back(DirectionalLight());
@@ -675,6 +784,15 @@ SpotLight*	RenderEngine::CreateSpotLight()
 {
 	spotLights.push_back(SpotLight());
 	return &spotLights.back();
+}
+
+ParticleSystem*	RenderEngine::CreateParticleSystem(Material* mat, UINT maxParticles)
+{
+	ParticleSystem* partSys = new ParticleSystem(this, mat);
+	partSys->Init(device, NULL, NULL, maxParticles);
+	particleSystems.push_back(partSys);
+
+	return partSys;
 }
 
 Camera* RenderEngine::CreateCamera()
@@ -937,6 +1055,15 @@ bool RenderEngine::InitDirect3D() {
 	// is resized, so just run the OnResize method
 	OnResize();
 	
+	return true;
+}
+
+bool RenderEngine::InitPartSys(Material* mat) {
+	partSys = new ParticleSystem(this, mat);
+
+	/*if (!partSys->Initialize()) {
+		return false;
+	}*/
 	return true;
 }
 

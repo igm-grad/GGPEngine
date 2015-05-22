@@ -61,6 +61,7 @@ public:
 	Material*		DiffuseMaterial();
 	Material*		DiffuseNormalMaterial();
 	Material*		DiffuseFluidMaterial();
+	Material*		ParticleMaterial();
 
 	// To create a skybox for a specific camera: the user has to pass a camera reference and .dds file
 	void				CreateCubemap(Camera* camera, const wchar_t* filePath);					
@@ -68,10 +69,14 @@ public:
 	void				CreateCubemap(const wchar_t* filePath);									
 	
 	Material*			CreateMaterial(LPCWSTR vertexShaderFile, LPCWSTR pixelShaderFile);
+	Material*			CreateMaterial(LPCWSTR vertexShaderFile, LPCWSTR pixelShaderFile, LPCWSTR geometryShaderFile);
 	
 	// Load HeightMap from a file.
 	Material*			loadHeightMap(const wchar_t* filename);
 
+	//Material*		loadHeightMap(/*const char* filename*/);
+	ParticleSystem*		CreateParticleSystem(Material* particleMat, UINT maxParticles = 50);
+	
 	DirectionalLight*	CreateDirectionalLight(XMFLOAT4& ambientColor, XMFLOAT4& diffuseColor, XMFLOAT3& direction);
 	PointLight*			CreatePointLight(XMFLOAT4& ambientColor, XMFLOAT4& diffuseColor, XMFLOAT3& position, float radius);
 	SpotLight*			CreateSpotLight(XMFLOAT4& ambientColor, XMFLOAT4& diffuseColor, XMFLOAT3& direction, XMFLOAT3& position, float radius, float range);
@@ -81,6 +86,7 @@ public:
 	Behavior*			CreateBehavior();
 
 	bool InitializeUI(const char* url);
+	ParticleSystem* InitializeParticleSystem(Material* particleMat);
 	bool UIExecuteJavascript(std::string javascript);
 	bool UIRegisterJavascriptFunction(std::string functionName, JSFunctionCallback functionPointer);
 	void EnableDebugLines();
