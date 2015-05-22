@@ -15,11 +15,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance,
 	GameObject* gameObject = engine->Sphere();
 	gameObject->material = engine->BasicMaterial();
 
-	//GameObject* rainGameObject = engine->CreateGameObject();
-
-	//Create the ParticleSystem & add it to the target game object.
-	//ParticleSystem* Rain = engine->CreateParticleSystemThenAdd(rainGameObject, "Rain");
-	
 	// Loop until we get a quit message from the engine
 	while (!engine->exitRequested())
 	{

@@ -52,6 +52,7 @@
     </Link>
     <PostBuildEvent>
       <Command>xcopy /y "$(ProjectDir)UI\*" "$(TargetDir)UI\*"
+xcopy /y "$(ProjectDir)Textures\*" "$(TargetDir)Textures\*"
 xcopy /y "$(ProjectDir)Models\*" "$(TargetDir)Models\*"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
