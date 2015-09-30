@@ -918,7 +918,7 @@ GameObject** RenderEngine::CullGameObjectsFromCamera(Camera* camera, GameObject*
 
 GameObject** RenderEngine::sortList(GameObject** RenderList, int renderlistCount, float* renderDistFromCamera)
 {
-	// for now using quick sort (integer only). Will implement radix sort with floating point later.
+	// for now using counting sort (integer only). Will implement radix sort with floating point later.
 	GameObject** sortedList = new GameObject*[renderlistCount];
 
 	// max possible dist value 100^2 = 10000
